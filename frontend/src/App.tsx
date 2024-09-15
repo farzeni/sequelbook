@@ -1,8 +1,9 @@
+import { ChakraProvider, } from '@chakra-ui/react';
+
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import { HashRouter } from "react-router-dom";
-import { ThemeUIProvider } from 'theme-ui';
-import { theme } from './config/theme';
+import theme from './config/theme';
 import Router from "./Router";
 
 
@@ -23,11 +24,11 @@ i18n
 
 function App() {
     return (
-        <ThemeUIProvider theme={theme}>
+        <ChakraProvider theme={theme}>
             <HashRouter>
                 <Router />
-            </HashRouter>
-        </ThemeUIProvider>
+            </HashRouter >
+        </ChakraProvider >
     )
 }
 

@@ -1,16 +1,15 @@
-import { Box, Flex, Text } from "theme-ui"
+import { Box, Flex, Text } from "@chakra-ui/react"
 
 
 const Sidebar = () => {
   return (
-    <Box sx={{
-      width: "280px",
-      position: "fixed",
-      height: "100%",
-      borderRight: "1px solid #e0e0e0",
-      padding: "16px",
+    <Box
+      width={"280px"}
+      position="fixed"
+      height="100%"
+      borderRightWidth={1}
 
-    }}>
+      padding="16px">
       <Text sx={{
         fontSize: "18px",
         fontWeight: "bold",

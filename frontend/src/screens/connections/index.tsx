@@ -1,6 +1,6 @@
+import { Box, Button, Container, Flex } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { Box, Button, Container, Flex } from "theme-ui"
 import { GetAll, Query } from "../../../wailsjs/go/backend/ConnectionStore"
 import { backend } from "../../../wailsjs/go/models"
 import ScreenContainer from "../../components/ScreenContainer"

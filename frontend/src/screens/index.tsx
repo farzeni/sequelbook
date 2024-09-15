@@ -1,5 +1,5 @@
+import { Box, Container } from "@chakra-ui/react"
 import { Link } from "react-router-dom"
-import { Box, Container } from "theme-ui"
 import ScreenContainer from "../components/ScreenContainer"
 import PageTitle from "../components/ui/PageTitle"
 

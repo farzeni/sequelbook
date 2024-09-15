@@ -1,5 +1,5 @@
+import { Box } from "@chakra-ui/react"
 import { FC } from "react"
-import { Box } from "theme-ui"
 
 interface ScreenContainerProps {
   children: React.ReactNode | React.ReactNode[]

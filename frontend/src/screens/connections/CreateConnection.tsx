@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
-import { Box, Button, Container, Input } from "theme-ui"
+import { Box, Button, Container, Input } from "@chakra-ui/react"
 import { Add } from "../../../wailsjs/go/backend/ConnectionStore"
 import { backend } from "../../../wailsjs/go/models"
 import ScreenContainer from "../../components/ScreenContainer"

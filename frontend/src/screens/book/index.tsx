@@ -1,5 +1,5 @@
+import { Box, Flex } from "@chakra-ui/react"
 import { Outlet } from "react-router-dom"
-import { Box, Flex } from "theme-ui"
 import ScreenContainer from "../../components/ScreenContainer"
 import Sidebar from "./Sidebar"
 
@@ -9,11 +9,11 @@ const BookScreen = () => {
     <ScreenContainer>
       <Flex sx={{
         height: "50px",
-        borderBottom: "1px solid #e0e0e0",
         padding: "16px",
         alignItems: "center",
         justifyContent: "space-between",
-      }}>
+      }}
+        borderBottomWidth={1}>
         <Box>
           <a onClick={() => history.back()}>back</a>
         </Box>
