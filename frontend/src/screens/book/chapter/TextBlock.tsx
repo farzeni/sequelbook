@@ -1,10 +1,9 @@
-import { Box } from "@chakra-ui/react"
 
 const TextBlock = () => {
   return (
-    <Box>
+    <div>
       text
-    </Box>
+    </div>
   )
 }
 

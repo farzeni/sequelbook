@@ -1,4 +1,3 @@
-import { Box } from "@chakra-ui/react"
 import { FC } from "react"
 
 interface ScreenContainerProps {
@@ -8,9 +7,9 @@ interface ScreenContainerProps {
 
 const ScreenContainer: FC<ScreenContainerProps> = ({ children }) => {
   return (
-    <Box>
+    <div>
       {children}
-    </Box>
+    </div>
   )
 }
 

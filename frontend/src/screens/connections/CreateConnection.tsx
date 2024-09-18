@@ -1,10 +1,11 @@
-import { Box, Button, Container, Input } from "@chakra-ui/react"
+import ScreenContainer from "@/src/components/ScreenContainer"
+import { Button } from "@/src/components/ui/button"
+import { Container } from "@/src/components/ui/container"
+import PageTitle from "@/src/components/ui/page-title"
+import { CreateConnection } from "@/src/lib/wailsjs/go/connections/ConnectionStore"
+import { connections } from "@/src/lib/wailsjs/go/models"
 import { useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
-import { CreateConnection } from "../../../wailsjs/go/connections/ConnectionStore"
-import { connections } from "../../../wailsjs/go/models"
-import ScreenContainer from "../../components/ScreenContainer"
-import PageTitle from "../../components/ui/PageTitle"
 
 
 const CreateConnectionScreen = () => {
@@ -25,40 +26,34 @@ const CreateConnectionScreen = () => {
 
   return (
     <ScreenContainer>
-      <Box sx={{
-        height: "50px",
-        borderBottom: "1px solid #e0e0e0",
-        padding: "16px",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}>
+      <div className="flex h-[50px] border-b-1 p-4 items-center justify-between">
         <a onClick={() => history.back()}>back</a>
-      </Box>
+      </div>
       <Container>
 
         <PageTitle title="New Connection" />
 
-        <Box>
-          <Input {...register("name", { required: true })} placeholder="Name" />
+        <div>
+          <input {...register("name", { required: true })} placeholder="Name" />
           {errors.name && <span>This field is required</span>}
 
-          <Input {...register("host", { required: true })} placeholder="Host" />
+          <input {...register("host", { required: true })} placeholder="Host" />
           {errors.host && <span>This field is required</span>}
 
-          <Input {...register("port", { required: true })} placeholder="Port" />
+          <input {...register("port", { required: true })} placeholder="Port" />
           {errors.port && <span>This field is required</span>}
 
-          <Input {...register("user", { required: true })} placeholder="Username" />
+          <input {...register("user", { required: true })} placeholder="Username" />
           {errors.user && <span>This field is required</span>}
 
-          <Input {...register("pass", { required: true })} placeholder="Password" />
+          <input {...register("pass", { required: true })} placeholder="Password" />
           {errors.pass && <span>This field is required</span>}
 
-          <Input {...register("db", { required: true })} placeholder="Database" />
+          <input {...register("db", { required: true })} placeholder="Database" />
           {errors.db && <span>This field is required</span>}
 
           <Button onClick={handleSubmit(onSubmit)}>Create</Button>
-        </Box>
+        </div>
       </Container>
     </ScreenContainer>
 

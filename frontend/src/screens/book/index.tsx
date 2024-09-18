@@ -1,9 +1,8 @@
-import { Box, Flex } from "@chakra-ui/react"
+import ScreenContainer from "@/src/components/ScreenContainer"
+import { GetBook } from "@/src/lib/wailsjs/go/books/BooksStore"
+import { books } from "@/src/lib/wailsjs/go/models"
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { GetBook } from "../../../wailsjs/go/books/BooksStore"
-import { books } from "../../../wailsjs/go/models"
-import ScreenContainer from "../../components/ScreenContainer"
 import Sidebar from "./Sidebar"
 import Topbar from "./Topbar"
 import ChapterScreen from "./chapter"
@@ -31,21 +30,14 @@ const BookScreen = () => {
   return book ? (
     <ScreenContainer>
       <Topbar title={book.title} />
-      <Flex sx={{
-        width: "100%",
-        height: "100%",
-      }}>
+      <div className="h-full w-full">
         <Sidebar book={book} />
 
-        <Box
-          marginLeft={"280px"}
-          width={"calc(100% - 200px)"}
-          height={"100%"}
-        >
+        <div className="ml-[280px] w-[calc(100%-200px)] h-full">
           <ChapterScreen book={book} />
-        </Box>
+        </div>
 
-      </Flex>
+      </div>
     </ScreenContainer>
   ) : null
 }

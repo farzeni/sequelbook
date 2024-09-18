@@ -26,9 +26,8 @@ func main() {
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		Menu:             menu,
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup:        backend.Startup,
+		Menu:      menu,
+		OnStartup: backend.Startup,
 		Bind: []interface{}{
 			backend,
 			backend.Connections,

@@ -1,6 +1,6 @@
-import { Box, Flex, IconButton } from "@chakra-ui/react";
+import { Button } from "@/src/components/ui/button";
+import { ChevronLeftIcon } from "@radix-ui/react-icons";
 import { FC } from "react";
-import { IoChevronBack } from "react-icons/io5";
 
 
 interface TopbarProps {
@@ -9,20 +9,17 @@ interface TopbarProps {
 
 const Topbar: FC<TopbarProps> = ({ title }) => {
   return (
-    <Flex
-      height={50}
-      paddingY={4}
-      alignItems="center"
-      gap={2}
-      borderBottomWidth={1}>
-      <Box>
-        <IconButton variant="ghost" icon={<IoChevronBack />} aria-label={"back"} onClick={() => history.back()} />
-      </Box>
+    <div className="flex items-center h-[50px] p-4 border-b-1 gap">
+      <div>
+        <Button variant="ghost" onClick={() => history.back()}>
+          <ChevronLeftIcon />
+        </Button>
+      </div>
 
-      <Box>
+      <div>
         {title}
-      </Box>
-    </Flex>
+      </div>
+    </div>
   )
 }
 

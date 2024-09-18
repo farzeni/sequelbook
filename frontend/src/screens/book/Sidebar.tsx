@@ -1,7 +1,7 @@
-import { Box, Flex, IconButton, Text } from "@chakra-ui/react"
+import { Button } from "@/src/components/ui/button"
+import { books } from "@/src/lib/wailsjs/go/models"
+import { PlusIcon } from '@radix-ui/react-icons'
 import { FC } from "react"
-import { HiPlus } from 'react-icons/hi'
-import { books } from "../../../wailsjs/go/models"
 
 
 interface SidebarProps {
@@ -10,30 +10,23 @@ interface SidebarProps {
 
 const Sidebar: FC<SidebarProps> = ({ book }) => {
   return (
-    <Box
-      width={"280px"}
-      position="fixed"
-      height="100%"
-      borderRightWidth={1}
-      padding="16px">
-      <Flex
-        justifyContent={"space-between"}
-        alignItems={"center"}
-      >
-        <Text fontSize="18px" fontWeight="bold" >Summary</Text>
-        <IconButton aria-label="Add Chapter" icon={<HiPlus />} variant="ghost" />
-      </Flex>
+    <div
+      className="w-[280px] fixed h-full border-r-1 p-4">
+      <div className="flex justify-between items-center">
+        <span className="text-lg font-bold" >Summary</span>
+        <Button variant="outline" size="icon">
+          <PlusIcon />
+        </Button>
+      </div>
 
-      <Flex
-        flexDirection={"column"}
-        marginTop={"16px"}
-        gap={"8px"}
+      <div
+        className="mt-4 gap flex-col"
       >
         {book.chapters.map((chapter) => (
-          <Text key={chapter.id}>{chapter.title}</Text>
+          <span key={chapter.id}>{chapter.title}</span>
         ))}
-      </Flex>
-    </Box>
+      </div>
+    </div>
   )
 
 }

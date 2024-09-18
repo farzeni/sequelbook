@@ -1,10 +1,11 @@
-import { Box, Button, Container, Flex } from "@chakra-ui/react"
+import ScreenContainer from "@/src/components/ScreenContainer"
+import { Button } from "@/src/components/ui/button"
+import { Container } from "@/src/components/ui/container"
+import PageTitle from "@/src/components/ui/page-title"
+import { ListConnections } from "@/src/lib/wailsjs/go/connections/ConnectionStore"
+import { connections } from "@/src/lib/wailsjs/go/models"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { ListConnections } from "../../../wailsjs/go/connections/ConnectionStore"
-import { connections } from "../../../wailsjs/go/models"
-import ScreenContainer from "../../components/ScreenContainer"
-import PageTitle from "../../components/ui/PageTitle"
 
 
 const ConnectionScreen = () => {
@@ -28,15 +29,9 @@ const ConnectionScreen = () => {
 
   return (
     <ScreenContainer>
-      <Box sx={{
-        height: "50px",
-        borderBottom: "1px solid #e0e0e0",
-        padding: "16px",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}>
+      <div className="flex flex-col h-[50px] border-b-1 p-4 items-center justify-between">
         <a onClick={() => history.back()}>back</a>
-      </Box>
+      </div>
       <Container>
         <PageTitle title="Connections">
           <Link to="/connections/new">
@@ -44,25 +39,21 @@ const ConnectionScreen = () => {
           </Link>
         </PageTitle>
 
-        <Box>
+        <div>
           {connections.map((c, i) => (
-            <Flex key={i} sx={{
-              borderBottom: "1px solid #e0e0e0",
-              padding: "16px",
-              justifyContent: "space-between",
-            }}>
-              <Box>{c.name}</Box>
-              <Box>{c.host}</Box>
-              <Box>{c.port}</Box>
-              <Box>{c.user}</Box>
-              <Box>{c.db}</Box>
+            <div key={i} className="flex justify-between p-4 border-b-1">
+              <div>{c.name}</div>
+              <div>{c.host}</div>
+              <div>{c.port}</div>
+              <div>{c.user}</div>
+              <div>{c.db}</div>
 
               <Button onClick={() => test(c)}>test</Button>
-            </Flex>
+            </div>
           ))}
-        </Box>
+        </div>
       </Container>
-    </ScreenContainer>
+    </ScreenContainer >
   )
 }
 

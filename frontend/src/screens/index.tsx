@@ -1,10 +1,10 @@
-import { Box, Container } from "@chakra-ui/react"
+import ScreenContainer from "@/src/components/ScreenContainer"
+import { Container } from "@/src/components/ui/container"
+import PageTitle from "@/src/components/ui/page-title"
+import { ListBooks } from "@/src/lib/wailsjs/go/books/BooksStore"
+import { books } from "@/src/lib/wailsjs/go/models"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { ListBooks } from "../../wailsjs/go/books/BooksStore"
-import { books } from "../../wailsjs/go/models"
-import ScreenContainer from "../components/ScreenContainer"
-import PageTitle from "../components/ui/PageTitle"
 
 const IndexScreen = () => {
   const [books, setBooks] = useState<books.Book[]>([])
@@ -20,21 +20,21 @@ const IndexScreen = () => {
 
   return (
     <ScreenContainer>
-      <Container>
+      <Container size="md">
         <PageTitle title="Index" />
 
-        <Box>
+        <div className="my-4">
           <Link to="/connections">connections</Link>
-        </Box>
-        <Box>
+        </div>
+        <div>
           {books.map((book) => (
-            <Box key={book.id}>
+            <div key={book.id} className="mb-2">
               <Link to={`/book/${book.id}`}>{book.title}</Link>
-            </Box>
+            </div>
           ))}
-        </Box>
+        </div>
       </Container>
-    </ScreenContainer>
+    </ScreenContainer >
   )
 }
 
