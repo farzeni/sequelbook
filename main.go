@@ -15,7 +15,7 @@ var assets embed.FS
 
 func main() {
 	// Create an instance of the app structure
-	backend := backend.NewBackend()
+	backend := backend.NewBackend(context.Background())
 	menu := backend.NewMenu(context.Background())
 
 	// Create application with options

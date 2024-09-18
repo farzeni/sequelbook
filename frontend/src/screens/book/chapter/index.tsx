@@ -1,10 +1,18 @@
+import { Box } from "@chakra-ui/react";
+import { FC } from "react";
+import { books } from "../../../../wailsjs/go/models";
+import ChapterToolbar from "./Toolbar";
 
+interface ChapterScreenProps {
+  book: books.Book
+}
 
-const ChapterScreen = () => {
+const ChapterScreen: FC<ChapterScreenProps> = ({ book }) => {
   return (
-    <div>
+    <Box>
+      <ChapterToolbar book={book} />
       <h1>Chapter Screen</h1>
-    </div>
+    </Box>
   );
 }
 

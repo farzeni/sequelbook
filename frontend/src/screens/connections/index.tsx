@@ -1,18 +1,18 @@
 import { Box, Button, Container, Flex } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { GetAll, Query } from "../../../wailsjs/go/backend/ConnectionStore"
-import { backend } from "../../../wailsjs/go/models"
+import { ListConnections } from "../../../wailsjs/go/connections/ConnectionStore"
+import { connections } from "../../../wailsjs/go/models"
 import ScreenContainer from "../../components/ScreenContainer"
 import PageTitle from "../../components/ui/PageTitle"
 
 
 const ConnectionScreen = () => {
-  const [connections, setConnections] = useState<backend.Connection[]>([])
+  const [connections, setConnections] = useState<connections.Connection[]>([])
 
   useEffect(() => {
     const load = async () => {
-      const c = await GetAll()
+      const c = await ListConnections()
       setConnections(c || [])
     }
 
@@ -20,12 +20,9 @@ const ConnectionScreen = () => {
   }, [])
 
 
-  async function test(c: backend.Connection) {
+  async function test(c: connections.Connection) {
     console.log("test")
 
-    const result = await Query(c.id, "SELECT * FROM users")
-
-    alert(JSON.parse(result))
 
   }
 

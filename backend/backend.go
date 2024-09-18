@@ -2,37 +2,56 @@ package backend
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"path/filepath"
+	"runtime"
+
+	"sequelbook/backend/books"
+	"sequelbook/backend/connections"
+	"sequelbook/backend/storage"
 
 	"github.com/wailsapp/wails/v2/pkg/menu"
 	"github.com/wailsapp/wails/v2/pkg/menu/keys"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	wrt "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // Backend struct
 type Backend struct {
 	ctx         context.Context
-	Connections *ConnectionStore
-	Books       *BooksStore
+	Connections *connections.ConnectionStore
+	Books       *books.BooksStore
+	Storage     *storage.Storage
 }
 
 // NewBackend creates a new App application struct
-func NewBackend() *Backend {
-	backend := &Backend{
-		Connections: NewConnectionStore(),
-		Books:       NewBooksService(),
+func NewBackend(c context.Context) *Backend {
+	configDir, err := userConfigDir()
+
+	if err != nil {
+		fmt.Println("Error getting user config directory: ", err)
+		wrt.Quit(c)
 	}
 
-	backend.Connections.Add(ConnectionCreateData{
-		Name: "Local Postgres",
-		Type: ConnectionTypePostgres,
-		Host: "localhost",
-		Port: 5432,
-		User: "postgres",
-		Pass: "postgres",
-		DB:   "wevolunteer",
-	})
+	storage := storage.NewStorage(configDir + "/sequelbook")
 
-	backend.NewMenu(context.Background())
+	backend := &Backend{
+		Connections: connections.NewConnectionStore(storage),
+		Books:       books.NewBooksStore(storage),
+		Storage:     storage,
+	}
+
+	if err := backend.Connections.LoadConnections(); err != nil {
+		fmt.Println("Error loading connections: ", err)
+		wrt.Quit(c)
+	}
+
+	if err := backend.Books.LoadBooks(); err != nil {
+		fmt.Println("Error loading books: ", err)
+		wrt.Quit(c)
+	}
+
+	backend.NewMenu(c)
 
 	return backend
 }
@@ -43,7 +62,7 @@ func (b *Backend) NewMenu(ctx context.Context) *menu.Menu {
 	FileMenu.AddText("Preferences", nil, func(_ *menu.CallbackData) {})
 	FileMenu.AddSeparator()
 	FileMenu.AddText("Quit", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
-		runtime.Quit(b.ctx)
+		wrt.Quit(b.ctx)
 	})
 
 	EditMenu := AppMenu.AddSubmenu("Edit")
@@ -87,4 +106,33 @@ func (b *Backend) NewMenu(ctx context.Context) *menu.Menu {
 // so we can call the runtime methods
 func (b *Backend) Startup(ctx context.Context) {
 	b.ctx = ctx
+}
+
+func userConfigDir() (string, error) {
+	var configDir string
+	var err error
+
+	// Controlla il sistema operativo
+	switch runtime.GOOS {
+	case "windows":
+		configDir = os.Getenv("AppData")
+		if configDir == "" {
+			err = fmt.Errorf("unable to find AppData directory")
+		}
+	case "darwin":
+		configDir = filepath.Join(os.Getenv("HOME"), "Library", "Application Support")
+	case "linux":
+		configDir = os.Getenv("XDG_CONFIG_HOME")
+		if configDir == "" {
+			configDir = filepath.Join(os.Getenv("HOME"), ".config")
+		}
+	default:
+		err = fmt.Errorf("unsupported OS: %s", runtime.GOOS)
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	return configDir, nil
 }

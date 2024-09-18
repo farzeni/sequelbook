@@ -1,8 +1,8 @@
+import { Box, Button, Container, Input } from "@chakra-ui/react"
 import { useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
-import { Box, Button, Container, Input } from "@chakra-ui/react"
-import { Add } from "../../../wailsjs/go/backend/ConnectionStore"
-import { backend } from "../../../wailsjs/go/models"
+import { CreateConnection } from "../../../wailsjs/go/connections/ConnectionStore"
+import { connections } from "../../../wailsjs/go/models"
 import ScreenContainer from "../../components/ScreenContainer"
 import PageTitle from "../../components/ui/PageTitle"
 
@@ -10,13 +10,13 @@ import PageTitle from "../../components/ui/PageTitle"
 const CreateConnectionScreen = () => {
   const navigate = useNavigate()
 
-  const { register, handleSubmit, formState: { errors } } = useForm<backend.ConnectionCreateData>()
+  const { register, handleSubmit, formState: { errors } } = useForm<connections.ConnectionData>()
 
-  const onSubmit = async (data: backend.ConnectionCreateData) => {
+  const onSubmit = async (data: connections.ConnectionData) => {
     console.log(data)
 
     data.port = parseInt(data.port.toString())
-    const connection = await Add(data)
+    const connection = await CreateConnection(data)
 
     alert("Connection created " + connection.name)
 
