@@ -1,9 +1,8 @@
 
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import { HashRouter } from "react-router-dom";
-import Router from "./Router";
 import "./assets/css/main.css";
+import IndexScreen from "./screen";
 
 
 i18n
@@ -23,9 +22,7 @@ i18n
 
 function App() {
     return (
-        <HashRouter>
-            <Router />
-        </HashRouter >
+        <IndexScreen />
     )
 }
 

@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom";
-import IndexScreen from "./screens";
-import BookScreen from "./screens/book";
-import ConnectionScreen from "./screens/connections";
-import CreateConnectionScreen from "./screens/connections/CreateConnection";
+import IndexScreen from "./screen";
+import BookScreen from "./screen/book";
+import ConnectionScreen from "./screen/connections";
+import CreateConnectionScreen from "./screen/connections/CreateConnection";
 
 const Router = () => {
   return (

@@ -1,4 +1,3 @@
-import ScreenContainer from "@/src/components/ScreenContainer"
 import { Button } from "@/src/components/ui/button"
 import { Container } from "@/src/components/ui/container"
 import PageTitle from "@/src/components/ui/page-title"
@@ -25,7 +24,7 @@ const CreateConnectionScreen = () => {
   }
 
   return (
-    <ScreenContainer>
+    <div>
       <div className="flex h-[50px] border-b-1 p-4 items-center justify-between">
         <a onClick={() => history.back()}>back</a>
       </div>
@@ -55,7 +54,7 @@ const CreateConnectionScreen = () => {
           <Button onClick={handleSubmit(onSubmit)}>Create</Button>
         </div>
       </Container>
-    </ScreenContainer>
+    </div>
 
   )
 }

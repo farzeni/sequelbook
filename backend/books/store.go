@@ -16,8 +16,8 @@ type BooksStore struct {
 }
 
 type BookData struct {
-	Title    string    `json:"title"`
-	Chapters []Chapter `json:"chapters"`
+	Title string `json:"title"`
+	Cells []Cell `json:"cells"`
 }
 
 func NewBooksStore(storage *storage.Storage) *BooksStore {
@@ -37,7 +37,7 @@ func (b *BooksStore) CreateBook(data BookData) (*Book, error) {
 	book := &Book{
 		ID:         bookID,
 		Title:      data.Title,
-		Chapters:   data.Chapters,
+		Cells:      data.Cells,
 		CreateDate: time.Now(),
 		UpdateDate: time.Now(),
 	}
@@ -127,6 +127,27 @@ func (b *BooksStore) LoadBooks() error {
 			continue
 		}
 		b.books[book.ID] = book
+	}
+
+	if len(b.books) == 0 {
+		// Create a default book
+		defaultBookData := BookData{
+			Title: "Welcome",
+			Cells: []Cell{
+				{
+					ID:      "1",
+					BookID:  "1",
+					Content: "# Welcome to the default book!",
+					Type:    BlockTypeText,
+				},
+			},
+		}
+
+		_, err := b.CreateBook(defaultBookData)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
