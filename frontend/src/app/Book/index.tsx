@@ -10,7 +10,9 @@ const BookContent = () => {
   useEffect(() => {
     if (book) {
       // scroll to top
-      bookContainerRef.current?.scrollTo(0, 0)
+      setTimeout(() => {
+        bookContainerRef.current?.scrollTo(0, 0)
+      }, 0)
     }
   }, [book])
 
