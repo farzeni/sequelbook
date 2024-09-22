@@ -27,7 +27,16 @@ const CellsList: FC<CellsListProps> = ({ book }) => {
 
       {book.cells.map((cell: books.Cell, idx: number) => (
         <>
-          <div key={cell.id} className={`w-full relative border border-transparent ${tab?.cellId === cell.id ? "border-gray-300 shadow rounded" : ""}`}
+          <div
+            key={cell.id}
+            className={`
+              w-full 
+              relative 
+              
+              rounded 
+              border-gray-400
+              border-transparent 
+              ${tab?.cellId === cell.id ? "border-2  shadow " : ""}`}
             onClick={() => setSelectedCell(cell.id)}>
             {cell.type === "code" && (
               <>

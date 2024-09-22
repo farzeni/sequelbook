@@ -194,7 +194,15 @@ export async function AddCell(type: "code" | "text", position?: number) {
       if (position !== undefined && position >= 0) {
         state.books[currentBookId].cells.splice(position, 0, newCell)
       } else {
-        state.books[currentBookId].cells.push(newCell)
+        const tab = state.editor.tabs[currentBookId]
+        if (tab.cellId) {
+          const cellIdx = state.books[currentBookId].cells.findIndex(
+            (cell) => cell.id === tab.cellId
+          )
+          state.books[currentBookId].cells.splice(cellIdx + 1, 0, newCell)
+        } else {
+          state.books[currentBookId].cells.push(newCell)
+        }
       }
     })
   )
