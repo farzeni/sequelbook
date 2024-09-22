@@ -13,6 +13,7 @@
   "dependencies": {
     "@codemirror/lang-sql": "^6.7.1",
     "@hookform/resolvers": "^3.9.0",
+    "@mdxeditor/editor": "^3.11.5",
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-context-menu": "^2.2.1",
     "@radix-ui/react-dialog": "^1.1.1",

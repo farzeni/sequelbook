@@ -11,6 +11,8 @@ import { books } from "@lib/wailsjs/go/models"
 import { FC, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+const RENAME_DELAY = 180
+
 interface BookItemProps {
   book: books.Book
   selected?: boolean
@@ -36,6 +38,8 @@ const BookContextMenu: FC<BookItemProps> = ({ book, selected }) => {
             title={book.title}
             editMode={editMode}
             onChange={handleTitleChange}
+            onBlur={() => setEditMode(false)}
+
           />
         </div>
       </ContextMenuTrigger>
@@ -86,9 +90,10 @@ interface BookTitle {
   title: string
   editMode: boolean
   onChange: (title: string) => void
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void
 }
 
-const BookTitle: FC<BookTitle> = ({ title, editMode, onChange }) => {
+const BookTitle: FC<BookTitle> = ({ title, editMode, onChange, onBlur }) => {
   const [value, setValue] = useState(title)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -106,7 +111,7 @@ const BookTitle: FC<BookTitle> = ({ title, editMode, onChange }) => {
           input.focus();
           input.select();
         }
-      }, 0)
+      }, RENAME_DELAY)
     }
   }, [editMode])
 
@@ -119,6 +124,7 @@ const BookTitle: FC<BookTitle> = ({ title, editMode, onChange }) => {
       type="text"
       ref={inputRef}
       value={value}
+      onBlur={onBlur}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
       className="w-full bg-transparent border-0 focus:outline-none text-xs text-gray-500 pl-4"

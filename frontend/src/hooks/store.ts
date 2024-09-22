@@ -65,6 +65,12 @@ export function setSelectedBook(bookId: string) {
   useStore.setState(
     produce((state: AppState) => {
       state.editor.currentBookId = book.id
+
+      state.editor.tabs[book.id] = {
+        bookId: book.id,
+        cellId: null,
+        connectionId: null,
+      }
     })
   )
 
@@ -170,7 +176,7 @@ export async function UpdateBookTitle(bookId: string, title: string) {
   await UpdateBook(bookId, book)
 }
 
-export async function AddCell(type: "code" | "text") {
+export async function AddCell(type: "code" | "text", position?: number) {
   const currentBookId = useStore.getState().editor.currentBookId
 
   if (!currentBookId) {
@@ -181,9 +187,25 @@ export async function AddCell(type: "code" | "text") {
 
   useStore.setState(
     produce((state: AppState) => {
-      state.books[currentBookId].cells.push(newCell)
+      if (!state.books[currentBookId].cells) {
+        state.books[currentBookId].cells = []
+      }
+
+      if (position !== undefined && position >= 0) {
+        state.books[currentBookId].cells.splice(position, 0, newCell)
+      } else {
+        state.books[currentBookId].cells.push(newCell)
+      }
     })
   )
+
+  const book = useStore.getState().books[currentBookId]
+
+  if (!book) {
+    return
+  }
+
+  await UpdateBook(currentBookId, book)
 }
 
 export async function UpdateCell(
@@ -210,6 +232,81 @@ export async function UpdateCell(
     return
   }
 
-  console.log("saving book", book)
   await UpdateBook(bookId, book)
+}
+
+export async function RemoveCell(bookId: string, cellId: string) {
+  useStore.setState(
+    produce((state: AppState) => {
+      const book = state.books[bookId]
+
+      book.cells = book.cells.filter((cell) => cell.id !== cellId)
+    })
+  )
+
+  const book = useStore.getState().books[bookId]
+
+  if (!book) {
+    return
+  }
+
+  await UpdateBook(bookId, book)
+}
+
+export async function SwapCells(position1: number, position2: number) {
+  const currentBookId = useStore.getState().editor.currentBookId
+
+  if (!currentBookId) {
+    return
+  }
+
+  useStore.setState(
+    produce((state: AppState) => {
+      const book = state.books[currentBookId]
+
+      const temp = book.cells[position1]
+      book.cells[position1] = book.cells[position2]
+      book.cells[position2] = temp
+    })
+  )
+
+  const book = useStore.getState().books[currentBookId]
+
+  if (!book) {
+    return
+  }
+
+  await UpdateBook(currentBookId, book)
+}
+
+export async function MoveCellUp(bookId: string, cellId: string) {
+  const book = useStore.getState().books[bookId]
+
+  if (!book) {
+    return
+  }
+
+  const cellIdx = book.cells.findIndex((cell) => cell.id === cellId)
+
+  if (cellIdx === 0) {
+    return
+  }
+
+  await SwapCells(cellIdx, cellIdx - 1)
+}
+
+export async function MoveCellDown(bookId: string, cellId: string) {
+  const book = useStore.getState().books[bookId]
+
+  if (!book) {
+    return
+  }
+
+  const cellIdx = book.cells.findIndex((cell) => cell.id === cellId)
+
+  if (cellIdx === book.cells.length - 1) {
+    return
+  }
+
+  await SwapCells(cellIdx, cellIdx + 1)
 }

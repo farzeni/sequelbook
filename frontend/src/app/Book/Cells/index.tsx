@@ -2,8 +2,10 @@ import { setSelectedCell, UpdateCell, useStore } from "@hooks/store";
 import { books } from "@lib/wailsjs/go/models";
 import { FC } from "react";
 import CodeBlock from "./CodeCell";
+import CodeCellMenu from "./CodeCell/CodeCellMenu";
 import QuickAdd from "./QuickAdd";
 import TextBlock from "./TextCell";
+import TextCellMenu from "./TextCell/TextCellMenu";
 
 interface CellsListProps {
   book: books.Book
@@ -16,25 +18,32 @@ const CellsList: FC<CellsListProps> = ({ book }) => {
     if (!book) return
     await UpdateCell(book.id, cellId, source)
     console.log("Book updated")
+    console.log(source)
   }
 
   return (
     <div>
-      <QuickAdd />
+      <QuickAdd index={0} />
 
-      {book.cells.map((cell: books.Cell) => (
+      {book.cells.map((cell: books.Cell, idx: number) => (
         <>
-          <div key={cell.id} className={`w-full border border-transparent ${tab?.cellId === cell.id ? "border-gray-100 shadow rounded" : ""}`}
+          <div key={cell.id} className={`w-full relative border border-transparent ${tab?.cellId === cell.id ? "border-gray-300 shadow rounded" : ""}`}
             onClick={() => setSelectedCell(cell.id)}>
             {cell.type === "code" && (
-              <CodeBlock cell={cell} onChange={(source) => handleBookChange(cell.id, source)} selected={tab?.cellId === cell.id} />
+              <>
+                {tab?.cellId === cell.id && <CodeCellMenu cell={cell} bookId={book.id} />}
+                <CodeBlock cell={cell} onChange={(source) => handleBookChange(cell.id, source)} selected={tab?.cellId === cell.id} />
+              </>
             )}
 
             {cell.type === "text" && (
-              <TextBlock cell={cell} onChange={(source) => handleBookChange(cell.id, source)} />
+              <>
+                {tab?.cellId === cell.id && <TextCellMenu cell={cell} bookId={book.id} />}
+                <TextBlock cell={cell} onChange={(source) => handleBookChange(cell.id, source)} selected={tab?.cellId === cell.id} />
+              </>
             )}
           </div>
-          <QuickAdd />
+          <QuickAdd index={idx + 1} />
         </>
       ))}
     </div>

@@ -32,7 +32,7 @@ func GetEntityPrefix(entityType EntityTypes) string {
 	case EntityTypesChapter:
 		return "cha"
 	case EntityTypesCell:
-		return "blo"
+		return "cel"
 	case EntityTypesConnection:
 		return "con"
 	}

@@ -3,7 +3,7 @@ import { Toggle } from "@components/ui/toggle"
 import { useBooks } from "@hooks/books"
 import { useStore } from "@hooks/store"
 import { ArchiveIcon, GearIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import BookItem from "./BookItem"
 import Toolbar from "./Toolbar"
 
@@ -12,6 +12,10 @@ const Sidebar = () => {
   const selected = useStore((state) => state.editor.currentBookId)
 
   const { getBooks } = useBooks()
+
+  const orderedBooks = useMemo(() => {
+    return Object.values(books).sort((a, b) => a.title.localeCompare(b.title))
+  }, [books])
 
 
   useEffect(() => {
@@ -37,9 +41,9 @@ const Sidebar = () => {
         </div>
         <div className="w-full">
           <Toolbar />
-          {Object.keys(books).length > 0 ? (
+          {orderedBooks.length > 0 ? (
             <div className="flex flex-col gap-1 w-full p-4">
-              {Object.values(books).map((book) => (
+              {orderedBooks.map((book) => (
                 <BookItem key={book.id} book={book} selected={selected === book.id} />
               ))}
             </div>
