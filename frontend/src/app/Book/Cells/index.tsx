@@ -26,9 +26,8 @@ const CellsList: FC<CellsListProps> = ({ book }) => {
       <QuickAdd index={0} />
 
       {book.cells.map((cell: books.Cell, idx: number) => (
-        <>
+        <div key={cell.id}>
           <div
-            key={cell.id}
             className={`
               w-full 
               relative 
@@ -53,7 +52,7 @@ const CellsList: FC<CellsListProps> = ({ book }) => {
             )}
           </div>
           <QuickAdd index={idx + 1} />
-        </>
+        </div>
       ))}
     </div>
   )

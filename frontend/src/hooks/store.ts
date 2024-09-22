@@ -79,8 +79,17 @@ export function setSelectedBook(bookId: string) {
 
 export function addTab(bookId: string) {
   const tab = useStore.getState().editor.tabs[bookId]
+  const tabsOrder = useStore.getState().editor.tabsOrder
 
   if (tab) {
+    if (tabsOrder.indexOf(bookId) === -1) {
+      useStore.setState(
+        produce((state: AppState) => {
+          state.editor.tabsOrder.push(bookId)
+        })
+      )
+    }
+
     return
   }
 
@@ -102,7 +111,6 @@ export function addTab(bookId: string) {
 
 export function removeTab(bookId: string) {
   const editor = useStore.getState().editor
-
   const tabIdx = editor.tabsOrder.findIndex((id) => id === bookId)
 
   useStore.setState(
