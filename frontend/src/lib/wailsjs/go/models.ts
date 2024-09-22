@@ -2,7 +2,6 @@ export namespace books {
 	
 	export class Cell {
 	    id: string;
-	    book_id: string;
 	    content: string;
 	    type: string;
 	
@@ -13,7 +12,6 @@ export namespace books {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
-	        this.book_id = source["book_id"];
 	        this.content = source["content"];
 	        this.type = source["type"];
 	    }
@@ -143,23 +141,6 @@ export namespace connections {
 	        this.user = source["user"];
 	        this.pass = source["pass"];
 	        this.db = source["db"];
-	    }
-	}
-
-}
-
-export namespace menu {
-	
-	export class Menu {
-	
-	
-	    static createFrom(source: any = {}) {
-	        return new Menu(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	
 	    }
 	}
 

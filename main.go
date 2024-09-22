@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"embed"
-	"sequelbook/backend"
+	"sequelbook/core"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -15,8 +15,7 @@ var assets embed.FS
 
 func main() {
 	// Create an instance of the app structure
-	backend := backend.NewBackend(context.Background())
-	menu := backend.NewMenu(context.Background())
+	core := core.NewBackend(context.Background())
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -26,12 +25,11 @@ func main() {
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		Menu:      menu,
-		OnStartup: backend.Startup,
+		OnStartup: core.Startup,
 		Bind: []interface{}{
-			backend,
-			backend.Connections,
-			backend.Books,
+			core,
+			core.Connections,
+			core.Books,
 		},
 	})
 

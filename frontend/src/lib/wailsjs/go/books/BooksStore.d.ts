@@ -4,6 +4,8 @@ import {books} from '../models';
 
 export function CreateBook(arg1:books.BookData):Promise<books.Book>;
 
+export function CreateCell(arg1:string,arg2:books.BlockType):Promise<books.Cell>;
+
 export function DeleteBook(arg1:string):Promise<void>;
 
 export function GetBook(arg1:string):Promise<books.Book>;

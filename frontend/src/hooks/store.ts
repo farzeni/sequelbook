@@ -1,68 +1,215 @@
-import { books, connections } from "@/src/lib/wailsjs/go/models"
+import {
+  CreateBook,
+  CreateCell,
+  UpdateBook,
+} from "@lib/wailsjs/go/books/BooksStore"
+import { books, connections } from "@lib/wailsjs/go/models"
+import { produce } from "immer"
 import { create } from "zustand"
+
+type BookMap = {
+  [id: string]: books.Book
+}
+
+type ConnectionMap = {
+  [id: string]: connections.Connection
+}
 
 interface BookTab {
   bookId: string
-  content: books.Book
+  cellId: string | null
+  connectionId: string | null
 }
 
 interface AppState {
-  books: books.Book[]
-  connections: connections.Connection[]
-  selectedBook: books.Book | null
-  selectedConnection: connections.Connection | null
-  tabs: BookTab[]
+  books: BookMap
+  connections: ConnectionMap
+  editor: EditorState
+}
+
+interface EditorState {
+  currentBookId: string | null
+  tabs: {
+    [bookId: string]: BookTab
+  }
+  tabsOrder: string[]
 }
 
 export const useStore = create<AppState>()(() => ({
-  books: [],
-  connections: [],
-  selectedBook: null,
-  selectedConnection: null,
-  tabs: [],
+  books: {},
+  connections: {},
+  editor: {
+    currentBookId: null,
+    tabs: {},
+    tabsOrder: [],
+  },
 }))
 
 export function setBooks(books: books.Book[]) {
-  useStore.setState({ books })
+  let bookStore: BookMap = {}
+
+  for (const book of books) {
+    bookStore[book.id] = book
+  }
+
+  useStore.setState({ books: bookStore })
 }
 
 export function setSelectedBook(bookId: string) {
-  const book = useStore.getState().books.find((book) => book.id === bookId)
-
-  useStore.setState({ selectedBook: book })
-
-  addTab(bookId)
-}
-
-export function addTab(bookId: string) {
-  const tabs = useStore.getState().tabs
-
-  if (tabs.find((tab) => tab.bookId === bookId)) {
-    return
-  }
-
-  const book = useStore.getState().books.find((book) => book.id === bookId)
+  const book = useStore.getState().books[bookId]
 
   if (!book) {
     return
   }
 
-  useStore.setState({ tabs: [...tabs, { bookId, content: book }] })
+  useStore.setState(
+    produce((state: AppState) => {
+      state.editor.currentBookId = book.id
+    })
+  )
+
+  addTab(bookId)
+}
+
+export function addTab(bookId: string) {
+  const tab = useStore.getState().editor.tabs[bookId]
+
+  if (tab) {
+    return
+  }
+
+  const book = useStore.getState().books[bookId]
+
+  if (!book) {
+    return
+  }
+
+  const newTab = { bookId, content: book, cellId: null, connectionId: null }
+
+  useStore.setState(
+    produce((state: AppState) => {
+      state.editor.tabs[bookId] = newTab
+      state.editor.tabsOrder.push(bookId)
+    })
+  )
 }
 
 export function removeTab(bookId: string) {
-  const tabs = useStore.getState().tabs
+  const editor = useStore.getState().editor
 
-  const tabIdx = tabs.findIndex((tab) => tab.bookId === bookId)
+  const tabIdx = editor.tabsOrder.findIndex((id) => id === bookId)
 
-  useStore.setState({ tabs: tabs.filter((tab) => tab.bookId !== bookId) })
+  useStore.setState(
+    produce((state: AppState) => {
+      delete state.editor.tabs[bookId]
+      state.editor.tabsOrder = state.editor.tabsOrder.filter(
+        (id: string) => id !== bookId
+      )
+    })
+  )
 
-  if (useStore.getState().selectedBook?.id === bookId) {
-    if (tabs.length === 1) {
-      useStore.setState({ selectedBook: null })
+  if (useStore.getState().editor.currentBookId === bookId) {
+    if (editor.tabsOrder.length === 1) {
+      useStore.setState(
+        produce((state: AppState) => {
+          state.editor.currentBookId = null
+        })
+      )
     } else {
       const newTabIdx = tabIdx === 0 ? 1 : tabIdx - 1
-      setSelectedBook(tabs[newTabIdx].bookId)
+      setSelectedBook(editor.tabsOrder[newTabIdx])
     }
   }
+}
+
+export function setSelectedCell(cellId: string) {
+  const currentBookId = useStore.getState().editor.currentBookId
+  const tabs = useStore.getState().editor.tabs
+
+  if (!currentBookId) {
+    return
+  }
+
+  useStore.setState(
+    produce((state: AppState) => {
+      state.editor.tabs[currentBookId].cellId = cellId
+    })
+  )
+}
+
+export async function AddBook() {
+  const newBook = await CreateBook(
+    new books.BookData({
+      title: "Untitled",
+      cells: [],
+    })
+  )
+
+  useStore.setState(
+    produce((state: AppState) => {
+      state.books[newBook.id] = newBook
+    })
+  )
+
+  setSelectedBook(newBook.id)
+}
+
+export async function UpdateBookTitle(bookId: string, title: string) {
+  useStore.setState(
+    produce((state: AppState) => {
+      state.books[bookId].title = title
+    })
+  )
+
+  const book = useStore.getState().books[bookId]
+
+  if (!book) {
+    return
+  }
+
+  await UpdateBook(bookId, book)
+}
+
+export async function AddCell(type: "code" | "text") {
+  const currentBookId = useStore.getState().editor.currentBookId
+
+  if (!currentBookId) {
+    return
+  }
+
+  const newCell: books.Cell = await CreateCell(currentBookId, type)
+
+  useStore.setState(
+    produce((state: AppState) => {
+      state.books[currentBookId].cells.push(newCell)
+    })
+  )
+}
+
+export async function UpdateCell(
+  bookId: string,
+  cellId: string,
+  source: string
+) {
+  useStore.setState(
+    produce((state: AppState) => {
+      const book = state.books[bookId]
+
+      book.cells.map((cell) => {
+        if (cell.id === cellId) {
+          console.log(cell)
+          cell.content = source
+        }
+      })
+    })
+  )
+
+  const book = useStore.getState().books[bookId]
+
+  if (!book) {
+    return
+  }
+
+  console.log("saving book", book)
+  await UpdateBook(bookId, book)
 }

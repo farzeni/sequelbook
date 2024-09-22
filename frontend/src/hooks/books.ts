@@ -1,4 +1,4 @@
-import { ListBooks } from "@/src/lib/wailsjs/go/books/BooksStore"
+import { ListBooks } from "@lib/wailsjs/go/books/BooksStore"
 import { setBooks } from "./store"
 
 export function useBooks() {
