@@ -2,7 +2,7 @@ import BookContent from "@app/Book"
 import Sidebar from "@app/Sidebar"
 import Tabbar from "@app/Tabbar"
 import "@assets/css/main.css"
-import { useBooks } from "@hooks/books"
+import { InitStore } from "@hooks/store"
 import i18n from "i18next"
 import { useEffect } from "react"
 import { initReactI18next } from "react-i18next"
@@ -24,10 +24,9 @@ i18n
   });
 
 function App() {
-  const { getBooks } = useBooks()
 
   useEffect(() => {
-    getBooks()
+    InitStore()
   }, [])
 
   return (

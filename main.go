@@ -30,6 +30,7 @@ func main() {
 			core,
 			core.Connections,
 			core.Books,
+			core.Pooler,
 		},
 	})
 

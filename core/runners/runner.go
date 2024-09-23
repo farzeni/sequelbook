@@ -4,39 +4,54 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"sync"
 )
 
 type QueryRunner struct {
-	ID     string  `json:"id"`
 	DBConn *sql.DB `json:"-"`
+	mx     *sync.Mutex
 }
 
 func NewQueryRunner(db *sql.DB) *QueryRunner {
 	return &QueryRunner{
 		DBConn: db,
+		mx:     &sync.Mutex{},
 	}
 }
 
 func (r *QueryRunner) Query(query string) (string, error) {
+	r.mx.Lock()
+
 	if r.DBConn == nil {
+		fmt.Println("No active database connection")
+		r.mx.Unlock()
 		return "", fmt.Errorf("no active database connection")
 	}
 
 	result, err := r.DBConn.Query(query)
 
 	if err != nil {
+		fmt.Println("Query execution failed: ", err)
+		r.mx.Unlock()
+
 		return "", fmt.Errorf("query execution failed: %v", err)
 	}
 
 	if result == nil {
+		fmt.Println("Failed to execute query")
+		r.mx.Unlock()
+
 		return "", fmt.Errorf("failed to execute query")
 	}
 
 	defer result.Close()
 
+	r.mx.Unlock()
+
 	data, err := rowsToJSON(result)
 
 	if err != nil {
+		fmt.Println("Failed to convert rows to JSON: ", err)
 		return "", fmt.Errorf("failed to convert rows to JSON: %v", err)
 	}
 

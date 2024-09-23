@@ -7,17 +7,15 @@ import BookToolbar from "./Toolbar"
 
 const BookContent = () => {
   const { t } = useTranslation()
+  const currentBookId = useStore((state) => state.editor.currentBookId)
   const book = useStore((state) => state.editor.currentBookId ? state.books[state.editor.currentBookId] : null)
   const bookContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (book) {
-      // scroll to top
-      setTimeout(() => {
-        bookContainerRef.current?.scrollTo(0, 0)
-      }, 0)
-    }
-  }, [book])
+    setTimeout(() => {
+      bookContainerRef.current?.scrollTo(0, 0)
+    }, 0)
+  }, [currentBookId])
 
   if (!book) {
     return (
@@ -26,7 +24,6 @@ const BookContent = () => {
       </div>
     )
   }
-
 
   return (
     <div>

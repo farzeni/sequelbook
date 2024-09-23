@@ -1,33 +1,34 @@
-import {
-  CreateBook,
-  CreateCell,
-  UpdateBook,
-} from "@lib/wailsjs/go/books/BooksStore"
+import * as booksStore from "@lib/wailsjs/go/books/BooksStore"
+import * as connectionsStore from "@lib/wailsjs/go/connections/ConnectionStore"
 import { books, connections } from "@lib/wailsjs/go/models"
+import * as pooler from "@lib/wailsjs/go/runners/Pooler"
 import { produce } from "immer"
 import { create } from "zustand"
 
-type BookMap = {
+export type BookMap = {
   [id: string]: books.Book
 }
 
-type ConnectionMap = {
+export type ConnectionMap = {
   [id: string]: connections.Connection
 }
 
-interface BookTab {
+export interface BookTab {
   bookId: string
   cellId: string | null
   connectionId: string | null
+  results: {
+    [cellId: string]: string
+  }
 }
 
-interface AppState {
+export interface AppState {
   books: BookMap
   connections: ConnectionMap
   editor: EditorState
 }
 
-interface EditorState {
+export interface EditorState {
   currentBookId: string | null
   tabs: {
     [bookId: string]: BookTab
@@ -45,17 +46,102 @@ export const useStore = create<AppState>()(() => ({
   },
 }))
 
-export function setBooks(books: books.Book[]) {
+export async function InitStore() {
+  await LoadBooks()
+  await LoadConnections()
+}
+
+export async function LoadConnections() {
+  const connections = await connectionsStore.ListConnections()
+  let connectionStore: ConnectionMap = {}
+
+  for (const connection of connections || []) {
+    connectionStore[connection.id] = connection
+  }
+
+  useStore.setState(
+    produce((state: AppState) => {
+      state.connections = connectionStore
+    })
+  )
+}
+
+export async function AddConnection(data: connections.ConnectionData) {
+  const newConnection = await connectionsStore.CreateConnection(data)
+
+  useStore.setState(
+    produce((state: AppState) => {
+      state.connections[newConnection.id] = newConnection
+    })
+  )
+}
+
+export async function UpdateConnection(
+  connectionId: string,
+  data: connections.ConnectionData
+) {
+  const c = await connectionsStore.UpdateConnection(connectionId, data)
+
+  useStore.setState(
+    produce((state: AppState) => {
+      state.connections[connectionId] = c
+    })
+  )
+}
+
+export async function RemoveConnection(connectionId: string) {
+  useStore.setState(
+    produce((state: AppState) => {
+      delete state.connections[connectionId]
+
+      for (const tab of Object.keys(state.editor.tabs)) {
+        if (state.editor.tabs[tab].connectionId === connectionId) {
+          state.editor.tabs[tab].connectionId = null
+        }
+      }
+    })
+  )
+
+  await connectionsStore.DeleteConnection(connectionId)
+}
+
+export function SetSelectedConnection(bookId: string, connectionId: string) {
+  const connection = useStore.getState().connections[connectionId]
+
+  if (!connection) {
+    return
+  }
+
+  const tab = useStore.getState().editor.tabs[bookId]
+
+  if (!tab) {
+    return
+  }
+
+  useStore.setState(
+    produce((state: AppState) => {
+      state.editor.tabs[bookId].connectionId = connection.id
+    })
+  )
+}
+
+export async function LoadBooks() {
+  const books = await booksStore.ListBooks()
+
   let bookStore: BookMap = {}
 
-  for (const book of books) {
+  for (const book of books || []) {
     bookStore[book.id] = book
   }
 
-  useStore.setState({ books: bookStore })
+  useStore.setState(
+    produce((state: AppState) => {
+      state.books = bookStore
+    })
+  )
 }
 
-export function setSelectedBook(bookId: string) {
+export function SetSelectedBook(bookId: string) {
   const book = useStore.getState().books[bookId]
 
   if (!book) {
@@ -70,46 +156,51 @@ export function setSelectedBook(bookId: string) {
         bookId: book.id,
         cellId: null,
         connectionId: null,
+        results: {},
       }
     })
   )
 
-  addTab(bookId)
+  AddTab(bookId)
 }
 
-export function addTab(bookId: string) {
+export function AddTab(bookId: string) {
   const tab = useStore.getState().editor.tabs[bookId]
   const tabsOrder = useStore.getState().editor.tabsOrder
-
-  if (tab) {
-    if (tabsOrder.indexOf(bookId) === -1) {
-      useStore.setState(
-        produce((state: AppState) => {
-          state.editor.tabsOrder.push(bookId)
-        })
-      )
-    }
-
-    return
-  }
-
   const book = useStore.getState().books[bookId]
 
   if (!book) {
     return
   }
 
-  const newTab = { bookId, content: book, cellId: null, connectionId: null }
+  if (tab) {
+    if (tabsOrder.indexOf(bookId) === -1) {
+      console.log("Adding tab", bookId)
+      useStore.setState(
+        produce((state: AppState) => {
+          state.editor.tabsOrder.push(bookId)
+        })
+      )
+    }
+  } else {
+    const newTab = {
+      bookId,
+      content: book,
+      cellId: null,
+      connectionId: null,
+      results: {},
+    }
 
-  useStore.setState(
-    produce((state: AppState) => {
-      state.editor.tabs[bookId] = newTab
-      state.editor.tabsOrder.push(bookId)
-    })
-  )
+    useStore.setState(
+      produce((state: AppState) => {
+        state.editor.tabs[bookId] = newTab
+        state.editor.tabsOrder.push(bookId)
+      })
+    )
+  }
 }
 
-export function removeTab(bookId: string) {
+export function RemoveTab(bookId: string) {
   const editor = useStore.getState().editor
   const tabIdx = editor.tabsOrder.findIndex((id) => id === bookId)
 
@@ -131,12 +222,12 @@ export function removeTab(bookId: string) {
       )
     } else {
       const newTabIdx = tabIdx === 0 ? 1 : tabIdx - 1
-      setSelectedBook(editor.tabsOrder[newTabIdx])
+      SetSelectedBook(editor.tabsOrder[newTabIdx])
     }
   }
 }
 
-export function setSelectedCell(cellId: string) {
+export function SetSelectedCell(cellId: string) {
   const currentBookId = useStore.getState().editor.currentBookId
   const tabs = useStore.getState().editor.tabs
 
@@ -152,7 +243,7 @@ export function setSelectedCell(cellId: string) {
 }
 
 export async function AddBook() {
-  const newBook = await CreateBook(
+  const newBook = await booksStore.CreateBook(
     new books.BookData({
       title: "Untitled",
       cells: [],
@@ -165,7 +256,7 @@ export async function AddBook() {
     })
   )
 
-  setSelectedBook(newBook.id)
+  SetSelectedBook(newBook.id)
 }
 
 export async function UpdateBookTitle(bookId: string, title: string) {
@@ -181,7 +272,7 @@ export async function UpdateBookTitle(bookId: string, title: string) {
     return
   }
 
-  await UpdateBook(bookId, book)
+  await booksStore.UpdateBook(bookId, book)
 }
 
 export async function AddCell(type: "code" | "text", position?: number) {
@@ -191,7 +282,7 @@ export async function AddCell(type: "code" | "text", position?: number) {
     return
   }
 
-  const newCell: books.Cell = await CreateCell(currentBookId, type)
+  const newCell: books.Cell = await booksStore.CreateCell(currentBookId, type)
 
   useStore.setState(
     produce((state: AppState) => {
@@ -221,7 +312,7 @@ export async function AddCell(type: "code" | "text", position?: number) {
     return
   }
 
-  await UpdateBook(currentBookId, book)
+  await booksStore.UpdateBook(currentBookId, book)
 }
 
 export async function UpdateCell(
@@ -248,7 +339,7 @@ export async function UpdateCell(
     return
   }
 
-  await UpdateBook(bookId, book)
+  await booksStore.UpdateBook(bookId, book)
 }
 
 export async function RemoveCell(bookId: string, cellId: string) {
@@ -266,7 +357,7 @@ export async function RemoveCell(bookId: string, cellId: string) {
     return
   }
 
-  await UpdateBook(bookId, book)
+  await booksStore.UpdateBook(bookId, book)
 }
 
 export async function SwapCells(position1: number, position2: number) {
@@ -292,7 +383,7 @@ export async function SwapCells(position1: number, position2: number) {
     return
   }
 
-  await UpdateBook(currentBookId, book)
+  await booksStore.UpdateBook(currentBookId, book)
 }
 
 export async function MoveCellUp(bookId: string, cellId: string) {
@@ -325,4 +416,56 @@ export async function MoveCellDown(bookId: string, cellId: string) {
   }
 
   await SwapCells(cellIdx, cellIdx + 1)
+}
+
+export async function Execute(cellID: string) {
+  const bookId = useStore.getState().editor.currentBookId
+
+  if (!bookId) {
+    console.log("No book selected")
+    return
+  }
+
+  const book = useStore.getState().books[bookId]
+
+  if (!book) {
+    console.log("No book found")
+    return
+  }
+
+  const cell = useStore
+    .getState()
+    .books[bookId].cells.find((cell) => cell.id === cellID)
+
+  if (!cell) {
+    console.log("No cell found")
+    return
+  }
+
+  const connectionId = useStore.getState().editor.tabs[bookId].connectionId
+
+  if (!connectionId) {
+    console.log("No connection selected")
+    return
+  }
+
+  const connection = useStore.getState().connections[connectionId]
+
+  if (!connection) {
+    console.log("No connection found")
+    return
+  }
+
+  console.log("Executing cell", cell.id)
+  const result = await pooler.Run(connection, book, cell)
+
+  useStore.setState(
+    produce((state: AppState) => {
+      state.editor.tabs[bookId].results[cell.id] = result
+    })
+  )
+
+  console.log(result)
+
+  return result
 }

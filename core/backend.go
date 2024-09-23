@@ -9,6 +9,7 @@ import (
 
 	"sequelbook/core/books"
 	"sequelbook/core/connections"
+	"sequelbook/core/runners"
 	"sequelbook/core/storage"
 
 	wrt "github.com/wailsapp/wails/v2/pkg/runtime"
@@ -20,6 +21,7 @@ type Backend struct {
 	Connections *connections.ConnectionStore
 	Books       *books.BooksStore
 	Storage     *storage.Storage
+	Pooler      *runners.Pooler
 }
 
 // NewBackend creates a new App application struct
@@ -37,6 +39,7 @@ func NewBackend(c context.Context) *Backend {
 		Connections: connections.NewConnectionStore(storage),
 		Books:       books.NewBooksStore(storage),
 		Storage:     storage,
+		Pooler:      runners.NewPooler(),
 	}
 
 	if err := backend.Connections.LoadConnections(); err != nil {

@@ -1,6 +1,6 @@
 import { Cross1Icon } from '@radix-ui/react-icons'
 import { Button } from "../components/ui/button"
-import { removeTab, setSelectedBook, useStore } from "../hooks/store"
+import { RemoveTab, SetSelectedBook, useStore } from "../hooks/store"
 
 const Sidebar = () => {
   const tabsOrder = useStore((state) => state.editor.tabsOrder)
@@ -9,14 +9,14 @@ const Sidebar = () => {
 
   function handleCloseTab(e: React.MouseEvent, bookId: string) {
     e.stopPropagation()
-    removeTab(bookId)
+    RemoveTab(bookId)
   }
 
   return (
     <div className="flex-1 h-[40px] pt-2 flex bg-gray-50 border-b">
       {tabsOrder.map((bookId) => (
         <div key={bookId}
-          onClick={() => setSelectedBook(bookId)}
+          onClick={() => SetSelectedBook(bookId)}
           className={`
           hover:bg-gray-100
           cursor-pointer

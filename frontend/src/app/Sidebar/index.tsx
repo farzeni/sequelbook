@@ -1,9 +1,8 @@
 import { Button } from "@components/ui/button"
 import { Toggle } from "@components/ui/toggle"
-import { useBooks } from "@hooks/books"
 import { useStore } from "@hooks/store"
 import { ArchiveIcon, GearIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import { useEffect, useMemo } from "react"
+import { useMemo } from "react"
 import BookItem from "./BookItem"
 import Toolbar from "./Toolbar"
 
@@ -11,16 +10,9 @@ const Sidebar = () => {
   const books = useStore((state) => state.books)
   const selected = useStore((state) => state.editor.currentBookId)
 
-  const { getBooks } = useBooks()
-
   const orderedBooks = useMemo(() => {
     return Object.values(books).sort((a, b) => a.title.localeCompare(b.title))
   }, [books])
-
-
-  useEffect(() => {
-    getBooks()
-  }, [])
 
   return (
     <div className="w-[280px] h-full border-r bg-gray-50">

@@ -2,7 +2,6 @@ package books
 
 import (
 	"encoding/json"
-	"log"
 	"sequelbook/core/storage"
 	"sequelbook/core/tools"
 	"sync"
@@ -109,7 +108,6 @@ func (b *BooksStore) ListBooks() []*Book {
 		books = append(books, book)
 	}
 
-	log.Printf("Listed books %v\n", books)
 	return books
 }
 
@@ -122,18 +120,14 @@ func (b *BooksStore) LoadBooks() error {
 
 	for _, entity := range entities {
 		book := &Book{}
-		log.Println("Casting entity to book", string(entity))
 		err := json.Unmarshal(entity, book)
 		if err != nil {
-			log.Println("Failed to cast entity to book")
-			log.Println(err)
 			continue
 		}
 		b.books[book.ID] = book
 	}
 
 	if len(b.books) == 0 {
-
 		// Create a default book
 		defaultBookData := BookData{
 			Title: "Welcome",

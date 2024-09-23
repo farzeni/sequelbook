@@ -1,4 +1,4 @@
-import { setSelectedCell, UpdateCell, useStore } from "@hooks/store";
+import { SetSelectedCell, UpdateCell, useStore } from "@hooks/store";
 import { books } from "@lib/wailsjs/go/models";
 import { FC } from "react";
 import CodeBlock from "./CodeCell";
@@ -17,8 +17,6 @@ const CellsList: FC<CellsListProps> = ({ book }) => {
   async function handleBookChange(cellId: string, source: string) {
     if (!book) return
     await UpdateCell(book.id, cellId, source)
-    console.log("Book updated")
-    console.log(source)
   }
 
   return (
@@ -31,16 +29,15 @@ const CellsList: FC<CellsListProps> = ({ book }) => {
             className={`
               w-full 
               relative 
-              
               rounded 
-              border-gray-400
+              border-gray-300
               border-transparent 
-              ${tab?.cellId === cell.id ? "border-2  shadow " : ""}`}
-            onClick={() => setSelectedCell(cell.id)}>
+              ${tab?.cellId === cell.id ? "border-2 shadow " : ""}`}
+            onClick={() => SetSelectedCell(cell.id)}>
             {cell.type === "code" && (
               <>
                 {tab?.cellId === cell.id && <CodeCellMenu cell={cell} bookId={book.id} />}
-                <CodeBlock cell={cell} onChange={(source) => handleBookChange(cell.id, source)} selected={tab?.cellId === cell.id} />
+                <CodeBlock bookId={book.id} cell={cell} onChange={(source) => handleBookChange(cell.id, source)} selected={tab?.cellId === cell.id} />
               </>
             )}
 

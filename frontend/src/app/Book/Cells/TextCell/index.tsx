@@ -20,6 +20,7 @@ import {
 } from '@mdxeditor/editor';
 import '@mdxeditor/editor/style.css';
 import { FC, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import MarkdownView from 'react-showdown';
 
 const EDITOR_DEBOUNCE = 350
@@ -30,12 +31,12 @@ interface TextBlockProps {
 }
 
 const TextBlock: FC<TextBlockProps> = ({ cell, selected, onChange }) => {
+  const { t } = useTranslation()
   const [editMode, setEditMode] = useState(false)
 
   const editorRef = useRef<MDXEditorMethods>(null)
 
   const debouncedOnChange = useDebounce((content: string) => {
-    console.log("Debounced content", content)
     onChange && onChange(content)
   }, EDITOR_DEBOUNCE)
 
@@ -59,7 +60,7 @@ const TextBlock: FC<TextBlockProps> = ({ cell, selected, onChange }) => {
     <div className="w-full prose mx-auto" onDoubleClick={() => !editMode && setEditMode(true)}>
       {editMode ? (
         <MDXEditor
-          className="mt-4 mt-[-20px]"
+          className="mt-[-20px]"
           plugins={[
             headingsPlugin(),
             listsPlugin(),
@@ -96,7 +97,7 @@ const TextBlock: FC<TextBlockProps> = ({ cell, selected, onChange }) => {
             <MarkdownView markdown={cell.content} />
           </div>
         ) : (
-          <div className=" px-4 py-2  text-gray-500">Double click this cell to edit</div>
+          <div className="py-2 text-gray-500">{t("doubleClickToEdit", "Double click this cell to edit")}</div>
         )
       }
     </div>

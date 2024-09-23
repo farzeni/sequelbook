@@ -6,7 +6,7 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger
 } from "@components/ui/context-menu"
-import { setSelectedBook, UpdateBookTitle } from "@hooks/store"
+import { SetSelectedBook, UpdateBookTitle } from "@hooks/store"
 import { books } from "@lib/wailsjs/go/models"
 import { FC, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -33,7 +33,7 @@ const BookContextMenu: FC<BookItemProps> = ({ book, selected }) => {
       <ContextMenuTrigger>
         <div
           className={`${selected ? "bg-gray-200" : ""} hover:bg-gray-200 w-full rounded cursor-pointer`}
-          onClick={() => setSelectedBook(book.id)}>
+          onClick={() => SetSelectedBook(book.id)}>
           <BookTitle
             title={book.title}
             editMode={editMode}
@@ -45,7 +45,7 @@ const BookContextMenu: FC<BookItemProps> = ({ book, selected }) => {
       </ContextMenuTrigger>
       <ContextMenuContent className="w-64">
         <ContextMenuItem inset>
-          {t("openNewTab", "Open in new tab Anita puzza")}
+          {t("openNewTab", "Open in new tab")}
           <ContextMenuShortcut>⌘[</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem inset>
