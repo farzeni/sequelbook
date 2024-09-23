@@ -146,3 +146,28 @@ export namespace connections {
 
 }
 
+export namespace runners {
+	
+	export class QueryResult {
+	    query: string;
+	    columns: string[];
+	    json: string;
+	    affected_rows: number;
+	    type: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new QueryResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.query = source["query"];
+	        this.columns = source["columns"];
+	        this.json = source["json"];
+	        this.affected_rows = source["affected_rows"];
+	        this.type = source["type"];
+	    }
+	}
+
+}
+

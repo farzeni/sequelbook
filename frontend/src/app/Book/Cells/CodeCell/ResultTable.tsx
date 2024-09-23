@@ -20,13 +20,14 @@ type TData = Record<string, unknown>;
 
 interface ResultTableProps {
   data: TData[]
+  colOrder: string[]
 }
 
 
 
-const ResultTable: FC<ResultTableProps> = ({ data }) => {
+const ResultTable: FC<ResultTableProps> = ({ data, colOrder }) => {
 
-  const columns: ColumnDef<TData>[] = Object.keys(data[0]).map((key) => ({
+  const columns: ColumnDef<TData>[] = colOrder.map((key) => ({
     accessorKey: key,
     header: key,
   }));

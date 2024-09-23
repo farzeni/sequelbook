@@ -4,7 +4,7 @@ import { AppState, Execute, useStore } from '@hooks/store';
 import { books } from "@lib/wailsjs/go/models";
 import CodeMirror from '@uiw/react-codemirror';
 import { PlayIcon } from 'lucide-react';
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import ResultTable from './ResultTable';
 
 const EDITOR_DEBOUNCE = 350
@@ -20,7 +20,7 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
   const [content, setContent] = useState(cell.content)
   const [editMode, setEditMode] = useState(false)
 
-  const [data, setData] = useState<any[]>([])
+  const [error, setError] = useState<any>(null)
 
   const results = useStore((state: AppState) => state.editor.tabs[bookId].results[cell.id] || null)
 
@@ -31,9 +31,14 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
   }, EDITOR_DEBOUNCE)
 
   async function handleExecute() {
+    setError(null)
     console.log("Execute code: " + cell.id)
-    const response = await Execute(cell.id)
-    console.log("response", response)
+    try {
+      await Execute(cell.id)
+    } catch (error) {
+      console.error("Error executing code", error)
+      setError(error)
+    }
   }
 
   useEffect(() => {
@@ -45,10 +50,16 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
 
   }, [editMode])
 
-  useEffect(() => {
-    if (results) {
-      setData(JSON.parse(results))
+  const data = useMemo(() => {
+    if (results && results.type === "SELECT") {
+      try {
+        return JSON.parse(results.json.toString())
+      } catch (error) {
+        setError("Error parsing results")
+      }
     }
+
+    return null
   }, [results])
 
   return (
@@ -74,11 +85,23 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
         />
       </div>
 
-      <div>
-        {data.length > 0 && (
-          <ResultTable data={data} />
-        )}
-      </div>
+      {!error && results && (
+        <div>
+          {results?.type === "SELECT" ? data && data.length > 0 && (
+            <ResultTable data={data} colOrder={results.columns} />
+          ) : (
+            <div className="p-4 bg-gray-100 text-gray-500">
+              {results?.affected_rows} rows affected
+            </div>
+          )}
+        </div>
+      )}
+
+      {error && (
+        <div className="p-4 bg-red-100 text-red-500">
+          {error}
+        </div>
+      )}
     </div>
   )
 }

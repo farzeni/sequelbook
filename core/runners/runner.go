@@ -7,6 +7,70 @@ import (
 	"sync"
 )
 
+type QueryType string
+
+const (
+	QueryTypeSelect QueryType = "SELECT"
+	QueryTypeInsert QueryType = "INSERT"
+	QueryTypeUpdate QueryType = "UPDATE"
+	QueryTypeDelete QueryType = "DELETE"
+)
+
+type InspectionCommand string
+
+const (
+	InspectionCommandTables    InspectionCommand = "\\dt"
+	InspectionCommandColumns   InspectionCommand = "\\d"
+	InspectionCommandDatabases InspectionCommand = "\\l"
+)
+
+type QueryResult struct {
+	Query        string    `json:"query"`
+	Columns      []string  `json:"columns"`
+	Json         string    `json:"json"`
+	RowsAffected int64     `json:"affected_rows"`
+	Type         QueryType `json:"type"`
+}
+
+func NewQueryResult(query string) (*QueryResult, error) {
+	var err error
+
+	r := &QueryResult{
+		Query: query,
+	}
+
+	r.Type, err = r.getQueryType()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get query type: %v", err)
+	}
+
+	return r, nil
+}
+
+func (qr *QueryResult) getQueryType() (QueryType, error) {
+	if len(qr.Query) == 0 {
+		return "", fmt.Errorf("empty query")
+	}
+
+	queryType := QueryTypeSelect
+
+	switch qr.Query[0] {
+	case 'I':
+		queryType = QueryTypeInsert
+	case 'U':
+		queryType = QueryTypeUpdate
+	case 'D':
+		queryType = QueryTypeDelete
+	case 'S':
+		queryType = QueryTypeSelect
+	default:
+		return "", fmt.Errorf("unknown query type")
+	}
+
+	return queryType, nil
+}
+
 type QueryRunner struct {
 	DBConn *sql.DB `json:"-"`
 	mx     *sync.Mutex
@@ -19,43 +83,79 @@ func NewQueryRunner(db *sql.DB) *QueryRunner {
 	}
 }
 
-func (r *QueryRunner) Query(query string) (string, error) {
+func (r *QueryRunner) Query(query string) (*QueryResult, error) {
+	res, err := NewQueryResult(query)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to create query result: %v", err)
+	}
+
 	r.mx.Lock()
+	defer r.mx.Unlock()
 
 	if r.DBConn == nil {
 		fmt.Println("No active database connection")
-		r.mx.Unlock()
-		return "", fmt.Errorf("no active database connection")
+		return nil, fmt.Errorf("no active database connection")
 	}
 
-	result, err := r.DBConn.Query(query)
+	if res.Type == QueryTypeSelect {
+		result, err := r.DBConn.Query(query)
 
-	if err != nil {
-		fmt.Println("Query execution failed: ", err)
-		r.mx.Unlock()
+		if err != nil {
+			fmt.Println("Query execution failed: ", err)
+			return nil, fmt.Errorf("query execution failed: %v", err)
+		}
 
-		return "", fmt.Errorf("query execution failed: %v", err)
+		if result == nil {
+			fmt.Println("Failed to execute query")
+
+			return nil, fmt.Errorf("failed to execute query")
+		}
+
+		columns, err := result.Columns()
+
+		if err != nil {
+			fmt.Println("Failed to get columns: ", err)
+			return nil, fmt.Errorf("failed to get columns: %v", err)
+		}
+
+		res.Columns = append(res.Columns, columns...)
+
+		data, err := rowsToJSON(result)
+
+		if err != nil {
+			fmt.Println("Failed to convert rows to JSON: ", err)
+			return nil, fmt.Errorf("failed to convert rows to JSON: %v", err)
+		}
+
+		res.Json = string(data)
+
+		if err != nil {
+			fmt.Println("Failed to get columns: ", err)
+			return nil, fmt.Errorf("failed to get columns: %v", err)
+		}
+
+		defer result.Close()
+
+	} else {
+		result, err := r.DBConn.Exec(query)
+
+		if err != nil {
+			fmt.Println("Query execution failed: ", err)
+			return nil, fmt.Errorf("query execution failed: %v", err)
+		}
+
+		rowsAffected, err := result.RowsAffected()
+
+		if err != nil {
+			fmt.Println("Failed to get rows affected: ", err)
+			return nil, fmt.Errorf("failed to get rows affected: %v", err)
+		}
+
+		res.RowsAffected = rowsAffected
 	}
 
-	if result == nil {
-		fmt.Println("Failed to execute query")
-		r.mx.Unlock()
-
-		return "", fmt.Errorf("failed to execute query")
-	}
-
-	defer result.Close()
-
-	r.mx.Unlock()
-
-	data, err := rowsToJSON(result)
-
-	if err != nil {
-		fmt.Println("Failed to convert rows to JSON: ", err)
-		return "", fmt.Errorf("failed to convert rows to JSON: %v", err)
-	}
-
-	return string(data), nil
+	return res, nil
 }
 
 func rowsToJSON(rows *sql.Rows) ([]byte, error) {

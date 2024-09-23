@@ -6,6 +6,7 @@ import (
 	"log"
 	"sequelbook/core/books"
 	"sequelbook/core/connections"
+	"strings"
 )
 
 type PoolerConnection struct {
@@ -24,7 +25,43 @@ func NewPooler() *Pooler {
 	}
 }
 
-func (p *Pooler) Connect(c connections.Connection, bookID string) error {
+func (p *Pooler) Run(connection connections.Connection, book books.Book, cell books.Cell) (*QueryResult, error) {
+	if cell.Type != books.BlockTypeCode {
+		return nil, fmt.Errorf("unsupported cell type: %s", cell.ID)
+	}
+
+	conn, err := p.ensureConnection(connection, book.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("Running cell: ", cell.Content)
+
+	q := p.cleanQuery(connection, cell.Content)
+
+	fmt.Println("Cleaned query: ", q)
+
+	result, err := conn.Runner.Query(q)
+
+	if err != nil {
+		log.Println("Failed to run cell: ", err)
+		return nil, err
+	}
+
+	return result, nil
+
+}
+
+func (p *Pooler) Close() {
+	for _, conn := range p.Connections {
+		if conn.DB != nil {
+			conn.DB.Close()
+		}
+	}
+}
+
+func (p *Pooler) connect(c connections.Connection, bookID string) error {
 	var dsn *string = c.GetDSN()
 
 	if dsn == nil {
@@ -51,7 +88,7 @@ func (p *Pooler) Connect(c connections.Connection, bookID string) error {
 	return nil
 }
 
-func (p *Pooler) Disconnect(bookID string) error {
+func (p *Pooler) disconnect(bookID string) error {
 	c, ok := p.Connections[bookID]
 
 	if !ok {
@@ -73,33 +110,64 @@ func (p *Pooler) Disconnect(bookID string) error {
 	return nil
 }
 
-func (p *Pooler) Run(connection connections.Connection, book books.Book, cell books.Cell) (string, error) {
-	if cell.Type != books.BlockTypeCode {
-		return "", fmt.Errorf("unsupported cell type: %s", cell.ID)
-	}
-
-	conn, ok := p.Connections[book.ID]
+func (p *Pooler) ensureConnection(connection connections.Connection, bookID string) (*PoolerConnection, error) {
+	conn, ok := p.Connections[bookID]
 
 	if !ok {
 		fmt.Println("Connecting to the database...")
-		err := p.Connect(connection, book.ID)
+		err := p.connect(connection, bookID)
 
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
-		conn = p.Connections[book.ID]
+		conn = p.Connections[bookID]
+	} else {
+		err := conn.DB.Ping()
+
+		if err != nil {
+			fmt.Println("Reconnecting to the database...")
+			err := p.disconnect(bookID)
+
+			if err != nil {
+				return nil, err
+			}
+
+			err = p.connect(connection, bookID)
+
+			if err != nil {
+				return nil, err
+			}
+
+			conn = p.Connections[bookID]
+		}
 	}
 
-	fmt.Println("Running cell: ", cell.Content)
+	return &conn, nil
+}
 
-	result, err := conn.Runner.Query(cell.Content)
+func (p *Pooler) cleanQuery(c connections.Connection, q string) string {
+	d := QueryDictionary[connections.ConnTypePostgres]
 
-	if err != nil {
-		log.Println("Failed to run cell: ", err)
-		return "", err
+	q = strings.TrimSpace(q)
+
+	fmt.Println("Query: ", q)
+
+	switch {
+	case q == `\dt`:
+		fmt.Println("Tables query")
+		q = d.GetTablesQuery
+	case strings.HasPrefix(q, `\d `):
+		fmt.Println("Columns query")
+		tableName := strings.TrimSpace(strings.TrimPrefix(q, `\d `))
+		q = fmt.Sprintf(d.GetTableColumnsQuery, tableName)
+	case q == `\l`:
+		q = d.GetDatabasesQuery
 	}
 
-	return result, nil
+	q = strings.TrimSpace(q)
+	q = strings.ReplaceAll(q, "\n", " ")
+	q = strings.ReplaceAll(q, ";", " ")
 
+	return q
 }

@@ -1,6 +1,6 @@
 import * as booksStore from "@lib/wailsjs/go/books/BooksStore"
 import * as connectionsStore from "@lib/wailsjs/go/connections/ConnectionStore"
-import { books, connections } from "@lib/wailsjs/go/models"
+import { books, connections, runners } from "@lib/wailsjs/go/models"
 import * as pooler from "@lib/wailsjs/go/runners/Pooler"
 import { produce } from "immer"
 import { create } from "zustand"
@@ -18,7 +18,7 @@ export interface BookTab {
   cellId: string | null
   connectionId: string | null
   results: {
-    [cellId: string]: string
+    [cellId: string]: runners.QueryResult
   }
 }
 
