@@ -24,10 +24,8 @@ const BookToolbar: FC<BookToolbarProps> = ({ book }) => {
     return null
   })
 
-
-
   return (
-    <div className="flex  items-center pt-3  h-[42px] justify-between">
+    <div className="flex  items-center  h-[42px] justify-between">
       <div className="flex items-center">
         <Button variant="ghost" size="sm" onClick={() => AddCell("code")}>
           <div className="flex items-center gap-1">

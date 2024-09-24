@@ -1,10 +1,13 @@
 import { sql } from '@codemirror/lang-sql';
 import { useDebounce } from '@hooks/debounce';
+import useDisclosure from '@hooks/disclosure';
 import { AppState, Execute, useStore } from '@hooks/store';
 import { books } from "@lib/wailsjs/go/models";
 import CodeMirror from '@uiw/react-codemirror';
+import { t } from 'i18next';
 import { PlayIcon } from 'lucide-react';
 import { FC, useEffect, useMemo, useState } from "react";
+import CodeCellAlert from './CodeCellAlert';
 import ResultTable from './ResultTable';
 
 const EDITOR_DEBOUNCE = 350
@@ -19,6 +22,9 @@ interface CodeBlockProps {
 const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => {
   const [content, setContent] = useState(cell.content)
   const [editMode, setEditMode] = useState(false)
+  const connection = useStore((state: AppState) => state.editor.tabs[bookId].connectionId)
+
+  const errorDialogDisclose = useDisclosure()
 
   const [error, setError] = useState<any>(null)
 
@@ -31,8 +37,16 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
   }, EDITOR_DEBOUNCE)
 
   async function handleExecute() {
+    if (!connection) {
+      errorDialogDisclose.onOpenChange(true)
+      return
+    }
+
     setError(null)
     console.log("Execute code: " + cell.id)
+
+
+
     try {
       await Execute(cell.id)
     } catch (error) {
@@ -64,6 +78,12 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
 
   return (
     <div onDoubleClick={() => setEditMode(!editMode)} className='w-full relative'>
+      <CodeCellAlert
+        title={t("notConnected", "Not connected")}
+        message={t("noConnectionDescription", "Select a connection to execute queries")}
+        isOpen={errorDialogDisclose.isOpen}
+        onOpenChange={errorDialogDisclose.onOpenChange}
+      />
       <div className="flex w-full">
 
         {selected ? (
