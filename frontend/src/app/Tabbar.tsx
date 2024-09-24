@@ -13,10 +13,13 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="flex-1 h-[40px] pt-2 flex bg-gray-50 border-b">
+    <div
+      className="flex-1 h-[40px] pt-2 flex"
+    >
       {tabsOrder.map((bookId) => (
         <div key={bookId}
           onClick={() => SetSelectedBook(bookId)}
+          style={{ "--wails-draggable": "no-drag" } as React.CSSProperties}
           className={`
           hover:bg-gray-100
           cursor-pointer

@@ -15,10 +15,14 @@ const Sidebar = () => {
   }, [books])
 
   return (
-    <div className="w-[280px] h-full border-r bg-gray-50">
+    <div
+      className="w-[280px] h-full border-r bg-gray-50"
+      style={{ "--wails-draggable": "drag" } as React.CSSProperties}>
       <div className="flex h-full">
         <div className="w-[48px] h-full flex flex-col items-center border-r py-2 gap-2 justify-between">
-          <div className="flex-col flex gap-2">
+          <div
+            className="flex-col flex gap-2"
+            style={{ "--wails-draggable": "no-drag" } as React.CSSProperties}>
             <Toggle>
               <ArchiveIcon width={18} height={18} />
             </Toggle>
@@ -27,9 +31,11 @@ const Sidebar = () => {
             </Toggle>
           </div>
 
-          <Button variant="ghost" size="icon">
-            <GearIcon width={18} height={18} />
-          </Button>
+          <div style={{ "--wails-draggable": "no-drag" } as React.CSSProperties}>
+            <Button variant="ghost" size="icon">
+              <GearIcon width={18} height={18} />
+            </Button>
+          </div>
         </div>
         <div className="w-full">
           <Toolbar />
@@ -46,7 +52,7 @@ const Sidebar = () => {
           )}
         </div>
       </div>
-    </div>
+    </div >
   )
 
 }

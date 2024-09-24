@@ -26,6 +26,7 @@ func main() {
 			Assets: assets,
 		},
 		OnStartup: core.Startup,
+		Frameless: true,
 		Bind: []interface{}{
 			core,
 			core.Connections,

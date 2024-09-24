@@ -43,39 +43,39 @@ const BookContextMenu: FC<BookItemProps> = ({ book, selected }) => {
           />
         </div>
       </ContextMenuTrigger>
-      <ContextMenuContent className="w-64">
+      <ContextMenuContent className="w-56">
         <ContextMenuItem inset>
-          {t("openNewTab", "Open in new tab")}
+          <span className="text-xs">{t("openNewTab", "Open in new tab")}</span>
           <ContextMenuShortcut>⌘[</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem inset>
-          {t("openNewWindow", "Open in new window")}
+          <span className="text-xs">{t("openNewWindow", "Open in new window")}</span>
           <ContextMenuShortcut>⌘R</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem inset>
-          {t("makeACopy", "Make a Copy")}
+          <span className="text-xs">{t("makeACopy", "Make a Copy")}</span>
           <ContextMenuShortcut>⌘R</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem inset>
-          {t("moveBookTo", "Move book to...")}
+          <span className="text-xs">{t("moveBookTo", "Move book to...")}</span>
           <ContextMenuShortcut>⌘R</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem inset>
-          {t("bookmark", "Bookmark...")}
+          <span className="text-xs">{t("bookmark", "Bookmark...")}</span>
           <ContextMenuShortcut>⌘R</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem inset>
-          {t("mergeWith", "Merge with...")}
+          <span className="text-xs">{t("mergeWith", "Merge with...")}</span>
           <ContextMenuShortcut>⌘R</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem inset onClick={() => setEditMode(true)}>
-          {t("rename", "Rename")}
+          <span className="text-xs">{t("rename", "Rename")}</span>
           <ContextMenuShortcut>⌘R</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem inset>
-          {t("delete", "Delete")}
+          <span className="text-xs">{t("delete", "Delete")}</span>
           <ContextMenuShortcut>⌘R</ContextMenuShortcut>
         </ContextMenuItem>
 

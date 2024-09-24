@@ -3,7 +3,6 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"sequelbook/core/tools"
@@ -21,8 +20,6 @@ func NewStorage(path string) *Storage {
 		BookStoragePath: path + "/books",
 		ConnectionsPath: path + "/connections",
 	}
-
-	fmt.Println("Storage path: ", s.ConfigPath)
 
 	s.ensureStoragePath()
 
@@ -103,19 +100,14 @@ func (s *Storage) DeleteEntity(entityType tools.EntityTypes, id string) error {
 func (s *Storage) LoadEntities(entityType tools.EntityTypes) ([][]byte, error) {
 	var path string
 
-	log.Printf("Loading entities of type %s\n", entityType)
-
 	switch entityType {
 	case tools.EntityTypesBook:
 		path = s.BookStoragePath
 	case tools.EntityTypesConnection:
 		path = s.ConnectionsPath
 	default:
-		log.Printf("unsupported entity type: %s\n", entityType)
 		return nil, fmt.Errorf("unsupported entity type: %s", entityType)
 	}
-
-	log.Printf("Loading entities from %s", path)
 
 	files, err := os.ReadDir(path)
 
@@ -129,8 +121,6 @@ func (s *Storage) LoadEntities(entityType tools.EntityTypes) ([][]byte, error) {
 		if dirfile.IsDir() {
 			continue
 		}
-
-		log.Printf("Found file: %s\n", dirfile.Name())
 
 		if filepath.Ext(dirfile.Name()) != ".sbdb" {
 			continue
@@ -146,8 +136,6 @@ func (s *Storage) LoadEntities(entityType tools.EntityTypes) ([][]byte, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to read file: %v", err)
 		}
-
-		log.Printf("Decoded entity: %s\n", string(data))
 
 		entities = append(entities, data)
 
