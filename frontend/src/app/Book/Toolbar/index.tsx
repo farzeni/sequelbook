@@ -16,6 +16,7 @@ const BookToolbar: FC<BookToolbarProps> = ({ book }) => {
   const { t } = useTranslation()
 
   const connectionDisclose = useDisclosure()
+
   const connection = useStore((state: AppState) => {
     const id = state.editor.tabs[book.id]?.connectionId
     if (id) {
@@ -25,7 +26,7 @@ const BookToolbar: FC<BookToolbarProps> = ({ book }) => {
   })
 
   return (
-    <div className="flex  items-center  h-[42px] justify-between">
+    <div className="flex  items-center h-[42px] justify-between relative">
       <div className="flex items-center">
         <Button variant="ghost" size="sm" onClick={() => AddCell("code")}>
           <div className="flex items-center gap-1">
@@ -39,6 +40,10 @@ const BookToolbar: FC<BookToolbarProps> = ({ book }) => {
             <span>{t("text", "Text")}</span>
           </div>
         </Button>
+      </div>
+
+      <div className="absolute left-1/2 transform -translate-x-1/2 text-xs text-gray-500">
+        {book.title}
       </div>
 
       <div className="flex items-center gap-2">
