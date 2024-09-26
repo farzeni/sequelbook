@@ -39,9 +39,6 @@ func main() {
 			WebviewGpuPolicy:    linux.WebviewGpuPolicyOnDemand,
 			ProgramName:         "sequelbook",
 		},
-		Debug: options.Debug{
-			OpenInspectorOnStartup: true,
-		},
 	})
 
 	if err != nil {
