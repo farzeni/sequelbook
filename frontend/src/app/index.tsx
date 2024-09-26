@@ -2,13 +2,12 @@ import BookContent from "@app/Book"
 import Sidebar from "@app/Sidebar"
 import Tabbar from "@app/Tabbar"
 import "@assets/css/main.css"
-import { InitStore } from "@hooks/store"
+import { InitStore, useStore } from "@hooks/store"
 import { Quit, WindowMaximise, WindowMinimise } from "@lib/wailsjs/runtime"
 import i18n from "i18next"
 import { Minus, Square, X } from "lucide-react"
 import { useEffect } from "react"
 import { initReactI18next } from "react-i18next"
-
 
 i18n
   .use(initReactI18next) // passes i18n down to react-i18next
@@ -26,6 +25,7 @@ i18n
   });
 
 function App() {
+
 
   useEffect(() => {
     InitStore()

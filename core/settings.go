@@ -1,27 +1,13 @@
 package core
 
-import "github.com/adrg/xdg"
+type AppTheme string
+
+const (
+	LightTheme  AppTheme = "light"
+	DarkTheme   AppTheme = "dark"
+	SystemTheme AppTheme = "system"
+)
 
 type Settings struct {
-	path string
-}
-
-func LoadSettings() (*Settings, error) {
-	settingsPath, err := xdg.ConfigFile(configFilename)
-
-	if err != nil {
-		return nil, err
-	}
-
-	s := &Settings{path: settingsPath}
-
-	// load settings
-
-	return s, nil
-}
-
-func (s *Settings) Save() error {
-	// save settings
-
-	return nil
+	Theme AppTheme `json:"theme"`
 }

@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -59,6 +60,54 @@ func NewBackend(c context.Context) *Backend {
 // so we can call the runtime methods
 func (b *Backend) Startup(ctx context.Context) {
 	b.ctx = ctx
+}
+
+func (b *Backend) SaveEditorState(jsonState string) error {
+	fmt.Println("Saving editor state")
+
+	err := b.Storage.SaveEditorState(jsonState)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (b *Backend) LoadEditorState() (string, error) {
+	fmt.Println("Loading editor state")
+
+	state, err := b.Storage.LoadEditorState()
+
+	if err != nil {
+		return "", err
+	}
+
+	return state, nil
+}
+
+func (b *Backend) SaveSettings(s Settings) error {
+	fmt.Println("Saving settings")
+
+	jsonSettings, err := json.Marshal(s)
+
+	if err != nil {
+		return err
+	}
+
+	err = b.Storage.SaveSettings(string(jsonSettings))
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (b *Backend) LoadSettings() (*Settings, error) {
+	fmt.Println("Loading settings")
+
+	return &Settings{}, nil
 }
 
 func userConfigDir() (string, error) {

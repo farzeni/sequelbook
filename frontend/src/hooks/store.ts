@@ -1,5 +1,6 @@
 import * as booksStore from "@lib/wailsjs/go/books/BooksStore"
 import * as connectionsStore from "@lib/wailsjs/go/connections/ConnectionStore"
+import * as core from "@lib/wailsjs/go/core/Backend"
 import { books, connections, runners } from "@lib/wailsjs/go/models"
 import * as pooler from "@lib/wailsjs/go/runners/Pooler"
 import { produce } from "immer"
@@ -49,6 +50,32 @@ export const useStore = create<AppState>()(() => ({
 export async function InitStore() {
   await LoadBooks()
   await LoadConnections()
+  await LoadEditorState()
+}
+
+export async function LoadEditorState() {
+  const state = await core.LoadEditorState()
+
+  try {
+    const editorState = JSON.parse(state)
+    useStore.setState(
+      produce((state: AppState) => {
+        state.editor = editorState
+      })
+    )
+  } catch (error) {
+    console.error("Error loading editor state", error)
+  }
+}
+
+export async function SaveEditorState() {
+  const state = useStore.getState().editor
+
+  try {
+    await core.SaveEditorState(JSON.stringify(state))
+  } catch (error) {
+    console.error("Error saving editor state", error)
+  }
 }
 
 export async function LoadConnections() {
@@ -103,6 +130,8 @@ export async function RemoveConnection(connectionId: string) {
   )
 
   await connectionsStore.DeleteConnection(connectionId)
+
+  SaveEditorState()
 }
 
 export function SetSelectedConnection(bookId: string, connectionId: string) {
@@ -123,6 +152,8 @@ export function SetSelectedConnection(bookId: string, connectionId: string) {
       state.editor.tabs[bookId].connectionId = connection.id
     })
   )
+
+  SaveEditorState()
 }
 
 export async function LoadBooks() {
@@ -152,11 +183,13 @@ export function SetSelectedBook(bookId: string) {
     produce((state: AppState) => {
       state.editor.currentBookId = book.id
 
-      state.editor.tabs[book.id] = {
-        bookId: book.id,
-        cellId: null,
-        connectionId: null,
-        results: {},
+      if (!state.editor.tabs[book.id]) {
+        state.editor.tabs[book.id] = {
+          bookId: book.id,
+          cellId: null,
+          connectionId: null,
+          results: {},
+        }
       }
     })
   )
@@ -198,6 +231,8 @@ export function AddTab(bookId: string) {
       })
     )
   }
+
+  SaveEditorState()
 }
 
 export function RemoveTab(bookId: string) {
@@ -225,6 +260,8 @@ export function RemoveTab(bookId: string) {
       SetSelectedBook(editor.tabsOrder[newTabIdx])
     }
   }
+
+  SaveEditorState()
 }
 
 export function SetSelectedCell(cellId: string) {
@@ -240,6 +277,8 @@ export function SetSelectedCell(cellId: string) {
       state.editor.tabs[currentBookId].cellId = cellId
     })
   )
+
+  SaveEditorState()
 }
 
 export async function AddBook() {
@@ -466,6 +505,8 @@ export async function Execute(cellID: string) {
   )
 
   console.log(result)
+
+  SaveEditorState()
 
   return result
 }

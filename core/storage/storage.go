@@ -8,6 +8,11 @@ import (
 	"sequelbook/core/tools"
 )
 
+const (
+	editorStateFilename = "editor.json"
+	settingsFilename    = "settings.json"
+)
+
 type Storage struct {
 	ConfigPath      string
 	BookStoragePath string
@@ -161,6 +166,70 @@ func (s *Storage) GetEntityPath(entityType tools.EntityTypes, id string) (string
 	filename := prefix + "-" + id + ".sbdb"
 
 	return filepath.Join(path, filename), nil
+}
+
+func (s *Storage) SaveEditorState(jsonState string) error {
+	path := filepath.Join(s.ConfigPath, editorStateFilename)
+
+	// check if file exists
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		_, err := os.Create(path)
+		if err != nil {
+			return err
+		}
+	}
+
+	err := os.WriteFile(path, []byte(jsonState), 0644)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Storage) LoadEditorState() (string, error) {
+	path := filepath.Join(s.ConfigPath, editorStateFilename)
+
+	data, err := os.ReadFile(path)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
+}
+
+func (s *Storage) SaveSettings(jsonSettings string) error {
+	path := filepath.Join(s.ConfigPath, settingsFilename)
+
+	// check if file exists
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		_, err := os.Create(path)
+		if err != nil {
+			return err
+		}
+	}
+
+	err := os.WriteFile(path, []byte(jsonSettings), 0644)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Storage) LoadSettings() (string, error) {
+	path := filepath.Join(s.ConfigPath, settingsFilename)
+
+	data, err := os.ReadFile(path)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
 }
 
 func (s *Storage) ensureStoragePath() error {
