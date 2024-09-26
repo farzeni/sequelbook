@@ -147,7 +147,7 @@ func (p *Pooler) ensureConnection(connection connections.Connection, bookID stri
 }
 
 func (p *Pooler) cleanQuery(c connections.Connection, q string) string {
-	d := QueryDictionary[connections.ConnTypePostgres]
+	d := QueryDictionary[c.Type]
 
 	q = strings.TrimSpace(q)
 
@@ -155,10 +155,8 @@ func (p *Pooler) cleanQuery(c connections.Connection, q string) string {
 
 	switch {
 	case q == `\dt`:
-		fmt.Println("Tables query")
 		q = d.GetTablesQuery
 	case strings.HasPrefix(q, `\d `):
-		fmt.Println("Columns query")
 		tableName := strings.TrimSpace(strings.TrimPrefix(q, `\d `))
 		q = fmt.Sprintf(d.GetTableColumnsQuery, tableName)
 	case q == `\l`:
