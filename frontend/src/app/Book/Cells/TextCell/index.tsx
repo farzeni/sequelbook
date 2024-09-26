@@ -1,4 +1,6 @@
+import { CELL_BINDINGS } from "@app/Book/keybindngs";
 import { useDebounce } from "@hooks/debounce";
+import { SelectNextCell, SelectPreviousCell } from "@hooks/store";
 import { books } from "@lib/wailsjs/go/models";
 import {
   BlockTypeSelect,
@@ -22,15 +24,17 @@ import '@mdxeditor/editor/style.css';
 import { FC, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import MarkdownView from 'react-showdown';
+import TextCellMenu from "./TextCellMenu";
 
 const EDITOR_DEBOUNCE = 350
 interface TextBlockProps {
+  bookId: string
   cell: books.Cell
   selected?: boolean
   onChange?: (content: string) => void
 }
 
-const TextBlock: FC<TextBlockProps> = ({ cell, selected, onChange }) => {
+const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected, onChange }) => {
   const { t } = useTranslation()
   const [editMode, setEditMode] = useState(false)
 
@@ -44,6 +48,19 @@ const TextBlock: FC<TextBlockProps> = ({ cell, selected, onChange }) => {
     debouncedOnChange(content)  // Use the debounced version of onChange
   }
 
+  function handleKeyDown(e: KeyboardEvent) {
+    console.log("e.key", e.key)
+    if (e.key === "Control-" + CELL_BINDINGS.CELL_NEXT) {
+      e.preventDefault()
+      SelectNextCell()
+    }
+
+    if (e.key === "Control-" + CELL_BINDINGS.CELL_PREVIOUS) {
+      e.preventDefault()
+      SelectPreviousCell()
+    }
+  }
+
   useEffect(() => {
     if (editMode == false && editorRef.current) {
       onChange && onChange(editorRef.current?.getMarkdown())
@@ -51,13 +68,24 @@ const TextBlock: FC<TextBlockProps> = ({ cell, selected, onChange }) => {
   }, [editMode])
 
   useEffect(() => {
-    if (!selected) {
+    if (selected) {
+      document.addEventListener('keydown', handleKeyDown)
+    } else {
       setEditMode(false)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
     }
   }, [selected])
 
+
+
   return (
-    <div className="w-full prose mx-auto" onDoubleClick={() => !editMode && setEditMode(true)}>
+    <div className="w-full prose mx-auto relative" onDoubleClick={() => !editMode && setEditMode(true)} >
+      {selected && <TextCellMenu cell={cell} bookId={bookId} />}
+
       {editMode ? (
         <MDXEditor
           className="mt-[-20px]"

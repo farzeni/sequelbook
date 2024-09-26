@@ -2,10 +2,8 @@ import { SetSelectedCell, UpdateCell, useStore } from "@hooks/store";
 import { books } from "@lib/wailsjs/go/models";
 import { FC } from "react";
 import CodeBlock from "./CodeCell";
-import CodeCellMenu from "./CodeCell/CodeCellMenu";
 import QuickAdd from "./QuickAdd";
 import TextBlock from "./TextCell";
-import TextCellMenu from "./TextCell/TextCellMenu";
 
 interface CellsListProps {
   book: books.Book
@@ -24,34 +22,28 @@ const CellsList: FC<CellsListProps> = ({ book }) => {
       <QuickAdd index={0} />
 
       {book.cells.map((cell: books.Cell, idx: number) => (
-        <div key={cell.id}>
-          <div
-            className={`
-              w-full 
-              relative 
-              rounded 
-              border-gray-300
-              border-transparent 
-              ${tab?.cellId === cell.id ? "border-2 shadow " : ""}`}
-            onClick={() => SetSelectedCell(cell.id)}>
-            {cell.type === "code" && (
-              <>
-                {tab?.cellId === cell.id && <CodeCellMenu cell={cell} bookId={book.id} />}
-                <CodeBlock bookId={book.id} cell={cell} onChange={(source) => handleBookChange(cell.id, source)} selected={tab?.cellId === cell.id} />
-              </>
-            )}
+        <div key={cell.id}
+          onClick={() => SetSelectedCell(cell.id)}
+          className={`
+          max-w-screen-lg
+          mx-auto
+          relative 
+          rounded 
+          ${tab?.cellId === cell.id ? "border-slate-600" : ""}
+          
+        `}>
+          {cell.type === "code" && (
+            <CodeBlock bookId={book.id} cell={cell} onChange={(source) => handleBookChange(cell.id, source)} selected={tab?.cellId === cell.id} />
+          )}
 
-            {cell.type === "text" && (
-              <>
-                {tab?.cellId === cell.id && <TextCellMenu cell={cell} bookId={book.id} />}
-                <TextBlock cell={cell} onChange={(source) => handleBookChange(cell.id, source)} selected={tab?.cellId === cell.id} />
-              </>
-            )}
-          </div>
+          {cell.type === "text" && (
+            <TextBlock bookId={book.id} cell={cell} onChange={(source) => handleBookChange(cell.id, source)} selected={tab?.cellId === cell.id} />
+          )}
           <QuickAdd index={idx + 1} />
         </div>
-      ))}
-    </div>
+      ))
+      }
+    </div >
   )
 
 }

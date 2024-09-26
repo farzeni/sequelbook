@@ -11,6 +11,7 @@ const BookContent = () => {
   const book = useStore((state) => state.editor.currentBookId ? state.books[state.editor.currentBookId] : null)
   const bookContainerRef = useRef<HTMLDivElement>(null)
 
+
   useEffect(() => {
     setTimeout(() => {
       bookContainerRef.current?.scrollTo(0, 0)
@@ -48,7 +49,7 @@ const BookContent = () => {
             </div>
           </div>
         ) : (
-          <div className="mx-auto max-w-screen-md lg:max-w-screen-md my-4 flex flex-col gap-2 ">
+          <div className="max-w-full my-4 flex flex-col gap-2 ">
             <CellsList book={book} />
           </div>
         )}

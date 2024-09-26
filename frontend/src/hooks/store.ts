@@ -14,18 +14,20 @@ export type ConnectionMap = {
   [id: string]: connections.Connection
 }
 
+export type ResultMap = {
+  [cellId: string]: runners.QueryResult
+}
+
 export interface BookTab {
   bookId: string
   cellId: string | null
   connectionId: string | null
-  results: {
-    [cellId: string]: runners.QueryResult
-  }
 }
 
 export interface AppState {
   books: BookMap
   connections: ConnectionMap
+  results: ResultMap
   editor: EditorState
 }
 
@@ -40,6 +42,7 @@ export interface EditorState {
 export const useStore = create<AppState>()(() => ({
   books: {},
   connections: {},
+  results: {},
   editor: {
     currentBookId: null,
     tabs: {},
@@ -188,7 +191,6 @@ export function SetSelectedBook(bookId: string) {
           bookId: book.id,
           cellId: null,
           connectionId: null,
-          results: {},
         }
       }
     })
@@ -279,6 +281,64 @@ export function SetSelectedCell(cellId: string) {
   )
 
   SaveEditorState()
+}
+
+export function SelectNextCell() {
+  const currentBookId = useStore.getState().editor.currentBookId
+
+  if (!currentBookId) {
+    return
+  }
+
+  const currentCellId = useStore.getState().editor.tabs[currentBookId].cellId
+  const book = useStore.getState().books[currentBookId]
+
+  if (!book) {
+    return
+  }
+
+  const cellIdx = book.cells.findIndex((cell) => cell.id === currentCellId)
+
+  if (cellIdx === -1) {
+    return
+  }
+
+  const nextCellIdx = cellIdx + 1
+
+  if (nextCellIdx >= book.cells.length) {
+    return
+  }
+
+  SetSelectedCell(book.cells[nextCellIdx].id)
+}
+
+export function SelectPreviousCell() {
+  const currentBookId = useStore.getState().editor.currentBookId
+
+  if (!currentBookId) {
+    return
+  }
+
+  const currentCellId = useStore.getState().editor.tabs[currentBookId].cellId
+  const book = useStore.getState().books[currentBookId]
+
+  if (!book) {
+    return
+  }
+
+  const cellIdx = book.cells.findIndex((cell) => cell.id === currentCellId)
+
+  if (cellIdx === -1) {
+    return
+  }
+
+  const previousCellIdx = cellIdx - 1
+
+  if (previousCellIdx < 0) {
+    return
+  }
+
+  SetSelectedCell(book.cells[previousCellIdx].id)
 }
 
 export async function AddBook() {
@@ -500,7 +560,7 @@ export async function Execute(cellID: string) {
 
   useStore.setState(
     produce((state: AppState) => {
-      state.editor.tabs[bookId].results[cell.id] = result
+      state.results[cell.id] = result
     })
   )
 

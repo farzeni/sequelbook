@@ -23,8 +23,6 @@ interface ResultTableProps {
   colOrder: string[]
 }
 
-
-
 const ResultTable: FC<ResultTableProps> = ({ data, colOrder }) => {
 
   const columns: ColumnDef<TData>[] = colOrder.map((key) => ({
