@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 )
 
@@ -14,6 +15,7 @@ const (
 	QueryTypeInsert QueryType = "INSERT"
 	QueryTypeUpdate QueryType = "UPDATE"
 	QueryTypeDelete QueryType = "DELETE"
+	QueryTypeOther  QueryType = "OTHER"
 )
 
 type InspectionCommand string
@@ -53,19 +55,27 @@ func (qr *QueryResult) getQueryType() (QueryType, error) {
 		return "", fmt.Errorf("empty query")
 	}
 
-	queryType := QueryTypeSelect
+	var queryType QueryType
 
-	switch qr.Query[0] {
-	case 'I':
+	query := strings.TrimSpace(strings.ToUpper(qr.Query))
+
+	if strings.HasPrefix(query, "WITH") {
+		if strings.Contains(query, "SELECT") {
+			return QueryTypeSelect, nil
+		}
+		return QueryTypeOther, nil
+	}
+
+	if strings.HasPrefix(query, "INSERT") {
 		queryType = QueryTypeInsert
-	case 'U':
+	} else if strings.HasPrefix(query, "UPDATE") {
 		queryType = QueryTypeUpdate
-	case 'D':
+	} else if strings.HasPrefix(query, "DELETE") {
 		queryType = QueryTypeDelete
-	case 'S':
+	} else if strings.HasPrefix(query, "SELECT") {
 		queryType = QueryTypeSelect
-	default:
-		return "", fmt.Errorf("unknown query type")
+	} else {
+		queryType = QueryTypeOther
 	}
 
 	return queryType, nil
