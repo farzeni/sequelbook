@@ -90,12 +90,14 @@ func (s *Storage) LoadEntity(entityType tools.EntityTypes, id string, v interfac
 
 func (s *Storage) DeleteEntity(entityType tools.EntityTypes, id string) error {
 	dstpath, err := s.GetEntityPath(entityType, id)
+	fmt.Println("Deleting file: ", dstpath)
 
 	if err != nil {
 		return err
 	}
-
+	fmt.Println("Deleting file1: ", dstpath)
 	if err := os.Remove(dstpath); err != nil {
+		fmt.Println("Deleting file1: ", err)
 		return fmt.Errorf("failed to remove file: %v", err)
 	}
 
@@ -161,9 +163,7 @@ func (s *Storage) GetEntityPath(entityType tools.EntityTypes, id string) (string
 		return "", fmt.Errorf("unsupported entity type: %s", entityType)
 	}
 
-	prefix := tools.GetEntityPrefix(entityType)
-
-	filename := prefix + "-" + id + ".sbdb"
+	filename := id + ".sbdb"
 
 	return filepath.Join(path, filename), nil
 }

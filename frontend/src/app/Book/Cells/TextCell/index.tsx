@@ -21,10 +21,11 @@ import {
   UndoRedo
 } from '@mdxeditor/editor';
 import '@mdxeditor/editor/style.css';
+import { SaveIcon } from "lucide-react";
 import { FC, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import MarkdownView from 'react-showdown';
-import TextCellMenu from "./TextCellMenu";
+import CellMenu from "../CellMenu";
 
 const EDITOR_DEBOUNCE = 350
 interface TextBlockProps {
@@ -84,7 +85,13 @@ const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected, onChange }) => 
 
   return (
     <div className="w-full prose mx-auto relative" onDoubleClick={() => !editMode && setEditMode(true)} >
-      {selected && <TextCellMenu cell={cell} bookId={bookId} />}
+      {selected && (
+        <CellMenu cell={cell} bookId={bookId}>
+          <div className="flex justify-center items-center w-[30px] cursor-pointer" onClick={() => setEditMode(false)}>
+            <SaveIcon size={18} />
+          </div>
+        </CellMenu>
+      )}
 
       {editMode ? (
         <MDXEditor

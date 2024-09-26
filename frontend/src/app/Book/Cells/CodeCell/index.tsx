@@ -45,7 +45,7 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
 
   const [content, setContent] = useState(cell.content)
 
-  const connection = useStore((state: AppState) => state.editor.tabs[bookId].connectionId)
+  const connection = useStore((state: AppState) => state.editor.tabs[bookId]?.connectionId)
 
   const errorDialogDisclose = useDisclosure()
 

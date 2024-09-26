@@ -208,16 +208,7 @@ export function AddTab(bookId: string) {
     return
   }
 
-  if (tab) {
-    if (tabsOrder.indexOf(bookId) === -1) {
-      console.log("Adding tab", bookId)
-      useStore.setState(
-        produce((state: AppState) => {
-          state.editor.tabsOrder.push(bookId)
-        })
-      )
-    }
-  } else {
+  if (!tab) {
     const newTab = {
       bookId,
       content: book,
@@ -229,6 +220,16 @@ export function AddTab(bookId: string) {
     useStore.setState(
       produce((state: AppState) => {
         state.editor.tabs[bookId] = newTab
+        state.editor.tabsOrder.push(bookId)
+      })
+    )
+    return
+  }
+
+  if (tabsOrder.indexOf(bookId) === -1) {
+    console.log("Adding tab", bookId)
+    useStore.setState(
+      produce((state: AppState) => {
         state.editor.tabsOrder.push(bookId)
       })
     )
@@ -341,11 +342,11 @@ export function SelectPreviousCell() {
   SetSelectedCell(book.cells[previousCellIdx].id)
 }
 
-export async function AddBook() {
+export async function AddBook(data?: { title?: string; cells?: books.Cell[] }) {
   const newBook = await booksStore.CreateBook(
     new books.BookData({
-      title: "Untitled",
-      cells: [],
+      title: data?.title || "Untitled",
+      cells: data?.cells || [],
     })
   )
 
@@ -356,6 +357,8 @@ export async function AddBook() {
   )
 
   SetSelectedBook(newBook.id)
+
+  return newBook
 }
 
 export async function UpdateBookTitle(bookId: string, title: string) {
@@ -372,6 +375,26 @@ export async function UpdateBookTitle(bookId: string, title: string) {
   }
 
   await booksStore.UpdateBook(bookId, book)
+}
+
+export async function RemoveBook(bookId: string) {
+  useStore.setState(
+    produce((state: AppState) => {
+      delete state.books[bookId]
+      delete state.editor.tabs[bookId]
+      state.editor.tabsOrder = state.editor.tabsOrder.filter(
+        (id: string) => id !== bookId
+      )
+
+      if (state.editor.currentBookId === bookId) {
+        state.editor.currentBookId = Object.keys(state.books)[0] || null
+      }
+    })
+  )
+
+  await booksStore.DeleteBook(bookId)
+
+  SaveEditorState()
 }
 
 export async function AddCell(type: "code" | "text", position?: number) {

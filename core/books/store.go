@@ -2,6 +2,7 @@ package books
 
 import (
 	"encoding/json"
+	"fmt"
 	"sequelbook/core/storage"
 	"sequelbook/core/tools"
 	"sync"
@@ -91,10 +92,15 @@ func (b *BooksStore) UpdateBook(id string, data BookData) (*Book, error) {
 }
 
 func (b *BooksStore) DeleteBook(id string) error {
-	_, ok := b.books[id]
+	b.bmx.Lock()
+	defer b.bmx.Unlock()
 
-	if !ok {
-		return nil
+	fmt.Println("Deleting book: ", id)
+
+	err := b.storage.DeleteEntity(tools.EntityTypesBook, id)
+
+	if err != nil {
+		return err
 	}
 
 	delete(b.books, id)
