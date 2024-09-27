@@ -2,10 +2,9 @@ import BookContent from "@app/Book"
 import Sidebar from "@app/Sidebar"
 import Tabbar from "@app/Tabbar"
 import "@assets/css/main.css"
-import { InitStore, useStore } from "@hooks/store"
-import { Quit, WindowMaximise, WindowMinimise } from "@lib/wailsjs/runtime"
+import { EventBusProvider } from "@hooks/events"
+import { InitStore } from "@hooks/store"
 import i18n from "i18next"
-import { Minus, Square, X } from "lucide-react"
 import { useEffect } from "react"
 import { initReactI18next } from "react-i18next"
 
@@ -32,15 +31,17 @@ function App() {
   }, [])
 
   return (
-    <div className="flex h-full overflow-hidden ">
-      <Sidebar />
-      <div className="flex-1 h-full ">
-        <div
-          className="flex bg-gray-50 border-b"
-          style={{ "--wails-draggable": "drag" } as React.CSSProperties}>
+    <EventBusProvider>
+      <div className="flex h-full overflow-hidden ">
+        <Sidebar />
+        <div className="flex-1 h-full ">
+          <div
+            className="flex bg-gray-50 border-b"
+            style={{ "--wails-draggable": "drag" } as React.CSSProperties}>
 
-          <Tabbar />
-          <div className="flex items-center">
+            <Tabbar />
+            {/* FRAMELESS CONTROL BTNs */}
+            {/* <div className="flex items-center">
             <div className="w-12 h-full flex justify-center items-center  hover:bg-gray-100">
               <Minus className="text-gray-500" size={16} onClick={WindowMinimise} />
             </div>
@@ -50,13 +51,14 @@ function App() {
             <div className="w-12 h-full flex justify-center items-center  hover:bg-gray-100" onClick={Quit}>
               <X className="text-gray-500" size={16} />
             </div>
+          </div> */}
+          </div>
+          <div className="overflow-hidden">
+            <BookContent />
           </div>
         </div>
-        <div className="overflow-hidden">
-          <BookContent />
-        </div>
       </div>
-    </div>
+    </EventBusProvider>
   )
 }
 
