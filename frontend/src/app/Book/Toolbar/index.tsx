@@ -1,5 +1,6 @@
 import { Button } from "@components/ui/button"
 import useDisclosure from "@hooks/disclosure"
+import { useEventBusListener } from "@hooks/events"
 import { AddCell, AppState, useStore } from "@hooks/store"
 import { books } from "@lib/wailsjs/go/models"
 import { PlusIcon } from "@radix-ui/react-icons"
@@ -25,6 +26,10 @@ const BookToolbar: FC<BookToolbarProps> = ({ book }) => {
     return null
   })
 
+  useEventBusListener("connections.pick", () => {
+    connectionDisclose.onOpen()
+  })
+
   return (
     <div className="flex  items-center h-[42px] justify-between relative">
       <div className="flex items-center">
@@ -46,7 +51,7 @@ const BookToolbar: FC<BookToolbarProps> = ({ book }) => {
         {book.title}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 mr-2">
         <Button variant="outline" size="sm" onClick={connectionDisclose.onOpen}>
           {connection ? connection.name : t("notConnected", "Not connected")}
         </Button>

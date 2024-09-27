@@ -13,6 +13,7 @@ import CodeCellAlert from './CodeCellAlert';
 import ResultTable from './ResultTable';
 
 import { Prec } from "@codemirror/state";
+import { useEventBus } from '@hooks/events';
 import CodeCellMenu from './CodeCellMenu';
 
 
@@ -37,11 +38,12 @@ interface CodeBlockProps {
   bookId: string
   cell: books.Cell
   selected?: boolean
-  onChange?: (content: string) => void
+  onChange?: (cellId: string, content: string) => void
 }
 
 const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => {
   const editorRef = useRef<ReactCodeMirrorRef>({});
+  const eventBus = useEventBus();
 
   const [content, setContent] = useState(cell.content)
 
@@ -54,14 +56,14 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
   const results = useStore((state: AppState) => state.results[cell.id] || null)
 
   const debouncedOnChange = useDebounce((content: string) => {
-    onChange && onChange(content)
+    onChange && onChange(cell.id, content)
   }, EDITOR_DEBOUNCE)
 
 
 
   const handleExecute = useCallback(async () => {
     if (!connection) {
-      errorDialogDisclose.onOpenChange(true)
+      eventBus.emit("connections.pick")
       return
     }
 
@@ -97,16 +99,10 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
     return null
   }, [results])
 
-
-
   useEffect(() => {
-    console.log("Editor", selected, editorRef.current.editor)
-
     if (selected) {
-      console.log("set focus")
       editorRef.current.view && editorRef.current.view.focus()
     } else {
-      console.log("remove focus")
       editorRef.current.view && editorRef.current.view.contentDOM.blur()
     }
   }, [selected]);
