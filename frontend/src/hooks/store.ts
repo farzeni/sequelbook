@@ -434,6 +434,8 @@ export async function AddCell(type: "code" | "text", position?: number) {
     return
   }
 
+  SetSelectedCell(newCell.id)
+
   await booksStore.UpdateBook(currentBookId, book)
 }
 
