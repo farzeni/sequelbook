@@ -23,9 +23,7 @@ const ConnectionSwitcher: FC<ConnectionSwitcherProps> = ({ bookId, isOpen, onOpe
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement>(null)
   const [inputValue, setInputValue] = useState("")
-
   const dialogDisclose = useDisclosure()
-
   const connections = useStore((state) => state.connections)
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -44,13 +42,9 @@ const ConnectionSwitcher: FC<ConnectionSwitcherProps> = ({ bookId, isOpen, onOpe
   }
 
   async function handleSelectConnection(connectionId: string) {
-    console.log("!")
     await SetSelectedConnection(bookId, connectionId)
     onOpenChange(false)
-    console.log("!2")
-
   }
-
 
   return (
     <>

@@ -7,7 +7,6 @@ import {
 } from "@components/ui/context-menu"
 import { AddBook, AddTab, RemoveBook, SetSelectedBook, UpdateBookTitle, useStore } from "@hooks/store"
 import { books } from "@lib/wailsjs/go/models"
-import { Dot } from "lucide-react"
 import { FC, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -63,10 +62,16 @@ const BookTitle: FC<BookTitle> = ({ title, editMode, dot, className, onChange, o
     />
   ) : (
     <div className="flex items-center py-1">
-      <div className={`pl-4 text-xs text-gray-500 ${className}`}>{title}</div>
-      {dot && <Dot color="#999" size={16} />}
+      <div className={`pl-4 truncate max-w-[90%]  text-xs text-gray-500 ${className}`}>{title}</div>
+      {dot && <div className={`
+        w-[5px] 
+        h-[5px]
+        rounded-full
+        bg-green-600
+        ml-2
+      `} />}
 
-    </div>
+    </div >
   )
 }
 
@@ -97,7 +102,7 @@ const BookItemMenu: FC<BookItemMenuProps> = ({ book, selected }) => {
             hover:bg-gray-200 
             py-1/2
             my-1/2
-            w-full 
+            max-w-[85%] 
             rounded 
             cursor-pointer 
             `}
