@@ -1,8 +1,10 @@
+import { connections } from "@lib/wailsjs/go/models"
 import React, { createContext, useContext, useEffect } from "react"
 
 
 
 type AppEvents = {
+  "connections.create": (data?: connections.ConnectionData) => void
   "connections.pick": () => void
 }
 
@@ -31,7 +33,7 @@ class EventBus {
     event: keyof AppEvents,
     ...args: Parameters<AppEvents[typeof event]>
   ): void {
-    console.log(`Emitting event ${String(event)}`)
+    console.log(`Emitting event ${String(event)}`, args)
     this.events.get(event)?.forEach((callback) => {
       try {
         callback(...args)

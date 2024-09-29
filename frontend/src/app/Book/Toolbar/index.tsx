@@ -4,6 +4,7 @@ import { useEventBusListener } from "@hooks/events"
 import { AddCell, AppState, useStore } from "@hooks/store"
 import { books } from "@lib/wailsjs/go/models"
 import { PlusIcon } from "@radix-ui/react-icons"
+import { Database } from "lucide-react"
 import { FC } from "react"
 import { useTranslation } from "react-i18next"
 import BookMenu from "./BookMenu"
@@ -53,6 +54,7 @@ const BookToolbar: FC<BookToolbarProps> = ({ book }) => {
 
       <div className="flex items-center gap-2 mr-2">
         <Button variant="outline" size="sm" onClick={connectionDisclose.onOpen}>
+          <Database width={15} height={15} className="mr-1" />
           {connection ? connection.name : t("notConnected", "Not connected")}
         </Button>
 

@@ -1,17 +1,17 @@
 
 import {
-  CommandDialog,
+  Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList
 } from "@components/ui/command"
-import useDisclosure from "@hooks/disclosure"
+import { Dialog, DialogContent } from "@components/ui/dialog"
+import { useEventBus } from "@hooks/events"
 import { SetSelectedConnection, useStore } from "@hooks/store"
-import { FC, useRef, useState } from "react"
+import { FC, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
-import CreateConnectionDialog from "./CreateConnection"
 
 interface ConnectionSwitcherProps {
   bookId: string
@@ -23,21 +23,31 @@ const ConnectionSwitcher: FC<ConnectionSwitcherProps> = ({ bookId, isOpen, onOpe
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement>(null)
   const [inputValue, setInputValue] = useState("")
-  const dialogDisclose = useDisclosure()
   const connections = useStore((state) => state.connections)
+  const events = useEventBus()
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Escape") {
       onOpenChange(false)
     }
 
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && filteredConnections.length === 0) {
       if (inputRef.current) {
         setInputValue(inputRef.current.value)
       }
 
-      dialogDisclose.onOpen()
+      events.emit("connections.create", {
+        name: inputValue,
+        host: "",
+        port: 5432,
+        user: "",
+        pass: "",
+        db: "",
+        type: "postgres"
+      })
+
       onOpenChange(false)
+      e.preventDefault()
     }
   }
 
@@ -46,40 +56,42 @@ const ConnectionSwitcher: FC<ConnectionSwitcherProps> = ({ bookId, isOpen, onOpe
     onOpenChange(false)
   }
 
+  const filteredConnections = useMemo(() =>
+    Object.values(connections).filter((connection) =>
+      connection.name.toLowerCase().includes(inputValue.toLowerCase())
+    ), [connections, inputValue])
+
+
+
   return (
-    <>
-      <CommandDialog open={isOpen} onOpenChange={onOpenChange}>
-        <CommandInput
-          ref={inputRef}
-          placeholder={t("typeCommandOrSearch", "Type a command or search...")}
-          onKeyDown={handleKeyDown}
-          value={inputValue}
-          onValueChange={(value) => setInputValue(value)}
-        />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading={t("Connections", "Connections")}>
-            {Object.values(connections).map((connection) => (
-              <CommandItem key={connection.id} onSelect={() => handleSelectConnection(connection.id)} value={connection.id}>
-                <span>{connection.name}</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="overflow-hidden p-0">
+        <Command
+          shouldFilter={false}
+          className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
 
-        </CommandList>
-      </CommandDialog>
-      <CreateConnectionDialog open={dialogDisclose.isOpen} onOpenChange={dialogDisclose.onOpenChange}
-        initialData={{
-          name: inputValue,
-          host: "",
-          port: 5432,
-          user: "",
-          pass: "",
-          db: "",
-          type: "postgres"
-
-        }} />
-    </>
+          <CommandInput
+            ref={inputRef}
+            placeholder={t("typeConnectionOrSearch", "Type a connection name or search...")}
+            onKeyDown={handleKeyDown}
+            value={inputValue}
+            onValueChange={(value) => setInputValue(value)}
+          />
+          <CommandList >
+            <CommandEmpty>{t("Type a connection name a press Enter to create new connection")}</CommandEmpty>
+            {filteredConnections.length > 0 && (
+              <CommandGroup heading={t("Connections", "Connections")}>
+                {filteredConnections.map((connection) => (
+                  <CommandItem key={connection.id} onSelect={() => handleSelectConnection(connection.id)} value={connection.name}>
+                    <span>{connection.name}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+          </CommandList>
+        </Command>
+      </DialogContent>
+    </Dialog>
   )
 }
 

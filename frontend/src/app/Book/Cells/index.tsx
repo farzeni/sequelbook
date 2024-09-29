@@ -10,58 +10,62 @@ interface CellsListProps {
 }
 
 const CellsList: FC<CellsListProps> = ({ book }) => {
+  console.log(book.title)
   return (
     <div>
       <QuickAdd index={0} />
-
       {book.cells.map((cell: books.Cell, idx: number) => (
-
-        <CellsListItem idx={idx} book={book} cell={cell} />
-      ))
-      }
+        <CellsListItem idx={idx} bookId={book.id} cell={cell} />
+      ))}
     </div >
   )
 
 }
 
-const CellsListItem: FC<{ idx: number, book: books.Book, cell: books.Cell }> = ({ idx, book, cell }) => {
+interface CellsListItemProps {
+  idx: number
+  bookId: string
+  cell: books.Cell
+}
+
+const CellsListItem: FC<CellsListItemProps> = ({ idx, bookId, cell }) => {
   const selectedCellId = useStore((state) => state.editor.currentBookId ? state.editor.tabs[state.editor.currentBookId]?.cellId : null)
 
   const handleBookChange = useCallback(async (cellId: string, source: string) => {
-    if (!book) return
-    UpdateCell(book.id, cellId, source)
-  }, [book])
+    UpdateCell(bookId, cellId, source)
+  }, [bookId])
 
-  const bookId = useMemo(() => book.id, [book])
-  const cellMemo = useMemo(() => cell, [cell])
+  const handleSelectCell = useCallback(() => {
+    SetSelectedCell(cell.id)
+  }, [cell.id])
+
+
   const selected = useMemo(() => {
     return selectedCellId === cell.id
   }, [selectedCellId, cell])
 
   return (
     <div key={cell.id}
-      onClick={() => SetSelectedCell(cell.id)}
+      onClick={handleSelectCell}
       className={`
-          max-w-screen-lg
-          mx-auto
-          relative 
-          rounded 
-          ${selected ? "border-slate-600" : ""}
-          
-        `}>
+        max-w-screen-lg
+        mx-auto
+        relative 
+        rounded 
+        ${selected ? "border-slate-600" : ""}
+      `}>
 
       {cell.type === "code" && (
-        <CodeBlock bookId={bookId} cell={cellMemo} onChange={handleBookChange} selected={selected} />
+        <CodeBlock bookId={bookId} cell={cell} onChange={handleBookChange} selected={selected} />
       )}
 
       {cell.type === "text" && (
-        <TextBlock bookId={bookId} cell={cellMemo} onChange={handleBookChange} selected={selected} />
+        <TextBlock bookId={bookId} cell={cell} onChange={handleBookChange} selected={selected} />
       )}
 
       <QuickAdd index={idx + 1} />
     </div>
   )
-
 }
 
-export default CellsList
+export default CellsList;

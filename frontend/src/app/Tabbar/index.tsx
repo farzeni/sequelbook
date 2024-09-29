@@ -1,7 +1,7 @@
 import { Button } from "@components/ui/button"
 import { Separator } from "@components/ui/separator"
 import { RemoveTab, SetSelectedBook, useStore } from "@hooks/store"
-import { X } from "lucide-react"
+import { Book, X } from "lucide-react"
 import TabbarMenu from './TabbarMenu'
 
 const Sidebar = () => {
@@ -16,7 +16,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className="flex-1 h-[39px]  flex px-2 items-center"
+      className="flex-1 h-[39px] flex px-2 items-center"
     >
       <div className="flex-1 flex h-[31px] pt-1 items-center">
         {tabsOrder.map((bookId, idx) => (
@@ -26,30 +26,35 @@ const Sidebar = () => {
               onClick={() => SetSelectedBook(bookId)}
               style={{ "--wails-draggable": "no-drag" } as React.CSSProperties}
               className={`
-            cursor-pointer
-            flex 
-            items-center 
-            gap-2 
-            py-3
-            pl-3 
-            mb-[-5px]   
-            mx-1
-            max-w-[140px] 
-            h-[31px]
-            rounded-t 
-            ${selected === bookId ? `
-              bg-white border 
-              border-b-white
-              ` : `
-              bg-gray-50 
-              border-b 
-              hover:bg-gray-100 
-              mb-2
-              rounded`}
-            `}>
+                group
+                cursor-pointer
+                flex 
+                items-center 
+                gap-2 
+                py-3
+                pl-3 
+                mb-[-5px]   
+                mx-1
+                max-w-[140px] 
+                h-[31px]
+                rounded-t 
+                
+                ${selected === bookId ? `
+                  bg-white border 
+                  border-b-white
+                  ` : `
+                  bg-gray-50 
+                  border-b 
+                  hover:bg-gray-100 
+                  mb-2
+                  rounded`}
+                `}>
+
+              {bookId.startsWith("bok") && (<Book size={15} className="text-gray-700" />)}
               <span className="text-xs text-gray-500 truncate">{books[bookId].title}</span>
 
-              <Button variant="ghost" size="icon" onClick={(e) => handleCloseTab(e, bookId)}>
+              <Button variant="ghost" size="icon-sm" onClick={(e) => handleCloseTab(e, bookId)}
+                className={`mr-1`}>
                 <X size={15} />
               </Button>
             </div>

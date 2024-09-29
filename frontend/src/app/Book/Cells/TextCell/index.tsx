@@ -22,7 +22,7 @@ import {
 } from '@mdxeditor/editor';
 import '@mdxeditor/editor/style.css';
 import { SaveIcon } from "lucide-react";
-import { FC, useCallback, useEffect, useRef, useState } from "react";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import MarkdownView from 'react-showdown';
 import CellMenu from "../CellMenu";
@@ -143,4 +143,4 @@ const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected, onChange }) => 
   )
 }
 
-export default TextBlock
+export default React.memo(TextBlock)

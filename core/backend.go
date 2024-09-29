@@ -110,6 +110,18 @@ func (b *Backend) LoadSettings() (*Settings, error) {
 	return &Settings{}, nil
 }
 
+func (b *Backend) OpenFileDialog() (string, error) {
+	path, err := wrt.OpenFileDialog(b.ctx, wrt.OpenDialogOptions{
+		Title: "Open File",
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return path, nil
+}
+
 func userConfigDir() (string, error) {
 	var configDir string
 	var err error

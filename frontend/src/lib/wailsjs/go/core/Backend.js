@@ -10,6 +10,10 @@ export function LoadSettings() {
   return window['go']['core']['Backend']['LoadSettings']();
 }
 
+export function OpenFileDialog() {
+  return window['go']['core']['Backend']['OpenFileDialog']();
+}
+
 export function SaveEditorState(arg1) {
   return window['go']['core']['Backend']['SaveEditorState'](arg1);
 }

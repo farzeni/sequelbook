@@ -14,6 +14,7 @@ import ResultTable from './ResultTable';
 
 import { Prec } from "@codemirror/state";
 import { useEventBus } from '@hooks/events';
+import React from 'react';
 import CodeCellMenu from './CodeCellMenu';
 
 
@@ -59,8 +60,6 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
     onChange && onChange(cell.id, content)
   }, EDITOR_DEBOUNCE)
 
-
-
   const handleExecute = useCallback(async () => {
     if (!connection) {
       eventBus.emit("connections.pick")
@@ -72,7 +71,6 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
 
     try {
       await Execute(cell.id)
-
     } catch (error) {
       console.error("Error executing code", error)
       setError(error)
@@ -106,6 +104,8 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
       editorRef.current.view && editorRef.current.view.contentDOM.blur()
     }
   }, [selected]);
+
+  console.log("Rendering code cell", cell.id)
 
 
   return (
@@ -182,4 +182,4 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
   )
 }
 
-export default CodeBlock
+export default React.memo(CodeBlock)

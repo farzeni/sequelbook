@@ -6,6 +6,8 @@ export function LoadEditorState():Promise<string>;
 
 export function LoadSettings():Promise<core.Settings>;
 
+export function OpenFileDialog():Promise<string>;
+
 export function SaveEditorState(arg1:string):Promise<void>;
 
 export function SaveSettings(arg1:core.Settings):Promise<void>;

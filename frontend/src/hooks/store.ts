@@ -31,7 +31,10 @@ export interface AppState {
   editor: EditorState
 }
 
+export type SidebarSection = "books" | "connections"
 export interface EditorState {
+  sidebar: SidebarSection | null
+
   currentBookId: string | null
   tabs: {
     [bookId: string]: BookTab
@@ -44,6 +47,7 @@ export const useStore = create<AppState>()(() => ({
   connections: {},
   results: {},
   editor: {
+    sidebar: "books",
     currentBookId: null,
     tabs: {},
     tabsOrder: [],
@@ -63,7 +67,10 @@ export async function LoadEditorState() {
     const editorState = JSON.parse(state)
     useStore.setState(
       produce((state: AppState) => {
-        state.editor = editorState
+        state.editor = {
+          ...state.editor,
+          ...editorState,
+        }
       })
     )
   } catch (error) {
@@ -79,6 +86,15 @@ export async function SaveEditorState() {
   } catch (error) {
     console.error("Error saving editor state", error)
   }
+}
+
+export function SetSidebar(section: SidebarSection | null) {
+  useStore.setState(
+    produce((state: AppState) => {
+      state.editor.sidebar =
+        state.editor.sidebar === section && !!section ? null : section
+    })
+  )
 }
 
 export async function LoadConnections() {
@@ -320,12 +336,13 @@ export function SelectPreviousCell() {
     return
   }
 
-  const currentCellId = useStore.getState().editor.tabs[currentBookId].cellId
   const book = useStore.getState().books[currentBookId]
 
   if (!book) {
     return
   }
+
+  const currentCellId = useStore.getState().editor.tabs[currentBookId].cellId
 
   const cellIdx = book.cells.findIndex((cell) => cell.id === currentCellId)
 
