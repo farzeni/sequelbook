@@ -1,4 +1,4 @@
-import { sqbCodeMirrorKeymap } from '@app/Book/keybindngs';
+import { sqbCodeMirrorKeymap } from '@app/Workspace/Book/keybindngs';
 import { PostgreSQL, sql } from '@codemirror/lang-sql';
 import { useDebounce } from '@hooks/debounce';
 import useDisclosure from '@hooks/disclosure';

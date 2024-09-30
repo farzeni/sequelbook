@@ -1,4 +1,3 @@
-import BookContent from "@app/Book"
 import Sidebar from "@app/Sidebar"
 import Tabbar from "@app/Tabbar"
 import "@assets/css/main.css"
@@ -7,6 +6,7 @@ import { InitStore } from "@hooks/store"
 import i18n from "i18next"
 import { useEffect } from "react"
 import { initReactI18next } from "react-i18next"
+import Workspace from "./Workspace"
 
 i18n
   .use(initReactI18next) // passes i18n down to react-i18next
@@ -54,7 +54,7 @@ function App() {
           </div> */}
           </div>
           <div className="overflow-hidden">
-            <BookContent />
+            <Workspace />
           </div>
         </div>
       </div>

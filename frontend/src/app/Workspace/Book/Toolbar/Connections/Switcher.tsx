@@ -9,7 +9,7 @@ import {
 } from "@components/ui/command"
 import { Dialog, DialogContent } from "@components/ui/dialog"
 import { useEventBus } from "@hooks/events"
-import { SetSelectedConnection, useStore } from "@hooks/store"
+import { BookSelectConnection, useStore } from "@hooks/store"
 import { FC, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -52,7 +52,7 @@ const ConnectionSwitcher: FC<ConnectionSwitcherProps> = ({ bookId, isOpen, onOpe
   }
 
   async function handleSelectConnection(connectionId: string) {
-    await SetSelectedConnection(bookId, connectionId)
+    await BookSelectConnection(bookId, connectionId)
     onOpenChange(false)
   }
 

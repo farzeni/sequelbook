@@ -5,7 +5,7 @@ import BookToolbar from "./BookToolbar";
 
 
 const BooksPanel = () => {
-  const selectedBookId = useStore((state) => state.editor.currentBookId)
+  const selectedTabId = useStore((state) => state.editor.currentTabId)
   const books = useStore((state) => state.books)
 
   const sidebar = useStore((state) => state.editor.sidebar)
@@ -20,7 +20,7 @@ const BooksPanel = () => {
       {orderedBooks.length > 0 ? (
         <div className="flex flex-col gap-1 w-full p-4">
           {orderedBooks.map((book) => (
-            <BookItem key={book.id} book={book} selected={selectedBookId === book.id} />
+            <BookItem key={book.id} book={book} selected={selectedTabId === book.id} />
           ))}
         </div>
       ) : (

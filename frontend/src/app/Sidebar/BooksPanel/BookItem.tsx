@@ -6,7 +6,7 @@ import {
   ContextMenuTrigger
 } from "@components/ui/context-menu"
 import { useEventBus } from "@hooks/events"
-import { AddBook, AddTab, RemoveBook, SetSelectedBook, UpdateBookTitle } from "@hooks/store"
+import { AddBook, AddTab, RemoveBook, SelectTab, UpdateBookTitle } from "@hooks/store"
 import { books } from "@lib/wailsjs/go/models"
 import { FC } from "react"
 import { useTranslation } from "react-i18next"
@@ -32,7 +32,7 @@ const BookItem: FC<BookItemProps> = ({ book, selected, children }) => {
         itemId={book.id}
         title={book.title}
         selected={selected}
-        onSelected={SetSelectedBook}
+        onSelected={SelectTab}
         onTextChange={handleTitleChange}
       />
     </BookItemMenu>
@@ -58,7 +58,7 @@ const BookItemMenu: FC<BookItemMenuProps> = ({ book, children }) => {
       <ContextMenuContent className="w-44">
         <ContextMenuItem inset onClick={() => {
           AddTab(book.id)
-          SetSelectedBook(book.id)
+          SelectTab(book.id)
         }}>
           <span className="text-xs">{t("openNewTab", "Open in new tab")}</span>
         </ContextMenuItem>

@@ -18,10 +18,19 @@ export type ResultMap = {
   [cellId: string]: runners.QueryResult
 }
 
+export type TabType = "book" | "connection"
 export interface BookTab {
+  type: "book"
   bookId: string
   cellId: string | null
   connectionId: string | null
+}
+
+export interface DatabaseTab {
+  type: "connection"
+  connectionId: string
+  cellId?: null
+  bookId?: null
 }
 
 export interface AppState {
@@ -34,12 +43,26 @@ export interface AppState {
 export type SidebarSection = "books" | "connections"
 export interface EditorState {
   sidebar: SidebarSection | null
-
-  currentBookId: string | null
+  currentTabId: string | null
   tabs: {
-    [bookId: string]: BookTab
+    [tabId: string]: BookTab | DatabaseTab
   }
   tabsOrder: string[]
+}
+
+export function isBookTab(tab: BookTab | DatabaseTab): tab is BookTab {
+  return tab.type === "book"
+}
+export function isBookID(tabId: string): boolean {
+  return tabId.startsWith("bok")
+}
+
+export function isDatabaseTab(tab: BookTab | DatabaseTab): tab is DatabaseTab {
+  return tab.type === "connection"
+}
+
+export function isDatabaseID(tabId: string): boolean {
+  return tabId.startsWith("con")
 }
 
 export const useStore = create<AppState>()(() => ({
@@ -48,7 +71,7 @@ export const useStore = create<AppState>()(() => ({
   results: {},
   editor: {
     sidebar: "books",
-    currentBookId: null,
+    currentTabId: null,
     tabs: {},
     tabsOrder: [],
   },
@@ -153,7 +176,7 @@ export async function RemoveConnection(connectionId: string) {
   SaveEditorState()
 }
 
-export function SetSelectedConnection(bookId: string, connectionId: string) {
+export function BookSelectConnection(bookId: string, connectionId: string) {
   const connection = useStore.getState().connections[connectionId]
 
   if (!connection) {
@@ -191,64 +214,127 @@ export async function LoadBooks() {
   )
 }
 
-export function SetSelectedBook(bookId: string) {
-  const book = useStore.getState().books[bookId]
+export function SelectTab(tabId: string) {
+  if (isBookID(tabId)) {
+    const book = useStore.getState().books[tabId]
 
-  if (!book) {
-    return
-  }
-
-  useStore.setState(
-    produce((state: AppState) => {
-      state.editor.currentBookId = book.id
-
-      if (!state.editor.tabs[book.id]) {
-        state.editor.tabs[book.id] = {
-          bookId: book.id,
-          cellId: null,
-          connectionId: null,
-        }
-      }
-    })
-  )
-
-  AddTab(bookId)
-}
-
-export function AddTab(bookId: string) {
-  const tab = useStore.getState().editor.tabs[bookId]
-  const tabsOrder = useStore.getState().editor.tabsOrder
-  const book = useStore.getState().books[bookId]
-
-  if (!book) {
-    return
-  }
-
-  if (!tab) {
-    const newTab = {
-      bookId,
-      content: book,
-      cellId: null,
-      connectionId: null,
-      results: {},
+    if (!book) {
+      return
     }
 
     useStore.setState(
       produce((state: AppState) => {
-        state.editor.tabs[bookId] = newTab
-        state.editor.tabsOrder.push(bookId)
+        state.editor.currentTabId = book.id
+
+        if (!state.editor.tabs[book.id]) {
+          state.editor.tabs[book.id] = {
+            type: "book",
+            bookId: book.id,
+            cellId: null,
+            connectionId: null,
+          }
+        }
       })
     )
+  }
+
+  if (isDatabaseID(tabId)) {
+    const connection = useStore.getState().connections[tabId]
+
+    if (!connection) {
+      return
+    }
+
+    useStore.setState(
+      produce((state: AppState) => {
+        state.editor.currentTabId = connection.id
+
+        if (!state.editor.tabs[connection.id]) {
+          state.editor.tabs[connection.id] = {
+            type: "connection",
+            connectionId: connection.id,
+            cellId: null,
+            bookId: null,
+          }
+        }
+      })
+    )
+  }
+
+  AddTab(tabId)
+}
+
+export function AddTab(tabId: string) {
+  const tab = useStore.getState().editor.tabs[tabId]
+  const tabsOrder = useStore.getState().editor.tabsOrder
+  const book = useStore.getState().books[tabId]
+
+  if (tab && !tabsOrder.includes(tabId)) {
+    useStore.setState(
+      produce((state: AppState) => {
+        state.editor.tabsOrder.push(tabId)
+      })
+    )
+  }
+
+  if (tab) {
     return
   }
 
-  if (tabsOrder.indexOf(bookId) === -1) {
-    console.log("Adding tab", bookId)
-    useStore.setState(
-      produce((state: AppState) => {
-        state.editor.tabsOrder.push(bookId)
-      })
-    )
+  if (tabId.startsWith("bok")) {
+    if (!book) {
+      return
+    }
+
+    if (!tab) {
+      const newTab = {
+        bookId: tabId,
+        content: book,
+        cellId: null,
+        connectionId: null,
+        results: {},
+      }
+
+      useStore.setState(
+        produce((state: AppState) => {
+          state.editor.tabs[tabId] = {
+            type: "book",
+            ...newTab,
+          }
+          state.editor.tabsOrder.push(tabId)
+        })
+      )
+      return
+    }
+  }
+
+  if (tabId.startsWith("con")) {
+    const connection = useStore.getState().connections[tabId]
+
+    if (!connection) {
+      return
+    }
+
+    if (!tab) {
+      const newTab = {
+        connectionId: tabId,
+        content: connection,
+        cellId: null,
+        bookId: null,
+        results: {},
+      }
+
+      useStore.setState(
+        produce((state: AppState) => {
+          state.editor.tabs[tabId] = {
+            type: "connection",
+            ...newTab,
+          }
+          state.editor.tabsOrder.push(tabId)
+        })
+      )
+      return
+    }
   }
 
   SaveEditorState()
@@ -267,16 +353,16 @@ export function RemoveTab(bookId: string) {
     })
   )
 
-  if (useStore.getState().editor.currentBookId === bookId) {
+  if (useStore.getState().editor.currentTabId === bookId) {
     if (editor.tabsOrder.length === 1) {
       useStore.setState(
         produce((state: AppState) => {
-          state.editor.currentBookId = null
+          state.editor.currentTabId = null
         })
       )
     } else {
       const newTabIdx = tabIdx === 0 ? 1 : tabIdx - 1
-      SetSelectedBook(editor.tabsOrder[newTabIdx])
+      SelectTab(editor.tabsOrder[newTabIdx])
     }
   }
 
@@ -284,16 +370,18 @@ export function RemoveTab(bookId: string) {
 }
 
 export function SetSelectedCell(cellId: string) {
-  const currentBookId = useStore.getState().editor.currentBookId
+  const currentTabId = useStore.getState().editor.currentTabId
   const tabs = useStore.getState().editor.tabs
 
-  if (!currentBookId) {
+  if (!currentTabId) {
     return
   }
 
   useStore.setState(
     produce((state: AppState) => {
-      state.editor.tabs[currentBookId].cellId = cellId
+      if (isBookTab(state.editor.tabs[currentTabId])) {
+        state.editor.tabs[currentTabId].cellId = cellId
+      }
     })
   )
 
@@ -301,14 +389,20 @@ export function SetSelectedCell(cellId: string) {
 }
 
 export function SelectNextCell() {
-  const currentBookId = useStore.getState().editor.currentBookId
+  const currentTabId = useStore.getState().editor.currentTabId
 
-  if (!currentBookId) {
+  if (!currentTabId) {
     return
   }
 
-  const currentCellId = useStore.getState().editor.tabs[currentBookId].cellId
-  const book = useStore.getState().books[currentBookId]
+  const tab = useStore.getState().editor.tabs[currentTabId]
+
+  if (!tab || tab.type !== "book") {
+    return
+  }
+
+  const currentCellId = tab.cellId
+  const book = useStore.getState().books[currentTabId]
 
   if (!book) {
     return
@@ -330,19 +424,25 @@ export function SelectNextCell() {
 }
 
 export function SelectPreviousCell() {
-  const currentBookId = useStore.getState().editor.currentBookId
+  const currentTabId = useStore.getState().editor.currentTabId
 
-  if (!currentBookId) {
+  if (!currentTabId) {
     return
   }
 
-  const book = useStore.getState().books[currentBookId]
+  const book = useStore.getState().books[currentTabId]
 
   if (!book) {
     return
   }
 
-  const currentCellId = useStore.getState().editor.tabs[currentBookId].cellId
+  const tab = useStore.getState().editor.tabs[currentTabId]
+
+  if (!tab || tab.type !== "book") {
+    return
+  }
+
+  const currentCellId = tab.cellId
 
   const cellIdx = book.cells.findIndex((cell) => cell.id === currentCellId)
 
@@ -373,7 +473,7 @@ export async function AddBook(data?: { title?: string; cells?: books.Cell[] }) {
     })
   )
 
-  SetSelectedBook(newBook.id)
+  SelectTab(newBook.id)
 
   return newBook
 }
@@ -403,8 +503,8 @@ export async function RemoveBook(bookId: string) {
         (id: string) => id !== bookId
       )
 
-      if (state.editor.currentBookId === bookId) {
-        state.editor.currentBookId = Object.keys(state.books)[0] || null
+      if (state.editor.currentTabId === bookId) {
+        state.editor.currentTabId = Object.keys(state.books)[0] || null
       }
     })
   )
@@ -415,37 +515,37 @@ export async function RemoveBook(bookId: string) {
 }
 
 export async function AddCell(type: "code" | "text", position?: number) {
-  const currentBookId = useStore.getState().editor.currentBookId
+  const currentTabId = useStore.getState().editor.currentTabId
 
-  if (!currentBookId) {
+  if (!currentTabId) {
     return
   }
 
-  const newCell: books.Cell = await booksStore.CreateCell(currentBookId, type)
+  const newCell: books.Cell = await booksStore.CreateCell(currentTabId, type)
 
   useStore.setState(
     produce((state: AppState) => {
-      if (!state.books[currentBookId].cells) {
-        state.books[currentBookId].cells = []
+      if (!state.books[currentTabId].cells) {
+        state.books[currentTabId].cells = []
       }
 
       if (position !== undefined && position >= 0) {
-        state.books[currentBookId].cells.splice(position, 0, newCell)
+        state.books[currentTabId].cells.splice(position, 0, newCell)
       } else {
-        const tab = state.editor.tabs[currentBookId]
-        if (tab.cellId) {
-          const cellIdx = state.books[currentBookId].cells.findIndex(
+        const tab = state.editor.tabs[currentTabId]
+        if (isBookTab(tab) && tab.cellId) {
+          const cellIdx = state.books[currentTabId].cells.findIndex(
             (cell) => cell.id === tab.cellId
           )
-          state.books[currentBookId].cells.splice(cellIdx + 1, 0, newCell)
+          state.books[currentTabId].cells.splice(cellIdx + 1, 0, newCell)
         } else {
-          state.books[currentBookId].cells.push(newCell)
+          state.books[currentTabId].cells.push(newCell)
         }
       }
     })
   )
 
-  const book = useStore.getState().books[currentBookId]
+  const book = useStore.getState().books[currentTabId]
 
   if (!book) {
     return
@@ -453,7 +553,7 @@ export async function AddCell(type: "code" | "text", position?: number) {
 
   SetSelectedCell(newCell.id)
 
-  await booksStore.UpdateBook(currentBookId, book)
+  await booksStore.UpdateBook(currentTabId, book)
 }
 
 export async function UpdateCell(
@@ -502,15 +602,15 @@ export async function RemoveCell(bookId: string, cellId: string) {
 }
 
 export async function SwapCells(position1: number, position2: number) {
-  const currentBookId = useStore.getState().editor.currentBookId
+  const currentTabId = useStore.getState().editor.currentTabId
 
-  if (!currentBookId) {
+  if (!currentTabId) {
     return
   }
 
   useStore.setState(
     produce((state: AppState) => {
-      const book = state.books[currentBookId]
+      const book = state.books[currentTabId]
 
       const temp = book.cells[position1]
       book.cells[position1] = book.cells[position2]
@@ -518,13 +618,13 @@ export async function SwapCells(position1: number, position2: number) {
     })
   )
 
-  const book = useStore.getState().books[currentBookId]
+  const book = useStore.getState().books[currentTabId]
 
   if (!book) {
     return
   }
 
-  await booksStore.UpdateBook(currentBookId, book)
+  await booksStore.UpdateBook(currentTabId, book)
 }
 
 export async function MoveCellUp(bookId: string, cellId: string) {
@@ -560,7 +660,7 @@ export async function MoveCellDown(bookId: string, cellId: string) {
 }
 
 export async function Execute(cellID: string) {
-  const bookId = useStore.getState().editor.currentBookId
+  const bookId = useStore.getState().editor.currentTabId
 
   if (!bookId) {
     console.log("No book selected")

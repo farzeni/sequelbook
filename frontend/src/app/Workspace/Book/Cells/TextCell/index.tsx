@@ -1,4 +1,4 @@
-import { CELL_BINDINGS } from "@app/Book/keybindngs";
+import { CELL_BINDINGS } from "@app/Workspace/Book/keybindngs";
 import { useDebounce } from "@hooks/debounce";
 import { SelectNextCell, SelectPreviousCell } from "@hooks/store";
 import { books } from "@lib/wailsjs/go/models";

@@ -29,7 +29,7 @@ interface CellsListItemProps {
 }
 
 const CellsListItem: FC<CellsListItemProps> = ({ idx, bookId, cell }) => {
-  const selectedCellId = useStore((state) => state.editor.currentBookId ? state.editor.tabs[state.editor.currentBookId]?.cellId : null)
+  const selectedCellId = useStore((state) => state.editor.currentTabId ? state.editor.tabs[state.editor.currentTabId]?.cellId : null)
 
   const handleBookChange = useCallback(async (cellId: string, source: string) => {
     UpdateCell(bookId, cellId, source)

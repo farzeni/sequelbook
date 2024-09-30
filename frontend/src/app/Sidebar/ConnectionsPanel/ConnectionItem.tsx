@@ -6,7 +6,7 @@ import {
   ContextMenuTrigger
 } from "@components/ui/context-menu"
 import { useEventBus } from "@hooks/events"
-import { AddTab, RemoveConnection, SetSelectedBook } from "@hooks/store"
+import { AddTab, RemoveConnection, SelectTab } from "@hooks/store"
 import { connections } from "@lib/wailsjs/go/models"
 import { FC } from "react"
 import { useTranslation } from "react-i18next"
@@ -32,7 +32,7 @@ const ConnectionItem: FC<ConnectionItemProps> = ({ connection, selected, childre
         itemId={connection.id}
         title={connection.name}
         selected={selected}
-        onSelected={SetSelectedBook}
+        onSelected={SelectTab}
         onTextChange={handleTitleChange}
       />
     </ConnectionItemMenu>
@@ -58,7 +58,7 @@ const ConnectionItemMenu: FC<ConnectionItemMenuProps> = ({ connection, children 
       <ContextMenuContent className="w-44">
         <ContextMenuItem inset onClick={() => {
           AddTab(connection.id)
-          SetSelectedBook(connection.id)
+          SelectTab(connection.id)
         }}>
           <span className="text-xs">{t("openNewTab", "Open in new tab")}</span>
         </ContextMenuItem>

@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@components/ui/dropdown-menu";
-import { RemoveTab, SetSelectedBook, useStore } from "@hooks/store";
+import { isBookID, RemoveTab, SelectTab, useStore } from "@hooks/store";
 
 import { ChevronDown } from "lucide-react";
 
@@ -15,6 +15,7 @@ import { ChevronDown } from "lucide-react";
 const TabbbarMenu = ({ }) => {
   const tabsOrder = useStore((state) => state.editor.tabsOrder)
   const books = useStore((state) => state.books)
+  const connections = useStore((state) => state.connections)
 
   function handleCloseTabs(e: React.MouseEvent) {
     e.stopPropagation()
@@ -25,6 +26,16 @@ const TabbbarMenu = ({ }) => {
     })
   }
 
+  function getTabTitle(tabId: string) {
+    console.log(tabId)
+    if (isBookID(tabId)) {
+      return books[tabId].title || "Untitled"
+    } else {
+      return connections[tabId].name || "Untitled Connection"
+    }
+  }
+
+  console.log(tabsOrder)
 
   return (
     <DropdownMenu>
@@ -43,11 +54,11 @@ const TabbbarMenu = ({ }) => {
 
           <DropdownMenuSeparator />
         )}
-        {tabsOrder.map((bookId) => (
-          <DropdownMenuItem key={bookId}
-            onClick={() => SetSelectedBook(bookId)}
+        {tabsOrder.map((tabId) => (
+          <DropdownMenuItem key={tabId}
+            onClick={() => SelectTab(tabId)}
           >
-            <span className="text-xs">{books[bookId].title}</span>
+            <span className="text-xs">{getTabTitle(tabId)}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
