@@ -50,6 +50,15 @@ const BookItemMenu: FC<BookItemMenuProps> = ({ book, children }) => {
 
   const events = useEventBus()
 
+  async function handleDuplicate() {
+    const duplicate = await AddBook({
+      title: `${book.title} copy`,
+      cells: book.cells,
+    })
+
+    events.emit("sidebar.item.rename", duplicate.id)
+  }
+
   return (
     <ContextMenu>
       <ContextMenuTrigger>
@@ -66,12 +75,7 @@ const BookItemMenu: FC<BookItemMenuProps> = ({ book, children }) => {
           <span className="text-xs">{t("openNewWindow", "Open in new window")}</span>
         </ContextMenuItem> */}
         <ContextMenuSeparator />
-        <ContextMenuItem inset onClick={async () => {
-          AddBook({
-            title: `${book.title} copy`,
-            cells: book.cells,
-          })
-        }}>
+        <ContextMenuItem inset onClick={handleDuplicate}>
           <span className="text-xs">{t("makeACopy", "Make a Copy")}</span>
         </ContextMenuItem>
         {/* <ContextMenuItem inset>
