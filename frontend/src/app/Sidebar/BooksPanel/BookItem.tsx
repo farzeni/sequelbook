@@ -6,8 +6,8 @@ import {
   ContextMenuTrigger
 } from "@components/ui/context-menu"
 import { useEventBus } from "@hooks/events"
-import { AddBook, AddTab, RemoveBook, SelectTab, UpdateBookTitle } from "@hooks/store"
 import { books } from "@lib/wailsjs/go/models"
+import { AddBook, AddTab, RemoveBook, SelectTab, UpdateBookTitle } from "@store"
 import { FC } from "react"
 import { useTranslation } from "react-i18next"
 import SidebarItem from "../SidebarItem"

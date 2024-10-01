@@ -1,5 +1,5 @@
-import { MoveCellDown, MoveCellUp, RemoveCell } from "@hooks/store"
 import { books } from "@lib/wailsjs/go/models"
+import { MoveCellDown, MoveCellUp, RemoveCell } from "@store"
 import { ArrowDown, ArrowUp, TrashIcon } from "lucide-react"
 import { FC } from "react"
 

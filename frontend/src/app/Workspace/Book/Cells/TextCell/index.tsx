@@ -1,6 +1,5 @@
 import { CELL_BINDINGS } from "@app/Workspace/Book/keybindngs";
 import { useDebounce } from "@hooks/debounce";
-import { SelectNextCell, SelectPreviousCell } from "@hooks/store";
 import { books } from "@lib/wailsjs/go/models";
 import {
   BlockTypeSelect,
@@ -21,6 +20,7 @@ import {
   UndoRedo
 } from '@mdxeditor/editor';
 import '@mdxeditor/editor/style.css';
+import { SelectNextCell, SelectPreviousCell } from "@store";
 import { SaveIcon } from "lucide-react";
 import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";

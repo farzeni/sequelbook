@@ -1,6 +1,7 @@
 import { Button } from "@components/ui/button"
 import { Separator } from "@components/ui/separator"
-import { isBookID, isDatabaseID, RemoveTab, SelectTab, useStore } from "@hooks/store"
+import { useStore } from "@hooks/store"
+import { isBookID, isDatabaseID, RemoveTab, SelectTab } from "@store"
 import { Book, Database, X } from "lucide-react"
 import TabbarMenu from './TabbarMenu'
 

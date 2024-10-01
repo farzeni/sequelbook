@@ -22,7 +22,7 @@ import {
 } from "@components/ui/form"
 import { Input } from "@components/ui/input"
 import { useEventBusListener } from "@hooks/events"
-import { AddConnection } from "@hooks/store"
+import { AddConnection } from "@store"
 import { useTranslation } from "react-i18next"
 
 const CreateConnectionDialog = () => {

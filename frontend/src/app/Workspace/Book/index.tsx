@@ -1,5 +1,6 @@
 import { Button } from "@components/ui/button"
-import { AddCell, useStore } from "@hooks/store"
+import { useStore } from "@hooks/store"
+import { AddCell } from "@store"
 import { FC, useEffect, useRef } from "react"
 import { Trans, useTranslation } from "react-i18next"
 import CellsList from "./Cells"

@@ -1,14 +1,15 @@
 import { Button } from "@components/ui/button"
 import useDisclosure from "@hooks/disclosure"
 import { useEventBusListener } from "@hooks/events"
-import { AddCell, AppState, useStore } from "@hooks/store"
 import { books } from "@lib/wailsjs/go/models"
 import { PlusIcon } from "@radix-ui/react-icons"
+import { AddCell, AppState } from "@store"
 import { Database } from "lucide-react"
 import { FC } from "react"
 import { useTranslation } from "react-i18next"
 import BookMenu from "./BookMenu"
 import ConnectionSwitcher from "./Connections/Switcher"
+import { useStore } from "@hooks/store"
 
 interface BookToolbarProps {
   book: books.Book

@@ -7,7 +7,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@components/ui/dropdown-menu";
-import { isBookID, RemoveTab, SelectTab, useStore } from "@hooks/store";
+import { useStore } from "@hooks/store";
+import { isBookID, RemoveTab, SelectTab } from "@store";
 
 import { ChevronDown } from "lucide-react";
 

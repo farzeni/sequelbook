@@ -2,8 +2,8 @@ import { sqbCodeMirrorKeymap } from '@app/Workspace/Book/keybindngs';
 import { PostgreSQL, sql } from '@codemirror/lang-sql';
 import { useDebounce } from '@hooks/debounce';
 import useDisclosure from '@hooks/disclosure';
-import { AppState, Execute, SelectNextCell, SelectPreviousCell, useStore } from '@hooks/store';
 import { books } from "@lib/wailsjs/go/models";
+import { AppState, Execute, SelectNextCell, SelectPreviousCell } from '@store';
 import { githubLight } from '@uiw/codemirror-theme-github';
 import CodeMirror, { keymap, ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { t } from 'i18next';
@@ -14,9 +14,9 @@ import ResultTable from './ResultTable';
 
 import { Prec } from "@codemirror/state";
 import { useEventBus } from '@hooks/events';
+import { useStore } from '@hooks/store';
 import React from 'react';
 import CodeCellMenu from './CodeCellMenu';
-
 
 const EDITOR_DEBOUNCE = 1000
 

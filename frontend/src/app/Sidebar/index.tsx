@@ -1,11 +1,13 @@
 import { Button } from "@components/ui/button"
 import { Toggle } from "@components/ui/toggle"
-import { SetSidebar, useStore } from "@hooks/store"
+import { useStore } from "@hooks/store"
 import { GearIcon } from '@radix-ui/react-icons'
-import { Book, Database } from "lucide-react"
+import { SetSidebar } from "@store"
+import { AlignLeft, Book, Database } from "lucide-react"
 import BooksPanel from "./BooksPanel"
 import ConnectionsPanel from "./ConnectionsPanel"
 import CreateConnectionDialog from "./ConnectionsPanel/CreateConnection"
+import ContentsPanel from "./ContentsPanel"
 
 const Sidebar = () => {
   const sidebar = useStore((state) => state.editor.sidebar)
@@ -17,6 +19,9 @@ const Sidebar = () => {
           <div
             className="flex-col flex gap-2 items-center"
           >
+            <Toggle onClick={() => SetSidebar("contents")}>
+              <AlignLeft width={18} height={18} />
+            </Toggle>
             <Toggle onClick={() => SetSidebar("books")}>
               <Book width={18} height={18} />
             </Toggle>
@@ -32,6 +37,7 @@ const Sidebar = () => {
           </div>
         </div>
 
+        {sidebar === 'contents' && <ContentsPanel />}
         {sidebar === 'books' && <BooksPanel />}
         {sidebar === 'connections' && <ConnectionsPanel />}
       </div>

@@ -9,7 +9,8 @@ import {
 } from "@components/ui/command"
 import { Dialog, DialogContent } from "@components/ui/dialog"
 import { useEventBus } from "@hooks/events"
-import { BookSelectConnection, useStore } from "@hooks/store"
+import { useStore } from "@hooks/store"
+import { BookSelectConnection } from "@store"
 import { FC, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 

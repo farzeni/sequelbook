@@ -1,5 +1,5 @@
 import { Button } from "@components/ui/button"
-import { AddCell } from "@hooks/store"
+import { AddCell } from "@store"
 import { FC } from "react"
 
 interface QuickAddProps {

@@ -1,5 +1,6 @@
-import { SetSelectedCell, UpdateCell, useStore } from "@hooks/store";
+import { useStore } from "@hooks/store";
 import { books } from "@lib/wailsjs/go/models";
+import { SetSelectedCell, UpdateCell } from "@store";
 import { FC, useCallback, useMemo } from "react";
 import CodeBlock from "./CodeCell";
 import QuickAdd from "./QuickAdd";

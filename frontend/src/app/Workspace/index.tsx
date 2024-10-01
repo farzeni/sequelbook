@@ -1,4 +1,5 @@
-import { isBookID, useStore } from "@hooks/store";
+import { useStore } from "@hooks/store";
+import { isBookID } from "@store";
 import BookContent from "./Book";
 import DatabaseContent from "./Database";
 
