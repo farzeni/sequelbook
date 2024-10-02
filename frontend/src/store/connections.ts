@@ -54,41 +54,9 @@ export async function UpdateConnection(
 }
 
 export async function RemoveConnection(connectionId: string) {
-  useStore.setState(
-    produce((state: AppState) => {
-      delete state.connections[connectionId]
-
-      for (const tab of Object.keys(state.editor.tabs)) {
-        if (state.editor.tabs[tab].connectionId === connectionId) {
-          state.editor.tabs[tab].connectionId = null
-        }
-      }
-    })
-  )
+  useStore.setState(produce((state: AppState) => {}))
 
   await connectionsStore.DeleteConnection(connectionId)
-
-  SaveEditorState()
-}
-
-export function BookSelectConnection(bookId: string, connectionId: string) {
-  const connection = useStore.getState().connections[connectionId]
-
-  if (!connection) {
-    return
-  }
-
-  const tab = useStore.getState().editor.tabs[bookId]
-
-  if (!tab) {
-    return
-  }
-
-  useStore.setState(
-    produce((state: AppState) => {
-      state.editor.tabs[bookId].connectionId = connection.id
-    })
-  )
 
   SaveEditorState()
 }

@@ -2,7 +2,7 @@ import { Button } from "@components/ui/button"
 import { Toggle } from "@components/ui/toggle"
 import { useStore } from "@hooks/store"
 import { GearIcon } from '@radix-ui/react-icons'
-import { SetSidebar } from "@store"
+import { SelectSidebarSection } from "@store"
 import { AlignLeft, Book, Database } from "lucide-react"
 import BooksPanel from "./BooksPanel"
 import ConnectionsPanel from "./ConnectionsPanel"
@@ -19,14 +19,14 @@ const Sidebar = () => {
           <div
             className="flex-col flex gap-2 items-center"
           >
-            <Toggle onClick={() => SetSidebar("contents")}>
-              <AlignLeft width={18} height={18} />
-            </Toggle>
-            <Toggle onClick={() => SetSidebar("books")}>
+            <Toggle onClick={() => SelectSidebarSection("books")}>
               <Book width={18} height={18} />
             </Toggle>
-            <Toggle onClick={() => SetSidebar("connections")}>
+            <Toggle onClick={() => SelectSidebarSection("connections")}>
               <Database width={18} height={24} />
+            </Toggle>
+            <Toggle onClick={() => SelectSidebarSection("contents")}>
+              <AlignLeft width={18} height={18} />
             </Toggle>
           </div>
 

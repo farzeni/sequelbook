@@ -1,13 +1,14 @@
+import { DatabaseTab } from "@store";
 import { FC } from "react";
 
 interface DatabaseContentProps {
-  connectionId: string
+  tab: DatabaseTab
 }
 
-const DatabaseContent: FC<DatabaseContentProps> = ({ connectionId }) => {
+const DatabaseContent: FC<DatabaseContentProps> = ({ tab }) => {
   return (
     <div>
-      <h1>Database {connectionId}</h1>
+      <h1>Database {tab.connectionId}</h1>
     </div>
   );
 }

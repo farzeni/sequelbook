@@ -11,12 +11,11 @@ interface CellsListProps {
 }
 
 const CellsList: FC<CellsListProps> = ({ book }) => {
-  console.log(book.title)
   return (
     <div>
       <QuickAdd index={0} />
       {book.cells.map((cell: books.Cell, idx: number) => (
-        <CellsListItem idx={idx} bookId={book.id} cell={cell} />
+        <CellsListItem key={cell.id} idx={idx} bookId={book.id} cell={cell} />
       ))}
     </div >
   )
@@ -30,7 +29,10 @@ interface CellsListItemProps {
 }
 
 const CellsListItem: FC<CellsListItemProps> = ({ idx, bookId, cell }) => {
-  const selectedCellId = useStore((state) => state.editor.currentTabId ? state.editor.tabs[state.editor.currentTabId]?.cellId : null)
+
+  const tab = useStore((state) => state.editor.tab)
+
+  const selectedCellId = tab?.cellId
 
   const handleBookChange = useCallback(async (cellId: string, source: string) => {
     UpdateCell(bookId, cellId, source)

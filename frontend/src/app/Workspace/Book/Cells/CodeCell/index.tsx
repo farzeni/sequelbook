@@ -48,7 +48,9 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
 
   const [content, setContent] = useState(cell.content)
 
-  const connection = useStore((state: AppState) => state.editor.tabs[bookId]?.connectionId)
+  const tab = useStore((state: AppState) => state.editor.tab)
+
+  const connection = tab?.connectionId
 
   const errorDialogDisclose = useDisclosure()
 
@@ -104,9 +106,6 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
       editorRef.current.view && editorRef.current.view.contentDOM.blur()
     }
   }, [selected]);
-
-  console.log("Rendering code cell", cell.id)
-
 
   return (
     <div className="">

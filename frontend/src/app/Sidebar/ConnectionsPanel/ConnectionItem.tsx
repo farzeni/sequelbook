@@ -7,7 +7,7 @@ import {
 } from "@components/ui/context-menu"
 import { useEventBus } from "@hooks/events"
 import { connections } from "@lib/wailsjs/go/models"
-import { AddTab, RemoveConnection, SelectTab } from "@store"
+import { OpenInTab, RemoveConnection } from "@store"
 import { FC } from "react"
 import { useTranslation } from "react-i18next"
 import SidebarItem from "../SidebarItem"
@@ -32,7 +32,7 @@ const ConnectionItem: FC<ConnectionItemProps> = ({ connection, selected, childre
         itemId={connection.id}
         title={connection.name}
         selected={selected}
-        onSelected={SelectTab}
+        onSelected={() => OpenInTab("connection", connection.id)}
         onTextChange={handleTitleChange}
       />
     </ConnectionItemMenu>
@@ -57,8 +57,7 @@ const ConnectionItemMenu: FC<ConnectionItemMenuProps> = ({ connection, children 
       </ContextMenuTrigger>
       <ContextMenuContent className="w-44">
         <ContextMenuItem inset onClick={() => {
-          AddTab(connection.id)
-          SelectTab(connection.id)
+          const tabId = OpenInTab("connection", connection.id)
         }}>
           <span className="text-xs">{t("openNewTab", "Open in new tab")}</span>
         </ContextMenuItem>

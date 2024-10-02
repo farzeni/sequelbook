@@ -1,21 +1,16 @@
 import { useStore } from "@hooks/store";
-import { isBookID } from "@store";
-import BookContent from "./Book";
-import DatabaseContent from "./Database";
+import EditorPane from "./EditorPane";
 
 
 const Workspace = () => {
-  const tabId = useStore((state) => state.editor.currentTabId)
+  const rootPane = useStore((state) => state.editor.rootPane)
 
-  if (!tabId) {
+  if (!rootPane) {
     return null
   }
 
-  if (isBookID(tabId)) {
-    return <BookContent bookId={tabId} />
-  }
+  return <EditorPane pane={rootPane} />
 
-  return <DatabaseContent connectionId={tabId} />
 }
 
 export default Workspace;

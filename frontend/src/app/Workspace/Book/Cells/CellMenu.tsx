@@ -15,12 +15,10 @@ const CellMenu: FC<CellMenuProps> = ({ cell, bookId, children }) => {
   }
 
   async function moveCellUp() {
-    console.log("Move up")
     MoveCellUp(bookId, cell.id)
   }
 
   async function moveCellDown() {
-    console.log("Move down")
     MoveCellDown(bookId, cell.id)
   }
 

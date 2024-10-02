@@ -8,35 +8,42 @@ import {
   DropdownMenuTrigger
 } from "@components/ui/dropdown-menu";
 import { useStore } from "@hooks/store";
-import { isBookID, RemoveTab, SelectTab } from "@store";
+import { CloseTab, SelectTab, Tab } from "@store";
 
 import { ChevronDown } from "lucide-react";
 
-
-const TabbbarMenu = ({ }) => {
-  const tabsOrder = useStore((state) => state.editor.tabsOrder)
+const TabbarMenu = ({ }) => {
+  const pane = useStore((state) => state.editor.pane)
+  const tabs = useStore((state) => state.editor.tabs)
   const books = useStore((state) => state.books)
   const connections = useStore((state) => state.connections)
 
+
+
   function handleCloseTabs(e: React.MouseEvent) {
     e.stopPropagation()
+    if (!pane) {
+      return
+    }
+
 
     // Remove all tabs
-    tabsOrder.forEach((bookId) => {
-      RemoveTab(bookId)
+    pane.tabsOrder.forEach((tabId) => {
+      CloseTab(tabId)
     })
   }
 
-  function getTabTitle(tabId: string) {
-    console.log(tabId)
-    if (isBookID(tabId)) {
-      return books[tabId].title || "Untitled"
-    } else {
-      return connections[tabId].name || "Untitled Connection"
+  function getTabTitle(tab: Tab) {
+    if (tab.type === "book" && tab.bookId) {
+      return books[tab.bookId]?.title || "Untitled"
+    } else if (tab.type === "connection" && tab.connectionId) {
+      return connections[tab.connectionId]?.name || "Untitled Connection"
     }
   }
 
-  console.log(tabsOrder)
+  if (!pane) {
+    return null
+  }
 
   return (
     <DropdownMenu>
@@ -51,20 +58,26 @@ const TabbbarMenu = ({ }) => {
             <span className="text-xs">Close all tabs</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        {tabsOrder.length > 0 && (
+        {pane.tabsOrder.length > 0 && (
 
           <DropdownMenuSeparator />
         )}
-        {tabsOrder.map((tabId) => (
+        {pane.tabsOrder.map((tabId) => (
           <DropdownMenuItem key={tabId}
             onClick={() => SelectTab(tabId)}
           >
-            <span className="text-xs">{getTabTitle(tabId)}</span>
+            <span className="text-xs">{getTabTitle(tabs[tabId])}</span>
           </DropdownMenuItem>
         ))}
+
+
       </DropdownMenuContent>
     </DropdownMenu>
   )
+
+  if (!pane) {
+    return null
+  }
 }
 
-export default TabbbarMenu
+export default TabbarMenu

@@ -31,7 +31,6 @@ const CreateConnectionDialog = () => {
   const [isChoosingFile, setIsChoosingFile] = useState(false)
 
   useEventBusListener("connections.create", (initialData?: connections.ConnectionData) => {
-    console.log("create connection received", initialData)
     onOpenChange(true)
     if (initialData?.name) {
       form.setValue("name", initialData.name)
@@ -57,8 +56,6 @@ const CreateConnectionDialog = () => {
 
   const onSubmit = async (data: connections.ConnectionData) => {
     if (isChoosingFile) return
-
-    console.log(data)
 
     if (data.type !== "sqlite") {
       data.port = parseInt(data.port.toString())

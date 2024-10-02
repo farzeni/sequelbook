@@ -5,7 +5,7 @@ import BookToolbar from "./BookToolbar";
 
 
 const BooksPanel = () => {
-  const selectedTabId = useStore((state) => state.editor.currentTabId)
+  const selectedTabId = useStore((state) => state.editor.tab?.id)
   const books = useStore((state) => state.books)
 
   const sidebar = useStore((state) => state.editor.sidebar)

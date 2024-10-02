@@ -1,27 +1,32 @@
 import { Button } from "@components/ui/button"
 import { Separator } from "@components/ui/separator"
 import { useStore } from "@hooks/store"
-import { isBookID, isDatabaseID, RemoveTab, SelectTab } from "@store"
+import { CloseTab, SelectTab, Tab } from "@store"
 import { Book, Database, X } from "lucide-react"
 import TabbarMenu from './TabbarMenu'
 
 const Tabbar = () => {
-  const tabsOrder = useStore((state) => state.editor.tabsOrder)
+  const pane = useStore((state) => state.editor.pane)
+  const tabs = useStore((state) => state.editor.tabs)
   const books = useStore((state) => state.books)
   const connections = useStore((state) => state.connections)
-  const selected = useStore((state) => state.editor.currentTabId)
+  const selected = useStore((state) => state.editor.tab?.id)
 
   function handleCloseTab(e: React.MouseEvent, bookId: string) {
     e.stopPropagation()
-    RemoveTab(bookId)
+    CloseTab(bookId)
   }
 
-  function getTabTitle(tabId: string) {
-    if (isBookID(tabId)) {
-      return books[tabId]?.title || "Untitled"
-    } else {
-      return connections[tabId]?.name || "Untitled Connection"
+  function getTabTitle(tab: Tab) {
+    if (tab.type === "book" && tab.bookId) {
+      return books[tab.bookId]?.title || "Untitled"
+    } else if (tab.type === "connection" && tab.connectionId) {
+      return connections[tab.connectionId]?.name || "Untitled Connection"
     }
+  }
+
+  if (!pane) {
+    return null
   }
 
   return (
@@ -29,7 +34,7 @@ const Tabbar = () => {
       className="flex-1 h-[39px] flex px-2 items-center"
     >
       <div className="flex-1 flex h-[31px] pt-1 items-center">
-        {tabsOrder.map((tabId, idx) => (
+        {pane.tabsOrder.map((tabId, idx) => (
           <div className="flex" key={tabId}>
 
             <div
@@ -60,16 +65,16 @@ const Tabbar = () => {
                   rounded`}
                 `}>
 
-              {isBookID(tabId) && (<Book size={15} className="text-gray-700" />)}
-              {isDatabaseID(tabId) && (<Database size={15} className="text-gray-700" />)}
-              <span className="text-xs text-gray-500 truncate">{getTabTitle(tabId)}</span>
+              {tabs[tabId].type === "book" && (<Book size={15} className="text-gray-700" />)}
+              {tabs[tabId].type === "connection" && (<Database size={15} className="text-gray-700" />)}
+              <span className="text-xs text-gray-500 truncate">{getTabTitle(tabs[tabId])}</span>
 
               <Button variant="ghost" size="icon-sm" onClick={(e) => handleCloseTab(e, tabId)}
                 className={`mr-1`}>
                 <X size={15} />
               </Button>
             </div>
-            {selected !== tabId && tabsOrder[idx + 1] !== selected && (
+            {selected !== tabId && pane.tabsOrder[idx + 1] !== selected && (
               <Separator orientation="vertical" className="h-5 mt-1" />
             )}
           </div>

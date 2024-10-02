@@ -7,7 +7,7 @@ import {
 } from "@components/ui/context-menu"
 import { useEventBus } from "@hooks/events"
 import { books } from "@lib/wailsjs/go/models"
-import { AddBook, AddTab, RemoveBook, SelectTab, UpdateBookTitle } from "@store"
+import { AddBook, OpenInTab, RemoveBook, SelectTab, UpdateBookTitle } from "@store"
 import { FC } from "react"
 import { useTranslation } from "react-i18next"
 import SidebarItem from "../SidebarItem"
@@ -32,7 +32,7 @@ const BookItem: FC<BookItemProps> = ({ book, selected, children }) => {
         itemId={book.id}
         title={book.title}
         selected={selected}
-        onSelected={SelectTab}
+        onSelected={() => OpenInTab("book", book.id)}
         onTextChange={handleTitleChange}
       />
     </BookItemMenu>
@@ -66,8 +66,10 @@ const BookItemMenu: FC<BookItemMenuProps> = ({ book, children }) => {
       </ContextMenuTrigger>
       <ContextMenuContent className="w-44">
         <ContextMenuItem inset onClick={() => {
-          AddTab(book.id)
-          SelectTab(book.id)
+          const tabId = OpenInTab("book", book.id)
+          if (tabId) {
+            SelectTab(tabId)
+          }
         }}>
           <span className="text-xs">{t("openNewTab", "Open in new tab")}</span>
         </ContextMenuItem>

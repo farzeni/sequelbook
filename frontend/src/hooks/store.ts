@@ -1,23 +1,25 @@
-import { AppState } from "@store/types"
+import { AppState, ContentPane } from "@store/types"
 import { create } from "zustand"
 
-export const useStore = create<AppState>()(() => ({
-  books: {},
-  connections: {},
-  results: {},
-  editor: {
-    sidebar: "books",
-
-    pane: {
-      type: "leaf",
-      id: "root",
-      tabs: {},
-      tabsOrder: [],
-      tabId: null,
-    },
-
-    tabs: {},
+export const useStore = create<AppState>()((): AppState => {
+  const rootPane: ContentPane = {
+    type: "leaf",
+    id: "root",
     tabsOrder: [],
-    currentTabId: null,
-  },
-}))
+    tabId: null,
+  }
+
+  return {
+    books: {},
+    connections: {},
+    results: {},
+    editor: {
+      sidebar: "books",
+      rootPane: rootPane,
+      tabs: {},
+
+      tab: null,
+      pane: rootPane,
+    },
+  }
+})

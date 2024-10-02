@@ -3,9 +3,37 @@ export * from "./types"
 import { useStore } from "@hooks/store"
 import * as core from "@lib/wailsjs/go/core/Backend"
 import { produce } from "immer"
-import { isBookID } from "./books"
-import { isDatabaseID } from "./connections"
-import { AppState, ContentPane, Pane, SidebarSection, SplitPane } from "./types"
+import {
+  AppState,
+  ContentPane,
+  Pane,
+  SidebarSection,
+  SplitPane,
+  Tab,
+  TabType,
+} from "./types"
+
+export function findEntityTabInPane(pane: Pane, entityId: string): Tab | null {
+  const tabs = useStore.getState().editor.tabs
+
+  if (!pane || pane.type === "split") {
+    return null
+  }
+
+  for (const tabId of pane.tabsOrder) {
+    const tab = tabs[tabId]
+
+    if (tab.type === "book" && tab.bookId === entityId) {
+      return tab
+    }
+
+    if (tab.type === "connection" && tab.connectionId === entityId) {
+      return tab
+    }
+  }
+
+  return null
+}
 
 function findPaneById(pane: Pane, id: string): Pane | null {
   if (pane.id === id) {
@@ -37,19 +65,14 @@ function replacePaneById(pane: Pane, id: string, newPane: Pane): boolean {
   return false
 }
 
-function generateUniqueId(): string {
-  return Math.random().toString(36).substr(2, 9)
-}
-
-function DoSplitPane(paneId: string, direction: "horizontal" | "vertical") {
+function doSplitPane(paneId: string, direction: "horizontal" | "vertical") {
   useStore.setState(
     produce((state: AppState) => {
-      const pane = findPaneById(state.editor.pane, paneId)
+      const pane = findPaneById(state.editor.rootPane, paneId)
       if (pane && pane.type === "leaf") {
         const newPane: ContentPane = {
           type: "leaf",
           id: generateUniqueId(),
-          tabs: {},
           tabsOrder: [],
           tabId: null,
         }
@@ -60,7 +83,7 @@ function DoSplitPane(paneId: string, direction: "horizontal" | "vertical") {
           direction: direction,
           children: [pane, newPane],
         }
-        replacePaneById(state.editor.pane, paneId, splitPane)
+        replacePaneById(state.editor.rootPane, paneId, splitPane)
       }
     })
   )
@@ -94,7 +117,7 @@ export async function SaveEditorState() {
   }
 }
 
-export function SetSidebar(section: SidebarSection | null) {
+export function SelectSidebarSection(section: SidebarSection | null) {
   useStore.setState(
     produce((state: AppState) => {
       state.editor.sidebar =
@@ -104,156 +127,105 @@ export function SetSidebar(section: SidebarSection | null) {
 }
 
 export function SelectTab(tabId: string) {
-  if (isBookID(tabId)) {
-    const book = useStore.getState().books[tabId]
-
-    if (!book) {
-      return
-    }
-
-    useStore.setState(
-      produce((state: AppState) => {
-        state.editor.currentTabId = book.id
-
-        if (!state.editor.tabs[book.id]) {
-          state.editor.tabs[book.id] = {
-            type: "book",
-            bookId: book.id,
-            cellId: null,
-            connectionId: null,
-          }
-        }
-      })
-    )
-  }
-
-  if (isDatabaseID(tabId)) {
-    const connection = useStore.getState().connections[tabId]
-
-    if (!connection) {
-      return
-    }
-
-    useStore.setState(
-      produce((state: AppState) => {
-        state.editor.currentTabId = connection.id
-
-        if (!state.editor.tabs[connection.id]) {
-          state.editor.tabs[connection.id] = {
-            type: "connection",
-            connectionId: connection.id,
-            cellId: null,
-            bookId: null,
-          }
-        }
-      })
-    )
-  }
-
-  AddTab(tabId)
-}
-
-export function AddTab(tabId: string) {
   const tab = useStore.getState().editor.tabs[tabId]
-  const tabsOrder = useStore.getState().editor.tabsOrder
-  const book = useStore.getState().books[tabId]
 
-  if (tab && !tabsOrder.includes(tabId)) {
-    useStore.setState(
-      produce((state: AppState) => {
-        state.editor.tabsOrder.push(tabId)
-      })
-    )
-  }
-
-  if (tab) {
+  if (!tab) {
     return
   }
 
-  if (tabId.startsWith("bok")) {
-    if (!book) {
-      return
-    }
+  useStore.setState(
+    produce((state: AppState) => {
+      state.editor.tab = state.editor.tabs[tabId]
+    })
+  )
 
-    if (!tab) {
-      const newTab = {
-        bookId: tabId,
-        content: book,
-        cellId: null,
-        connectionId: null,
-        results: {},
-      }
+  SaveEditorState()
+}
 
-      useStore.setState(
-        produce((state: AppState) => {
+export function OpenInTab(entityType: TabType, entityId: string) {
+  let tabId = null
+
+  useStore.setState(
+    produce((state: AppState) => {
+      const tab = findEntityTabInPane(state.editor.pane, entityId)
+
+      if (!tab) {
+        tabId = generateUniqueId()
+
+        if (entityType === "book") {
           state.editor.tabs[tabId] = {
+            id: tabId,
             type: "book",
-            ...newTab,
+            bookId: entityId,
+            cellId: null,
+            connectionId: null,
           }
-          state.editor.tabsOrder.push(tabId)
-        })
-      )
-      return
-    }
+          state.editor.pane.tabsOrder.push(tabId)
+
+          console.log("pane.tabsOrder", state.editor.pane.tabsOrder)
+        }
+
+        if (entityType === "connection") {
+          state.editor.tabs[tabId] = {
+            id: tabId,
+            type: "connection",
+            connectionId: entityId,
+            cellId: null,
+            bookId: null,
+          }
+          state.editor.pane.tabsOrder.push(tabId)
+          state.editor.pane.tabId = tabId
+        }
+      } else {
+        state.editor.tab = tab
+        state.editor.pane.tabId = tab.id
+        tabId = tab.id
+      }
+    })
+  )
+  if (tabId) {
+    SelectTab(tabId)
+    SaveEditorState()
   }
 
-  if (tabId.startsWith("con")) {
-    const connection = useStore.getState().connections[tabId]
+  return tabId
+}
 
-    if (!connection) {
-      return
-    }
+export function CloseTab(tabId: string) {
+  let nextTabId = null
 
-    if (!tab) {
-      const newTab = {
-        connectionId: tabId,
-        content: connection,
-        cellId: null,
-        bookId: null,
-        results: {},
+  useStore.setState(
+    produce((state: AppState) => {
+      const tabIdx = state.editor.pane.tabsOrder.findIndex((id) => id === tabId)
+
+      console.log("close tab", tabId, state.editor.tab?.id)
+
+      if (state.editor.tab?.id === tabId) {
+        console.log("closing current tab")
+        if (state.editor.pane.tabsOrder.length === 1) {
+          console.log("closing last tab")
+          state.editor.pane.tabId = null
+          state.editor.tab = null
+        } else {
+          const nextTabIdx = tabIdx === 0 ? 1 : tabIdx - 1
+
+          nextTabId = state.editor.pane.tabsOrder[nextTabIdx]
+          console.log("closing tab, selecting next tab")
+        }
       }
 
-      useStore.setState(
-        produce((state: AppState) => {
-          state.editor.tabs[tabId] = {
-            type: "connection",
-            ...newTab,
-          }
-          state.editor.tabsOrder.push(tabId)
-        })
-      )
-      return
-    }
+      state.editor.pane.tabsOrder.splice(tabIdx, 1)
+      delete state.editor.tabs[tabId]
+    })
+  )
+
+  if (nextTabId) {
+    SelectTab(nextTabId)
   }
 
   SaveEditorState()
 }
 
-export function RemoveTab(bookId: string) {
-  const editor = useStore.getState().editor
-  const tabIdx = editor.tabsOrder.findIndex((id) => id === bookId)
-
-  useStore.setState(
-    produce((state: AppState) => {
-      delete state.editor.tabs[bookId]
-      state.editor.tabsOrder = state.editor.tabsOrder.filter(
-        (id: string) => id !== bookId
-      )
-    })
-  )
-
-  if (useStore.getState().editor.currentTabId === bookId) {
-    if (editor.tabsOrder.length === 1) {
-      useStore.setState(
-        produce((state: AppState) => {
-          state.editor.currentTabId = null
-        })
-      )
-    } else {
-      const newTabIdx = tabIdx === 0 ? 1 : tabIdx - 1
-      SelectTab(editor.tabsOrder[newTabIdx])
-    }
-  }
-
-  SaveEditorState()
+function generateUniqueId(): string {
+  return Math.random().toString(36).substr(2, 9)
 }

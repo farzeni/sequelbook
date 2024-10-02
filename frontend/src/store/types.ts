@@ -14,7 +14,10 @@ export type ResultMap = {
 
 export type Tab = BookTab | DatabaseTab
 
+export type TabType = Tab["type"]
+
 export interface BookTab {
+  id: string
   type: "book"
   bookId: string
   cellId: string | null
@@ -22,6 +25,7 @@ export interface BookTab {
 }
 
 export interface DatabaseTab {
+  id: string
   type: "connection"
   connectionId: string
   cellId?: null
@@ -42,30 +46,24 @@ export type Pane = ContentPane | SplitPane
 export interface ContentPane {
   type: "leaf"
   id: string
-  tabs: {
-    [tabId: string]: BookTab | DatabaseTab
-  }
   tabsOrder: string[]
   tabId: string | null
 }
 
 export interface SplitPane {
-  id: string
   type: "split"
+  id: string
   direction: "horizontal" | "vertical"
   children: [Pane, Pane]
 }
 
 export interface EditorState {
   sidebar: SidebarSection | null
-
-  pane: Pane
-
-  currentTabId: string | null
-  currentPaneId?: string | null
-
+  rootPane: Pane
   tabs: {
     [tabId: string]: Tab
   }
-  tabsOrder: string[]
+
+  tab: Tab | null
+  pane: ContentPane
 }

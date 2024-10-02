@@ -42,7 +42,6 @@ const CommandInput = React.forwardRef<
   }>
 >(({ className, ...props }, ref) => {
   const state = useCommandState(state => state)
-  console.log("state", state)
 
   return (
 

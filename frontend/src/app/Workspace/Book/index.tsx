@@ -1,18 +1,18 @@
 import { Button } from "@components/ui/button"
 import { useStore } from "@hooks/store"
-import { AddCell } from "@store"
+import { AddCell, BookTab } from "@store"
 import { FC, useEffect, useRef } from "react"
 import { Trans, useTranslation } from "react-i18next"
 import CellsList from "./Cells"
 import BookToolbar from "./Toolbar"
 
 interface BookContentProps {
-  bookId: string
+  tab: BookTab
 }
 
-const BookContent: FC<BookContentProps> = ({ bookId }) => {
+const BookContent: FC<BookContentProps> = ({ tab }) => {
   const { t } = useTranslation()
-  const book = useStore((state) => state.editor.currentTabId ? state.books[state.editor.currentTabId] : null)
+  const book = useStore((state) => state.books[tab.bookId])
   const bookContainerRef = useRef<HTMLDivElement>(null)
 
 
@@ -20,7 +20,7 @@ const BookContent: FC<BookContentProps> = ({ bookId }) => {
     setTimeout(() => {
       bookContainerRef.current?.scrollTo(0, 0)
     }, 0)
-  }, [bookId])
+  }, [tab.bookId])
 
   if (!book) {
     return (

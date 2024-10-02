@@ -17,14 +17,12 @@ export class EventBus {
       this.events.set(event, new Set())
     }
     this.events.get(event)?.add(callback)
-    console.log(`Subscribed to ${String(event)}`)
   }
 
   unsubscribe(event: keyof AppEvents, callback: AppEvents[typeof event]): void {
     const callbacks = this.events.get(event)
     if (callbacks) {
       callbacks.delete(callback)
-      console.log(`Unsubscribed from ${String(event)}`)
     }
   }
 
@@ -32,7 +30,6 @@ export class EventBus {
     event: keyof AppEvents,
     ...args: Parameters<AppEvents[typeof event]>
   ): void {
-    console.log(`Emitting event ${String(event)}`, args)
     this.events.get(event)?.forEach((callback) => {
       try {
         callback(...args)

@@ -1,6 +1,7 @@
 import { Button } from "@components/ui/button"
 import useDisclosure from "@hooks/disclosure"
 import { useEventBusListener } from "@hooks/events"
+import { useStore } from "@hooks/store"
 import { books } from "@lib/wailsjs/go/models"
 import { PlusIcon } from "@radix-ui/react-icons"
 import { AddCell, AppState } from "@store"
@@ -9,7 +10,6 @@ import { FC } from "react"
 import { useTranslation } from "react-i18next"
 import BookMenu from "./BookMenu"
 import ConnectionSwitcher from "./Connections/Switcher"
-import { useStore } from "@hooks/store"
 
 interface BookToolbarProps {
   book: books.Book
@@ -19,11 +19,11 @@ const BookToolbar: FC<BookToolbarProps> = ({ book }) => {
   const { t } = useTranslation()
 
   const connectionDisclose = useDisclosure()
+  const tab = useStore((state: AppState) => state.editor.tab)
 
   const connection = useStore((state: AppState) => {
-    const id = state.editor.tabs[book.id]?.connectionId
-    if (id) {
-      return state.connections[id]
+    if (tab?.connectionId) {
+      return state.connections[tab.connectionId]
     }
     return null
   })

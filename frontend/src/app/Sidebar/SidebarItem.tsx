@@ -1,6 +1,6 @@
 import { useEventBusListener } from "@hooks/events"
 import { useStore } from "@hooks/store"
-import { FC, useEffect, useRef, useState } from "react"
+import { FC, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 const RENAME_DELAY = 180
@@ -78,6 +78,7 @@ interface SidebarItemProps {
 const SidebarItem: FC<SidebarItemProps> = ({ itemId, selected, title, onSelected, onTextChange }) => {
   const { t } = useTranslation()
   const [editMode, setEditMode] = useState(false)
+  const pane = useStore((state) => state.editor.pane)
   const tabs = useStore((state) => state.editor.tabs)
 
   useEventBusListener("sidebar.item.rename", (id: string) => {
@@ -86,10 +87,36 @@ const SidebarItem: FC<SidebarItemProps> = ({ itemId, selected, title, onSelected
     }
   })
 
+  const openEntityIds = useMemo(() => {
+    if (!pane) {
+      return []
+    }
+
+    const entityIds: string[] = []
+
+    for (const tabId of pane.tabsOrder) {
+      const tab = tabs[tabId]
+
+      if (tab.type === "book") {
+        entityIds.push(tab.bookId)
+      }
+
+      if (tab.type === "connection") {
+        entityIds.push(tab.connectionId)
+      }
+    }
+
+
+    return entityIds
+  }, [pane])
 
   async function handleTitleChange(title: string) {
     onTextChange && onTextChange(title)
     setEditMode(false)
+  }
+
+  if (!pane) {
+    return null
   }
 
   return (
@@ -107,7 +134,7 @@ const SidebarItem: FC<SidebarItemProps> = ({ itemId, selected, title, onSelected
       <SidebarItemTitle
         title={title}
         editMode={editMode}
-        dot={!!tabs[itemId]}
+        dot={!!openEntityIds.includes(itemId)}
         onChange={handleTitleChange}
         onBlur={() => setEditMode(false)}
 
