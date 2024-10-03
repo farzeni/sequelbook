@@ -1,13 +1,14 @@
 import { Button } from "@components/ui/button"
 import useDisclosure from "@hooks/disclosure"
 import { useEventBusListener } from "@hooks/events"
-import { useStore } from "@hooks/store"
+import { appState } from "@hooks/store"
 import { books } from "@lib/wailsjs/go/models"
 import { PlusIcon } from "@radix-ui/react-icons"
-import { AddCell, AppState } from "@store"
+import { AddCell } from "@store"
 import { Database } from "lucide-react"
 import { FC } from "react"
 import { useTranslation } from "react-i18next"
+import { useSnapshot } from "valtio"
 import BookMenu from "./BookMenu"
 import ConnectionSwitcher from "./Connections/Switcher"
 
@@ -18,15 +19,13 @@ interface BookToolbarProps {
 const BookToolbar: FC<BookToolbarProps> = ({ book }) => {
   const { t } = useTranslation()
 
-  const connectionDisclose = useDisclosure()
-  const tab = useStore((state: AppState) => state.editor.tab())
+  const tabId = useSnapshot(appState.editor).tabId
+  const tabs = useSnapshot(appState.editor.tabs)
+  const connections = useSnapshot(appState.connections)
+  const connectionId = tabId ? tabs[tabId].connectionId : null
+  const connection = connectionId ? connections[connectionId] : null
 
-  const connection = useStore((state: AppState) => {
-    if (tab?.connectionId) {
-      return state.connections[tab.connectionId]
-    }
-    return null
-  })
+  const connectionDisclose = useDisclosure()
 
   useEventBusListener("connections.pick", () => {
     connectionDisclose.onOpen()

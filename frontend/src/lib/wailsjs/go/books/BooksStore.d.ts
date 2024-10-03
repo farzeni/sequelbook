@@ -8,6 +8,8 @@ export function CreateCell(arg1:string,arg2:books.BlockType):Promise<books.Cell>
 
 export function DeleteBook(arg1:string):Promise<void>;
 
+export function DuplicateBook(arg1:string):Promise<books.Book>;
+
 export function GetBook(arg1:string):Promise<books.Book>;
 
 export function ListBooks():Promise<Array<books.Book>>;

@@ -7,18 +7,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@components/ui/dropdown-menu";
-import { useStore } from "@hooks/store";
-import { CloseTab, DoSplitPane, SelectTab, Tab } from "@store";
+import { appState } from "@hooks/store";
+import { CloseTab, ContentPane, DoSplitPane, SelectTab, Tab } from "@store";
 
 import { ChevronDown, Columns2 } from "lucide-react";
+import { useSnapshot } from "valtio";
 
 const TabbarMenu = ({ }) => {
-  const pane = useStore((state) => state.editor.pane())
-  const tabs = useStore((state) => state.editor.tabs)
-  const books = useStore((state) => state.books)
-  const connections = useStore((state) => state.connections)
-
-
+  const pane = useSnapshot(appState.editor.pane)
+  const tabs = useSnapshot(appState.editor.tabs)
+  const books = useSnapshot(appState.books)
+  const connections = useSnapshot(appState.connections)
 
   function handleCloseTabs(e: React.MouseEvent) {
     e.stopPropagation()
@@ -38,7 +37,7 @@ const TabbarMenu = ({ }) => {
 
     e.stopPropagation()
 
-    DoSplitPane(pane, "vertical")
+    DoSplitPane(pane as ContentPane, "vertical")
 
   }
 

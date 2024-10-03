@@ -42,17 +42,58 @@ func (b *BooksStore) CreateBook(data BookData) (*Book, error) {
 		book.Cells = []Cell{}
 	}
 
-	b.bmx.Lock()
-
-	b.books[bookID] = book
-
 	err := b.storage.SaveEntity(book, bookID)
-
-	b.bmx.Unlock()
 
 	if err != nil {
 		return nil, err
 	}
+
+	b.bmx.Lock()
+	b.books[bookID] = book
+	b.bmx.Unlock()
+
+	return book, nil
+}
+
+func (b *BooksStore) DuplicateBook(id string) (*Book, error) {
+	book, ok := b.books[id]
+
+	if !ok {
+		return nil, nil
+	}
+
+	bookData := BookData{
+		Title: book.Title,
+		Cells: []Cell{},
+	}
+
+	book, err := b.CreateBook(bookData)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, cell := range book.Cells {
+		c, err := b.CreateCell(book.ID, cell.Type)
+
+		if err != nil {
+			return nil, err
+		}
+
+		c.Content = cell.Content
+
+		book.Cells = append(book.Cells, *c)
+	}
+
+	err = b.storage.SaveEntity(book, book.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	b.bmx.Lock()
+	b.books[book.ID] = book
+	b.bmx.Unlock()
 
 	return book, nil
 }

@@ -1,8 +1,10 @@
 import { Button } from "@components/ui/button"
-import { useStore } from "@hooks/store"
+import { appState } from "@hooks/store"
+import { books } from "@lib/wailsjs/go/models"
 import { AddCell, BookTab } from "@store"
 import { FC, useEffect, useRef } from "react"
 import { Trans, useTranslation } from "react-i18next"
+import { useSnapshot } from "valtio"
 import CellsList from "./Cells"
 import BookToolbar from "./Toolbar"
 
@@ -12,8 +14,10 @@ interface BookContentProps {
 
 const BookContent: FC<BookContentProps> = ({ tab }) => {
   const { t } = useTranslation()
-  const book = useStore((state) => state.books[tab.bookId])
+  const book = useSnapshot(appState.books[tab.bookId])
   const bookContainerRef = useRef<HTMLDivElement>(null)
+
+  console.log("Book", book)
 
 
   useEffect(() => {
@@ -32,7 +36,7 @@ const BookContent: FC<BookContentProps> = ({ tab }) => {
 
   return (
     <div>
-      <BookToolbar book={book} />
+      <BookToolbar book={book as books.Book} />
       <div ref={bookContainerRef} className="overflow-y-auto">
         {book.cells.length === 0 ? (
           <div className="flex-1 h-[calc(100vh-180px)] flex items-center justify-center bg flex-col prose mx-auto">
@@ -54,7 +58,7 @@ const BookContent: FC<BookContentProps> = ({ tab }) => {
           </div>
         ) : (
           <div className="max-w-full my-4 flex flex-col gap-2 ">
-            <CellsList book={book} />
+            <CellsList book={book as books.Book} tab={tab} />
           </div>
         )}
       </div>

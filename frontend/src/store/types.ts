@@ -39,7 +39,7 @@ export interface AppState {
   books: BookMap
   connections: ConnectionMap
   results: ResultMap
-  editor: EditorState & EditorStateSelectors
+  editor: EditorState
 }
 
 export type SidebarSection = "contents" | "books" | "connections"
@@ -72,10 +72,8 @@ export interface EditorState {
   rootPaneId: string
   tabId: string | null
   paneId: string
-}
 
-export interface EditorStateSelectors {
-  tab: () => Tab | null
-  pane: () => ContentPane
-  rootPane: () => Pane
+  get pane(): ContentPane
+  get tab(): Tab | null
+  get rootPane(): Pane
 }

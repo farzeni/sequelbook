@@ -3,7 +3,7 @@ import "@assets/css/main.css"
 import { EventBusProvider } from "@hooks/events"
 import { InitStore } from "@store"
 import i18n from "i18next"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { initReactI18next } from "react-i18next"
 import Workspace from "./Workspace"
 
@@ -23,10 +23,17 @@ i18n
   });
 
 function App() {
+  const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    InitStore()
-  }, [])
+    async function Init() {
+      await InitStore()
+      setInitialized(true)
+    }
+    if (!initialized) {
+      Init()
+    }
+  }, [initialized])
 
   return (
     <EventBusProvider>

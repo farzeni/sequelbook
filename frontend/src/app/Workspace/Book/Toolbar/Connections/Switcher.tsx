@@ -9,10 +9,11 @@ import {
 } from "@components/ui/command"
 import { Dialog, DialogContent } from "@components/ui/dialog"
 import { useEventBus } from "@hooks/events"
-import { useStore } from "@hooks/store"
-import { BookSetConnection } from "@store"
+import { appState } from "@hooks/store"
+import { SetBookConnection } from "@store"
 import { FC, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { useSnapshot } from "valtio"
 
 interface ConnectionSwitcherProps {
   bookId: string
@@ -24,7 +25,7 @@ const ConnectionSwitcher: FC<ConnectionSwitcherProps> = ({ bookId, isOpen, onOpe
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement>(null)
   const [inputValue, setInputValue] = useState("")
-  const connections = useStore((state) => state.connections)
+  const connections = useSnapshot(appState.connections)
   const events = useEventBus()
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -53,7 +54,8 @@ const ConnectionSwitcher: FC<ConnectionSwitcherProps> = ({ bookId, isOpen, onOpe
   }
 
   async function handleSelectConnection(connectionId: string) {
-    await BookSetConnection(bookId, connectionId)
+    console.log("ConnectionSwitcher: handleSelectConnection", connectionId)
+    await SetBookConnection(bookId, connectionId)
     onOpenChange(false)
   }
 

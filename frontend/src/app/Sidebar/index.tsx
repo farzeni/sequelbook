@@ -1,16 +1,17 @@
 import { Button } from "@components/ui/button"
 import { Toggle } from "@components/ui/toggle"
-import { useStore } from "@hooks/store"
+import { appState } from "@hooks/store"
 import { GearIcon } from '@radix-ui/react-icons'
 import { SelectSidebarSection } from "@store"
 import { AlignLeft, Book, Database } from "lucide-react"
+import { useSnapshot } from "valtio"
 import BooksPanel from "./BooksPanel"
 import ConnectionsPanel from "./ConnectionsPanel"
 import CreateConnectionDialog from "./ConnectionsPanel/CreateConnection"
 import ContentsPanel from "./ContentsPanel"
 
 const Sidebar = () => {
-  const sidebar = useStore((state) => state.editor.sidebar)
+  const sidebar = useSnapshot(appState).editor.sidebar
 
   return (
     <div className={`${!!sidebar ? "w-[280px] border-r" : ""}  h-full  bg-gray-50`}>

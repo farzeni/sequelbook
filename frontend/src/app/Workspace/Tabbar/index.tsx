@@ -1,23 +1,23 @@
 import { Button } from "@components/ui/button"
 import { Separator } from "@components/ui/separator"
-import { useStore } from "@hooks/store"
+import { appState } from "@hooks/store"
 import { CloseTab, ContentPane, SelectTab, Tab } from "@store"
 import { Book, Database, X } from "lucide-react"
 import { FC } from "react"
+import { useSnapshot } from "valtio"
 import TabbarMenu from './TabbarMenu'
 
 interface TabbarProps {
   pane: ContentPane
 }
 
-const Tabbar: FC<TabbarProps> = () => {
-  const pane = useStore((state) => state.editor.pane())
-  const tabs = useStore((state) => state.editor.tabs)
-  const books = useStore((state) => state.books)
-  const connections = useStore((state) => state.connections)
-  const selected = useStore((state) => state.editor.tabId)
+const Tabbar: FC<TabbarProps> = ({ pane }) => {
+  const tabs = useSnapshot(appState.editor.tabs)
+  const books = useSnapshot(appState.books)
+  const connections = useSnapshot(appState.connections)
+  const selected = useSnapshot(appState.editor).tabId // FIXME: we should not watch the whole editor state here
 
-  console.log("pane", pane)
+  console.log("Tabbar render tab selected: ", selected)
 
   function handleCloseTab(e: React.MouseEvent, bookId: string) {
     e.stopPropagation()
@@ -72,8 +72,8 @@ const Tabbar: FC<TabbarProps> = () => {
                   rounded`}
                 `}>
 
-              {tabs[tabId].type === "book" && (<Book size={15} className="text-gray-700" />)}
-              {tabs[tabId].type === "connection" && (<Database size={15} className="text-gray-700" />)}
+              {tabs[tabId]?.type === "book" && (<Book size={15} className="text-gray-700" />)}
+              {tabs[tabId]?.type === "connection" && (<Database size={15} className="text-gray-700" />)}
               <span className="text-xs text-gray-500 truncate">{getTabTitle(tabs[tabId])}</span>
 
               <Button variant="ghost" size="icon-sm" onClick={(e) => handleCloseTab(e, tabId)}

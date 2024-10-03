@@ -3,7 +3,7 @@ import { PostgreSQL, sql } from '@codemirror/lang-sql';
 import { useDebounce } from '@hooks/debounce';
 import useDisclosure from '@hooks/disclosure';
 import { books } from "@lib/wailsjs/go/models";
-import { AppState, Execute, SelectNextCell, SelectPreviousCell } from '@store';
+import { Execute, SelectNextCell, SelectPreviousCell } from '@store';
 import { githubLight } from '@uiw/codemirror-theme-github';
 import CodeMirror, { keymap, ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { t } from 'i18next';
@@ -14,7 +14,7 @@ import ResultTable from './ResultTable';
 
 import { Prec } from "@codemirror/state";
 import { useEventBus } from '@hooks/events';
-import { useStore } from '@hooks/store';
+import { appState } from '@hooks/store';
 import React from 'react';
 import CodeCellMenu from './CodeCellMenu';
 
@@ -45,18 +45,12 @@ interface CodeBlockProps {
 const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => {
   const editorRef = useRef<ReactCodeMirrorRef>({});
   const eventBus = useEventBus();
-
-  const [content, setContent] = useState(cell.content)
-
-  const tab = useStore((state: AppState) => state.editor.tab())
-
+  const [content, _] = useState(cell.content)
+  const tab = appState.editor.tab
   const connection = tab?.connectionId
-
   const errorDialogDisclose = useDisclosure()
-
   const [error, setError] = useState<any>(null)
-
-  const results = useStore((state: AppState) => state.results[cell.id] || null)
+  const results = appState.results[cell.id] || null
 
   const debouncedOnChange = useDebounce((content: string) => {
     onChange && onChange(cell.id, content)
@@ -84,8 +78,6 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
     onSelectNextCell: SelectNextCell,
     onSelectPreviousCell: SelectPreviousCell,
   }), [handleExecute])
-
-
 
   const data = useMemo(() => {
     if (results && results.type === "SELECT") {
@@ -166,6 +158,7 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
           </div>
         )}
       </div>
+
       {!error && results && (
         <div className="max-w-screen-md md:max-w-screen-xl mx-auto">
           {results?.type === "SELECT" ? data && data.length > 0 && (

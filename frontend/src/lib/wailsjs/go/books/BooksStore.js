@@ -14,6 +14,10 @@ export function DeleteBook(arg1) {
   return window['go']['books']['BooksStore']['DeleteBook'](arg1);
 }
 
+export function DuplicateBook(arg1) {
+  return window['go']['books']['BooksStore']['DuplicateBook'](arg1);
+}
+
 export function GetBook(arg1) {
   return window['go']['books']['BooksStore']['GetBook'](arg1);
 }

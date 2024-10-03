@@ -7,7 +7,7 @@ import {
 } from "@components/ui/context-menu"
 import { useEventBus } from "@hooks/events"
 import { books } from "@lib/wailsjs/go/models"
-import { AddBook, OpenInTab, RemoveBook, SelectTab, UpdateBookTitle } from "@store"
+import { CopyBook, OpenInTab, RemoveBook, SelectTab, UpdateBookTitle } from "@store"
 import { FC } from "react"
 import { useTranslation } from "react-i18next"
 import SidebarItem from "../SidebarItem"
@@ -51,10 +51,11 @@ const BookItemMenu: FC<BookItemMenuProps> = ({ book, children }) => {
   const events = useEventBus()
 
   async function handleDuplicate() {
-    const duplicate = await AddBook({
-      title: `${book.title} copy`,
-      cells: book.cells,
-    })
+    const duplicate = await CopyBook(book.id)
+
+    if (!duplicate) {
+      return
+    }
 
     events.emit("sidebar.item.rename", duplicate.id)
   }

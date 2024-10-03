@@ -1,10 +1,10 @@
-import { useStore } from "@hooks/store"
+import { appState } from "@hooks/store"
 import ConnectionItem from "./ConnectionItem"
 import ConnectionsToolbar from "./ConnectionToolbar"
 
 
 const ConnectionsPanel = () => {
-  const connections = useStore((state) => state.connections)
+  const connections = appState.connections
 
   return (
     <div className="w-full">

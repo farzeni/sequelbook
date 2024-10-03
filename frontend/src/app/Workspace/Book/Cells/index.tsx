@@ -1,21 +1,21 @@
-import { useStore } from "@hooks/store";
 import { books } from "@lib/wailsjs/go/models";
-import { SetSelectedCell, UpdateCell } from "@store";
-import { FC, useCallback, useMemo } from "react";
+import { BookTab, SetSelectedCell, UpdateCell } from "@store";
+import { FC, useCallback } from "react";
 import CodeBlock from "./CodeCell";
 import QuickAdd from "./QuickAdd";
 import TextBlock from "./TextCell";
 
 interface CellsListProps {
+  tab: BookTab
   book: books.Book
 }
 
-const CellsList: FC<CellsListProps> = ({ book }) => {
+const CellsList: FC<CellsListProps> = ({ book, tab }) => {
   return (
     <div>
       <QuickAdd index={0} />
       {book.cells.map((cell: books.Cell, idx: number) => (
-        <CellsListItem key={cell.id} idx={idx} bookId={book.id} cell={cell} />
+        <CellsListItem key={cell.id} idx={idx} bookId={book.id} cell={cell} selected={tab.cellId === cell.id} />
       ))}
     </div >
   )
@@ -26,13 +26,10 @@ interface CellsListItemProps {
   idx: number
   bookId: string
   cell: books.Cell
+  selected?: boolean
 }
 
-const CellsListItem: FC<CellsListItemProps> = ({ idx, bookId, cell }) => {
-
-  const tab = useStore((state) => state.editor.tab())
-
-  const selectedCellId = tab?.cellId
+const CellsListItem: FC<CellsListItemProps> = ({ idx, bookId, cell, selected }) => {
 
   const handleBookChange = useCallback(async (cellId: string, source: string) => {
     UpdateCell(bookId, cellId, source)
@@ -42,10 +39,6 @@ const CellsListItem: FC<CellsListItemProps> = ({ idx, bookId, cell }) => {
     SetSelectedCell(cell.id)
   }, [cell.id])
 
-
-  const selected = useMemo(() => {
-    return selectedCellId === cell.id
-  }, [selectedCellId, cell])
 
   return (
     <div key={cell.id}
