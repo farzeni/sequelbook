@@ -19,7 +19,7 @@ const BookToolbar: FC<BookToolbarProps> = ({ book }) => {
   const { t } = useTranslation()
 
   const connectionDisclose = useDisclosure()
-  const tab = useStore((state: AppState) => state.editor.tab)
+  const tab = useStore((state: AppState) => state.editor.tab())
 
   const connection = useStore((state: AppState) => {
     if (tab?.connectionId) {

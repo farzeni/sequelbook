@@ -78,8 +78,11 @@ interface SidebarItemProps {
 const SidebarItem: FC<SidebarItemProps> = ({ itemId, selected, title, onSelected, onTextChange }) => {
   const { t } = useTranslation()
   const [editMode, setEditMode] = useState(false)
-  const pane = useStore((state) => state.editor.pane)
+  const pane = useStore((state) => state.editor.pane())
   const tabs = useStore((state) => state.editor.tabs)
+  const editor = useStore((state) => state.editor)
+
+  console.log(editor)
 
   useEventBusListener("sidebar.item.rename", (id: string) => {
     if (id === itemId) {
@@ -105,7 +108,6 @@ const SidebarItem: FC<SidebarItemProps> = ({ itemId, selected, title, onSelected
         entityIds.push(tab.connectionId)
       }
     }
-
 
     return entityIds
   }, [pane])

@@ -7,6 +7,7 @@ import {
   AppState,
   ContentPane,
   Pane,
+  PaneMap,
   SidebarSection,
   SplitPane,
   Tab,
@@ -35,56 +36,81 @@ export function findEntityTabInPane(pane: Pane, entityId: string): Tab | null {
   return null
 }
 
-function findPaneById(pane: Pane, id: string): Pane | null {
-  if (pane.id === id) {
-    return pane
+function replacePaneById(
+  paneMap: PaneMap,
+  paneId: string,
+  id: string,
+  newPane: Pane
+): string {
+  const updatedPaneMap = { ...paneMap }
+  const pane = updatedPaneMap[paneId]
+
+  if (!pane || pane.type === "leaf") {
+    throw new Error(`Pane with ID ${paneId} does not exist`)
   }
-  if (pane.type === "split") {
-    return (
-      findPaneById(pane.children[0], id) || findPaneById(pane.children[1], id)
+
+  if (pane.children[0] === id) {
+    pane.children[0] = newPane.id
+    updatedPaneMap[newPane.id] = newPane
+  } else if (pane.children[1] === id) {
+    pane.children[1] = newPane.id
+    updatedPaneMap[newPane.id] = newPane
+  }
+
+  const isRoot = (paneId: string) => {
+    return !Object.values(updatedPaneMap).some(
+      (p) =>
+        p.type === "split" &&
+        (p.children[0] === paneId || p.children[1] === paneId)
     )
   }
-  return null
-}
 
-function replacePaneById(pane: Pane, id: string, newPane: Pane): boolean {
-  if (pane.type === "split") {
-    if (pane.children[0].id === id) {
-      pane.children[0] = newPane
-      return true
+  for (const key in updatedPaneMap) {
+    if (isRoot(key)) {
+      return key
     }
-    if (pane.children[1].id === id) {
-      pane.children[1] = newPane
-      return true
-    }
-    return (
-      replacePaneById(pane.children[0], id, newPane) ||
-      replacePaneById(pane.children[1], id, newPane)
-    )
   }
-  return false
+
+  throw new Error("Root not found")
 }
 
-function doSplitPane(paneId: string, direction: "horizontal" | "vertical") {
+export function DoSplitPane(
+  pane: ContentPane,
+  direction: "horizontal" | "vertical"
+) {
   useStore.setState(
     produce((state: AppState) => {
-      const pane = findPaneById(state.editor.rootPane, paneId)
-      if (pane && pane.type === "leaf") {
-        const newPane: ContentPane = {
-          type: "leaf",
-          id: generateUniqueId(),
-          tabsOrder: [],
-          tabId: null,
-        }
-
-        const splitPane: SplitPane = {
-          type: "split",
-          id: generateUniqueId(),
-          direction: direction,
-          children: [pane, newPane],
-        }
-        replacePaneById(state.editor.rootPane, paneId, splitPane)
+      console.log("Split pane", pane.id, direction)
+      const newPane: ContentPane = {
+        type: "leaf",
+        id: generateUniqueId(),
+        tabsOrder: [],
+        tabId: null,
       }
+
+      const tab = state.editor.tab()
+
+      if (tab) {
+        newPane.tabsOrder.push(tab.id)
+        newPane.tabId = tab.id
+      }
+
+      const splitPane: SplitPane = {
+        type: "split",
+        id: generateUniqueId(),
+        direction: direction,
+        children: [pane.id, newPane.id],
+      }
+
+      console.log("replace pane", pane.id)
+      const panes = replacePaneById(
+        state.editor.panes,
+        state.editor.rootPaneId,
+        pane.id,
+        splitPane
+      )
+
+      state.editor.rootPaneId = panes
     })
   )
 }
@@ -135,7 +161,7 @@ export function SelectTab(tabId: string) {
 
   useStore.setState(
     produce((state: AppState) => {
-      state.editor.tab = state.editor.tabs[tabId]
+      state.editor.tabId = tabId
     })
   )
 
@@ -147,7 +173,12 @@ export function OpenInTab(entityType: TabType, entityId: string) {
 
   useStore.setState(
     produce((state: AppState) => {
-      const tab = findEntityTabInPane(state.editor.pane, entityId)
+      const tab = findEntityTabInPane(state.editor.pane(), entityId)
+      const pane = state.editor.pane()
+
+      if (pane.type !== "leaf") {
+        return
+      }
 
       if (!tab) {
         tabId = generateUniqueId()
@@ -160,9 +191,10 @@ export function OpenInTab(entityType: TabType, entityId: string) {
             cellId: null,
             connectionId: null,
           }
-          state.editor.pane.tabsOrder.push(tabId)
 
-          console.log("pane.tabsOrder", state.editor.pane.tabsOrder)
+          pane.tabsOrder.push(tabId)
+
+          console.log("pane.tabsOrder", pane.tabsOrder[0])
         }
 
         if (entityType === "connection") {
@@ -173,12 +205,11 @@ export function OpenInTab(entityType: TabType, entityId: string) {
             cellId: null,
             bookId: null,
           }
-          state.editor.pane.tabsOrder.push(tabId)
-          state.editor.pane.tabId = tabId
+          pane.tabsOrder.push(tabId)
+          pane.tabId = tabId
         }
       } else {
-        state.editor.tab = tab
-        state.editor.pane.tabId = tab.id
+        pane.tabId = tab.id
         tabId = tab.id
       }
     })
@@ -188,6 +219,8 @@ export function OpenInTab(entityType: TabType, entityId: string) {
     SaveEditorState()
   }
 
+  console.log(useStore.getState().editor)
+
   return tabId
 }
 
@@ -196,25 +229,31 @@ export function CloseTab(tabId: string) {
 
   useStore.setState(
     produce((state: AppState) => {
-      const tabIdx = state.editor.pane.tabsOrder.findIndex((id) => id === tabId)
+      const pane = state.editor.pane()
 
-      console.log("close tab", tabId, state.editor.tab?.id)
+      if (pane.type !== "leaf") {
+        return
+      }
 
-      if (state.editor.tab?.id === tabId) {
+      const tabIdx = pane.tabsOrder.findIndex((id) => id === tabId)
+
+      console.log("close tab", tabId, state.editor.tabId)
+
+      if (state.editor.tabId === tabId) {
         console.log("closing current tab")
-        if (state.editor.pane.tabsOrder.length === 1) {
+        if (pane.tabsOrder.length === 1) {
           console.log("closing last tab")
-          state.editor.pane.tabId = null
-          state.editor.tab = null
+          pane.tabId = null
+          state.editor.tabId = null
         } else {
           const nextTabIdx = tabIdx === 0 ? 1 : tabIdx - 1
 
-          nextTabId = state.editor.pane.tabsOrder[nextTabIdx]
+          nextTabId = pane.tabsOrder[nextTabIdx]
           console.log("closing tab, selecting next tab")
         }
       }
 
-      state.editor.pane.tabsOrder.splice(tabIdx, 1)
+      pane.tabsOrder.splice(tabIdx, 1)
       delete state.editor.tabs[tabId]
     })
   )

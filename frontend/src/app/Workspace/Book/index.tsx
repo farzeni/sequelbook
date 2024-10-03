@@ -33,7 +33,7 @@ const BookContent: FC<BookContentProps> = ({ tab }) => {
   return (
     <div>
       <BookToolbar book={book} />
-      <div ref={bookContainerRef} className="h-[calc(100vh-82px)] overflow-y-auto">
+      <div ref={bookContainerRef} className="overflow-y-auto">
         {book.cells.length === 0 ? (
           <div className="flex-1 h-[calc(100vh-180px)] flex items-center justify-center bg flex-col prose mx-auto">
             <h1>{t("bookIsEmpty", "Your book is empty")}</h1>

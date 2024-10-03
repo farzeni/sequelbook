@@ -16,6 +16,9 @@ export type Tab = BookTab | DatabaseTab
 
 export type TabType = Tab["type"]
 
+export type TabMap = {
+  [id: string]: Tab
+}
 export interface BookTab {
   id: string
   type: "book"
@@ -36,12 +39,16 @@ export interface AppState {
   books: BookMap
   connections: ConnectionMap
   results: ResultMap
-  editor: EditorState
+  editor: EditorState & EditorStateSelectors
 }
 
 export type SidebarSection = "contents" | "books" | "connections"
 
 export type Pane = ContentPane | SplitPane
+
+export type PaneMap = {
+  [paneId: string]: Pane
+}
 
 export interface ContentPane {
   type: "leaf"
@@ -54,16 +61,21 @@ export interface SplitPane {
   type: "split"
   id: string
   direction: "horizontal" | "vertical"
-  children: [Pane, Pane]
+  children: [string, string]
 }
 
 export interface EditorState {
   sidebar: SidebarSection | null
-  rootPane: Pane
-  tabs: {
-    [tabId: string]: Tab
-  }
+  tabs: TabMap
+  panes: PaneMap
 
-  tab: Tab | null
-  pane: ContentPane
+  rootPaneId: string
+  tabId: string | null
+  paneId: string
+}
+
+export interface EditorStateSelectors {
+  tab: () => Tab | null
+  pane: () => ContentPane
+  rootPane: () => Pane
 }

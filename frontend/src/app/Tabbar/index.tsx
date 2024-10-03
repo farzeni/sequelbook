@@ -1,16 +1,23 @@
 import { Button } from "@components/ui/button"
 import { Separator } from "@components/ui/separator"
 import { useStore } from "@hooks/store"
-import { CloseTab, SelectTab, Tab } from "@store"
+import { CloseTab, ContentPane, SelectTab, Tab } from "@store"
 import { Book, Database, X } from "lucide-react"
+import { FC } from "react"
 import TabbarMenu from './TabbarMenu'
 
-const Tabbar = () => {
-  const pane = useStore((state) => state.editor.pane)
+interface TabbarProps {
+  pane: ContentPane
+}
+
+const Tabbar: FC<TabbarProps> = () => {
+  const pane = useStore((state) => state.editor.pane())
   const tabs = useStore((state) => state.editor.tabs)
   const books = useStore((state) => state.books)
   const connections = useStore((state) => state.connections)
-  const selected = useStore((state) => state.editor.tab?.id)
+  const selected = useStore((state) => state.editor.tabId)
+
+  console.log("pane", pane)
 
   function handleCloseTab(e: React.MouseEvent, bookId: string) {
     e.stopPropagation()

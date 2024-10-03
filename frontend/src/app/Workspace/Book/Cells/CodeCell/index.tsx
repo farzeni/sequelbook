@@ -48,7 +48,7 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
 
   const [content, setContent] = useState(cell.content)
 
-  const tab = useStore((state: AppState) => state.editor.tab)
+  const tab = useStore((state: AppState) => state.editor.tab())
 
   const connection = tab?.connectionId
 

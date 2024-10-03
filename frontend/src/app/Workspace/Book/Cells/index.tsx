@@ -30,7 +30,7 @@ interface CellsListItemProps {
 
 const CellsListItem: FC<CellsListItemProps> = ({ idx, bookId, cell }) => {
 
-  const tab = useStore((state) => state.editor.tab)
+  const tab = useStore((state) => state.editor.tab())
 
   const selectedCellId = tab?.cellId
 
@@ -51,8 +51,9 @@ const CellsListItem: FC<CellsListItemProps> = ({ idx, bookId, cell }) => {
     <div key={cell.id}
       onClick={handleSelectCell}
       className={`
-        max-w-screen-lg
+        max-w-screen-xl
         mx-auto
+        px-4
         relative 
         rounded 
         ${selected ? "border-slate-600" : ""}
