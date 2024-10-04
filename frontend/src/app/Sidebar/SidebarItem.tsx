@@ -77,7 +77,8 @@ interface SidebarItemProps {
 
 const SidebarItem: FC<SidebarItemProps> = ({ itemId, selected, title, onSelected, onTextChange }) => {
   const [editMode, setEditMode] = useState(false)
-  const pane = useSnapshot(appState.editor.pane)
+  const current = useSnapshot(appState.editor.current)
+  const pane = useSnapshot(appState.editor.panes[current.paneId])
   const tabs = useSnapshot(appState.editor.tabs)
 
   useEventBusListener("sidebar.item.rename", (id: string) => {
@@ -87,7 +88,7 @@ const SidebarItem: FC<SidebarItemProps> = ({ itemId, selected, title, onSelected
   })
 
   const openEntityIds = useMemo(() => {
-    if (!pane) {
+    if (!pane || pane.type !== 'leaf') {
       return []
     }
 

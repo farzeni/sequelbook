@@ -42,6 +42,16 @@ func (b *BooksStore) CreateBook(data BookData) (*Book, error) {
 		book.Cells = []Cell{}
 	}
 
+	if len(book.Cells) == 0 {
+		book.Cells = []Cell{
+			{
+				ID:      tools.GenerateID(tools.EntityTypesCell),
+				Content: "# Untitled\n\nDouble click this cell to edit it.",
+				Type:    book.Cells[0].Type,
+			},
+		}
+	}
+
 	err := b.storage.SaveEntity(book, bookID)
 
 	if err != nil {

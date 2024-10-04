@@ -19,16 +19,19 @@ interface BookToolbarProps {
 const BookToolbar: FC<BookToolbarProps> = ({ book }) => {
   const { t } = useTranslation()
 
-  const tabId = useSnapshot(appState.editor).tabId
+  const current = useSnapshot(appState.editor.current)
   const tabs = useSnapshot(appState.editor.tabs)
   const connections = useSnapshot(appState.connections)
-  const connectionId = tabId ? tabs[tabId].connectionId : null
+  const connectionId = current.tabId ? tabs[current.tabId].connectionId : null
   const connection = connectionId ? connections[connectionId] : null
 
   const connectionDisclose = useDisclosure()
 
-  useEventBusListener("connections.pick", () => {
-    connectionDisclose.onOpen()
+  useEventBusListener("connections.pick", (execTabId) => {
+    console.log("Pick connection", execTabId, current.tabId)
+    if (execTabId === current.tabId) {
+      connectionDisclose.onOpen()
+    }
   })
 
   return (

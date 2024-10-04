@@ -1,4 +1,4 @@
-import { AppState, ContentPane, Pane, Tab } from "@store/types"
+import { AppState } from "@store/types"
 import { proxy } from "valtio"
 export const editorState = proxy<AppState["editor"]>({
   sidebar: "books",
@@ -11,39 +11,10 @@ export const editorState = proxy<AppState["editor"]>({
       tabId: null,
     },
   },
-
-  rootPaneId: "root",
-  tabId: null,
-  paneId: "root",
-
-  get rootPane(): Pane {
-    return this.panes[this.rootPaneId]
-  },
-
-  set rootPane(pane: Pane) {
-    this.rootPaneId = pane.id
-  },
-
-  get pane(): ContentPane {
-    const pane = this.panes[this.paneId]
-    if (pane.type !== "leaf") {
-      throw new Error("Expected a leaf pane")
-    }
-
-    return pane
-  },
-
-  set pane(pane: ContentPane) {
-    if (pane.type !== "leaf") {
-      throw new Error("Expected a leaf pane")
-    }
-
-    this.paneId = pane.id
-  },
-
-  get tab(): Tab | null {
-    console.log("-=--", this.tabId)
-    return this.tabs[this.tabId || ""] || null
+  current: {
+    rootPaneId: "root",
+    tabId: null,
+    paneId: "root",
   },
 })
 

@@ -5,8 +5,9 @@ import EditorPane from "./EditorPane";
 
 
 const Workspace = () => {
-  const editor = useSnapshot(appState.editor)
-  const rootPane = editor.panes[editor.rootPaneId]
+  const current = useSnapshot(appState.editor.current)
+  const panes = useSnapshot(appState.editor.panes)
+  const rootPane = panes[current.rootPaneId]
 
   if (!rootPane) {
     return null

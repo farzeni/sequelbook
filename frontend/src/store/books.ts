@@ -3,7 +3,12 @@ import * as booksStore from "@lib/wailsjs/go/books/BooksStore"
 import { DuplicateBook } from "@lib/wailsjs/go/books/BooksStore"
 import { books } from "@lib/wailsjs/go/models"
 import * as pooler from "@lib/wailsjs/go/runners/Pooler"
-import { findEntityTabInPane, SaveEditorState, SelectTab } from "./editor"
+import {
+  CloseTab,
+  findEntityTabInPane,
+  SaveEditorState,
+  SelectTab,
+} from "./editor"
 import { BookMap, BookTab, Tab } from "./types"
 
 export function isBookTab(tab: Tab | null): tab is BookTab {
@@ -29,7 +34,7 @@ export async function LoadBooks() {
 }
 
 export function SetSelectedCell(cellId: string) {
-  const tab = appState.editor.tabs[appState.editor.tabId || ""]
+  const tab = appState.editor.tabs[appState.editor.current.tabId || ""]
 
   if (!tab || tab.type !== "book") {
     return
@@ -46,7 +51,7 @@ export function SetSelectedCell(cellId: string) {
 }
 
 export function MoveCurrentCell(offset: 1 | -1) {
-  const tab = appState.editor.tabs[appState.editor.tabId || ""]
+  const tab = appState.editor.tabs[appState.editor.current.tabId || ""]
 
   if (!tab || tab.type !== "book") {
     return
@@ -130,24 +135,20 @@ export async function UpdateBookTitle(bookId: string, title: string) {
 }
 
 export async function RemoveBook(bookId: string) {
-  const tab = findEntityTabInPane(appState.editor.pane, bookId)
+  for (const paneId in appState.editor.panes) {
+    const pane = appState.editor.panes[paneId]
+    const tab = findEntityTabInPane(pane, bookId)
 
-  if (!tab) {
-    return
-  }
+    if (!tab || pane.type !== "leaf") {
+      continue
+    }
 
-  delete appState.books[bookId]
-
-  delete appState.editor.tabs[bookId]
-  appState.editor.pane.tabsOrder = appState.editor.pane.tabsOrder.filter(
-    (id: string) => id !== bookId
-  )
-
-  if (appState.editor.tab?.bookId === bookId) {
-    appState.editor.tabId = appState.editor.pane.tabsOrder[0] || null
+    CloseTab(tab.id)
   }
 
   await booksStore.DeleteBook(bookId)
+
+  delete appState.books[bookId]
 
   SaveEditorState()
 }
@@ -155,12 +156,12 @@ export async function RemoveBook(bookId: string) {
 export function SetBookConnection(bookId: string, connectionId: string) {
   const connection = appState.connections[connectionId]
   console.log("SetBookConnection: connection", connectionId, connection)
-
-  if (!connection) {
+  const pane = appState.editor.panes[appState.editor.current.paneId]
+  if (!connection || pane.type !== "leaf") {
     return
   }
 
-  const tab = findEntityTabInPane(appState.editor.pane, bookId)
+  const tab = findEntityTabInPane(pane, bookId)
 
   console.log("SetBookConnection: tab", bookId, tab)
 
@@ -175,7 +176,7 @@ export function SetBookConnection(bookId: string, connectionId: string) {
 }
 
 export async function AddCell(type: "code" | "text", position?: number) {
-  const tab = appState.editor.tabs[appState.editor.tabId || ""]
+  const tab = appState.editor.tabs[appState.editor.current.tabId || ""]
 
   console.log("Add cell", tab, type, position)
 
@@ -249,7 +250,7 @@ export async function RemoveCell(bookId: string, cellId: string) {
 }
 
 export async function SwapCells(position1: number, position2: number) {
-  const currentTabId = appState.editor.tabId
+  const currentTabId = appState.editor.current.tabId
 
   if (!currentTabId) {
     return
@@ -301,7 +302,7 @@ export async function MoveCellDown(bookId: string, cellId: string) {
 }
 
 export async function Execute(cellID: string) {
-  const tab = appState.editor.tab
+  const tab = appState.editor.tabs[appState.editor.current.tabId || ""]
 
   if (!tab || tab.type !== "book") {
     console.log("No tab selected")

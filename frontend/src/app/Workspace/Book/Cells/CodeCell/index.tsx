@@ -16,6 +16,7 @@ import { Prec } from "@codemirror/state";
 import { useEventBus } from '@hooks/events';
 import { appState } from '@hooks/store';
 import React from 'react';
+import { useSnapshot } from 'valtio';
 import CodeCellMenu from './CodeCellMenu';
 
 const EDITOR_DEBOUNCE = 1000
@@ -46,8 +47,12 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
   const editorRef = useRef<ReactCodeMirrorRef>({});
   const eventBus = useEventBus();
   const [content, _] = useState(cell.content)
-  const tab = appState.editor.tab
-  const connection = tab?.connectionId
+
+  const current = useSnapshot(appState.editor.current)
+  const tabs = useSnapshot(appState.editor.tabs)
+  const connections = useSnapshot(appState.connections)
+  const connectionId = current.tabId ? tabs[current.tabId].connectionId : null
+  const connection = connectionId ? connections[connectionId] : null
   const errorDialogDisclose = useDisclosure()
   const [error, setError] = useState<any>(null)
   const results = appState.results[cell.id] || null
@@ -57,8 +62,8 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
   }, EDITOR_DEBOUNCE)
 
   const handleExecute = useCallback(async () => {
-    if (!connection) {
-      eventBus.emit("connections.pick")
+    if (!connection && current.tabId) {
+      eventBus.emit("connections.pick", current.tabId)
       return
     }
 

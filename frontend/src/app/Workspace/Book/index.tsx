@@ -2,7 +2,7 @@ import { Button } from "@components/ui/button"
 import { appState } from "@hooks/store"
 import { books } from "@lib/wailsjs/go/models"
 import { AddCell, BookTab } from "@store"
-import { FC, useEffect, useRef } from "react"
+import React, { FC, useEffect, useRef } from "react"
 import { Trans, useTranslation } from "react-i18next"
 import { useSnapshot } from "valtio"
 import CellsList from "./Cells"
@@ -16,9 +16,6 @@ const BookContent: FC<BookContentProps> = ({ tab }) => {
   const { t } = useTranslation()
   const book = useSnapshot(appState.books[tab.bookId])
   const bookContainerRef = useRef<HTMLDivElement>(null)
-
-  console.log("Book", book)
-
 
   useEffect(() => {
     setTimeout(() => {
@@ -37,7 +34,7 @@ const BookContent: FC<BookContentProps> = ({ tab }) => {
   return (
     <div>
       <BookToolbar book={book as books.Book} />
-      <div ref={bookContainerRef} className="overflow-y-auto">
+      <div ref={bookContainerRef} className="overflow-y-auto h-[calc(100vh-42px)]">
         {book.cells.length === 0 ? (
           <div className="flex-1 h-[calc(100vh-180px)] flex items-center justify-center bg flex-col prose mx-auto">
             <h1>{t("bookIsEmpty", "Your book is empty")}</h1>
@@ -66,4 +63,4 @@ const BookContent: FC<BookContentProps> = ({ tab }) => {
   )
 }
 
-export default BookContent
+export default React.memo(BookContent)

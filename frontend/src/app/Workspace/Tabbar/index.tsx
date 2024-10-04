@@ -15,9 +15,8 @@ const Tabbar: FC<TabbarProps> = ({ pane }) => {
   const tabs = useSnapshot(appState.editor.tabs)
   const books = useSnapshot(appState.books)
   const connections = useSnapshot(appState.connections)
-  const selected = useSnapshot(appState.editor).tabId // FIXME: we should not watch the whole editor state here
+  const current = useSnapshot(appState.editor.current)
 
-  console.log("Tabbar render tab selected: ", selected)
 
   function handleCloseTab(e: React.MouseEvent, bookId: string) {
     e.stopPropagation()
@@ -45,7 +44,7 @@ const Tabbar: FC<TabbarProps> = ({ pane }) => {
           <div className="flex" key={tabId}>
 
             <div
-              onClick={() => SelectTab(tabId)}
+              onClick={() => SelectTab(tabId, pane.id)}
               style={{ "--wails-draggable": "no-drag" } as React.CSSProperties}
               className={`
                 group
@@ -60,8 +59,13 @@ const Tabbar: FC<TabbarProps> = ({ pane }) => {
                 max-w-[140px] 
                 h-[31px]
                 rounded-t 
+
+                ${current.tabId === tabId && `
+                  border-t-2
+                  border-t-primary
+                `}
                 
-                ${selected === tabId ? `
+                ${pane.tabId === tabId ? `
                   bg-white border 
                   border-b-white
                   ` : `
@@ -74,20 +78,20 @@ const Tabbar: FC<TabbarProps> = ({ pane }) => {
 
               {tabs[tabId]?.type === "book" && (<Book size={15} className="text-gray-700" />)}
               {tabs[tabId]?.type === "connection" && (<Database size={15} className="text-gray-700" />)}
-              <span className="text-xs text-gray-500 truncate">{getTabTitle(tabs[tabId])}</span>
+              <span className="text-xs text-gray-500 truncate"> {tabId}</span>
 
               <Button variant="ghost" size="icon-sm" onClick={(e) => handleCloseTab(e, tabId)}
                 className={`mr-1`}>
                 <X size={15} />
               </Button>
             </div>
-            {selected !== tabId && pane.tabsOrder[idx + 1] !== selected && (
+            {pane.tabId !== tabId && pane.tabsOrder[idx + 1] !== pane.tabId && (
               <Separator orientation="vertical" className="h-5 mt-1" />
             )}
           </div>
         ))}
       </div>
-      <TabbarMenu />
+      <TabbarMenu pane={pane} />
     </div >
   )
 }

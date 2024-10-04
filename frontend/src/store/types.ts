@@ -64,16 +64,15 @@ export interface SplitPane {
   children: [string, string]
 }
 
+export interface EditorSelection {
+  rootPaneId: string
+  tabId: string | null
+  paneId: string
+}
+
 export interface EditorState {
   sidebar: SidebarSection | null
   tabs: TabMap
   panes: PaneMap
-
-  rootPaneId: string
-  tabId: string | null
-  paneId: string
-
-  get pane(): ContentPane
-  get tab(): Tab | null
-  get rootPane(): Pane
+  current: EditorSelection
 }

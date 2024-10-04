@@ -4,7 +4,7 @@ export type AppEvents = {
   "sidebar.item.rename": (id: string) => void
 
   "connections.create": (data?: connections.ConnectionData) => void
-  "connections.pick": () => void
+  "connections.pick": (tabId: string) => void
 }
 
 export type EventCallback<T = any> = (...args: T[]) => void

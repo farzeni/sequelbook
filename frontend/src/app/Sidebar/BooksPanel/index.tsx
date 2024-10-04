@@ -7,8 +7,11 @@ import BookToolbar from "./BookToolbar";
 
 
 const BooksPanel = () => {
-  const selectedTabId = useSnapshot(appState).editor.tabId
+  const current = useSnapshot(appState.editor.current)
+  const tabs = useSnapshot(appState.editor.tabs)
   const books = useSnapshot(appState).books
+
+  const tab = current.tabId ? tabs[current.tabId] : null
 
   const orderedBooks = useMemo(() => {
     return Object.values(books).sort((a, b) => a.title.localeCompare(b.title))
@@ -20,7 +23,7 @@ const BooksPanel = () => {
       {orderedBooks.length > 0 ? (
         <div className="flex flex-col gap-1 w-full p-4">
           {orderedBooks.map((book) => (
-            <BookItem key={book.id} book={book as books.Book} selected={selectedTabId === book.id} />
+            <BookItem key={book.id} book={book as books.Book} selected={!!tab && tab.bookId === book.id} />
           ))}
         </div>
       ) : (
