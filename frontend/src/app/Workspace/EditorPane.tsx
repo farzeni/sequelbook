@@ -33,7 +33,7 @@ const EditorSplitPane: FC<EditorSplitPaneProps> = ({ pane }) => {
   const firstPane = panes[pane.children[0]]
   const secondPane = panes[pane.children[1]]
 
-  if (!firstPane || !secondPane || firstPane.type === "split" || secondPane.type === "split") {
+  if (!firstPane || !secondPane) {
     console.error("Invalid split pane", pane)
     return null
   }
@@ -70,8 +70,6 @@ const EditorLeafPane: FC<EditorLeafPaneProps> = ({ pane }) => {
     console.error("Invalid leaf pane", pane)
     return null
   }
-
-  console.log("Leaf pane", pane.id, " tab:", tab.id)
 
   return (
     <div className="flex-1 h-full">
