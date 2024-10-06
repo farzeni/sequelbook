@@ -90,7 +90,6 @@ export function DoSplitPane(
   direction: "horizontal" | "vertical"
 ) {
   console.log("pane state pre split")
-  printPaneTree(appState.editor.panes[appState.editor.current.rootPaneId])
 
   const newPane: ContentPane = {
     type: "leaf",
@@ -136,8 +135,6 @@ export function DoSplitPane(
   } else {
     OpenInTab("connection", tab.connectionId, newPane.id)
   }
-
-  printPaneTree(appState.editor.panes[appState.editor.current.rootPaneId])
 }
 
 export async function LoadEditorState() {
@@ -218,7 +215,7 @@ export function OpenInTab(
 ) {
   let tabId = null
   const pane = appState.editor.panes[paneId || appState.editor.current.paneId]
-
+  console.log("open in tab", entityType, entityId, paneId, pane)
   if (pane.type !== "leaf") {
     return
   }
@@ -245,8 +242,6 @@ export function OpenInTab(
         type: "connection",
         connectionId: entityId,
       }
-
-      pane.tabsOrder.push(tabId)
     }
 
     if (newTab) {
@@ -276,9 +271,6 @@ export function CloseTab(tabId: string) {
   }
 
   const tabIdx = pane.tabsOrder.findIndex((id) => id === tabId)
-
-  console.log("closing pane")
-  printPaneTree(appState.editor.panes[appState.editor.current.rootPaneId])
 
   if (appState.editor.current.tabId === tabId) {
     if (pane.tabsOrder.length > 1) {
@@ -342,9 +334,6 @@ export function CloseTab(tabId: string) {
 
       delete appState.editor.panes[pane.id]
     }
-
-    console.log("pane state post close")
-    printPaneTree(appState.editor.panes[appState.editor.current.rootPaneId])
   }
 
   SaveEditorState()

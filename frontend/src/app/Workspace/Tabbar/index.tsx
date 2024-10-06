@@ -12,10 +12,10 @@ interface TabbarProps {
 }
 
 const Tabbar: FC<TabbarProps> = ({ pane }) => {
-  const tabs = useSnapshot(appState.editor.tabs)
   const books = useSnapshot(appState.books)
   const connections = useSnapshot(appState.connections)
   const current = useSnapshot(appState.editor.current)
+  const tabs = useSnapshot(appState.editor.tabs)
 
 
   function handleCloseTab(e: React.MouseEvent, bookId: string) {
@@ -78,7 +78,7 @@ const Tabbar: FC<TabbarProps> = ({ pane }) => {
 
               {tabs[tabId]?.type === "book" && (<Book size={15} className="text-gray-700" />)}
               {tabs[tabId]?.type === "connection" && (<Database size={15} className="text-gray-700" />)}
-              <span className="text-xs text-gray-500 truncate"> {tabId}</span>
+              <span className="text-xs text-gray-500 truncate"> {getTabTitle(tabs[tabId])}</span>
 
               <Button variant="ghost" size="icon-sm" onClick={(e) => handleCloseTab(e, tabId)}
                 className={`mr-1`}>
