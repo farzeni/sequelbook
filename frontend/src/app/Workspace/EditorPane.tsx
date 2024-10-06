@@ -1,5 +1,5 @@
 import Tabbar from "@app/Workspace/Tabbar"
-import { Separator } from "@components/ui/separator"
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@components/ui/resizable"
 import { appState } from "@hooks/store"
 import { ContentPane, Pane, SplitPane } from "@store/editor"
 import { FC } from "react"
@@ -39,20 +39,18 @@ const EditorSplitPane: FC<EditorSplitPaneProps> = ({ pane }) => {
   }
 
   return (
-    <div className={`
-      w-full
-      h-full
-      flex
-      ${pane.direction === "horizontal" ? "flex-row" : "flex-row"}
-      `}>
-      <div className=" flex-1">
+    <ResizablePanelGroup
+      direction={pane.direction === "horizontal" ? "vertical" : "horizontal"}
+      className="max-w-full rounded-lg border md:min-w-[450px]"
+    >
+      <ResizablePanel defaultSize={50}>
         <EditorPane pane={firstPane as Pane} />
-      </div>
-      <Separator className={pane.direction === "vertical" ? "w-[1px] h-full" : "h-[1px] w-full"} />
-      <div className="flex-1">
+      </ResizablePanel>
+      <ResizableHandle />
+      <ResizablePanel defaultSize={50}>
         <EditorPane pane={secondPane as Pane} />
-      </div>
-    </div>
+      </ResizablePanel>
+    </ResizablePanelGroup>
   )
 }
 
@@ -67,7 +65,7 @@ const EditorLeafPane: FC<EditorLeafPaneProps> = ({ pane }) => {
   const tab = tabs[pane.tabId || ""]
 
   if (!tab) {
-    console.error("Invalid leaf pane", pane)
+    console.log("no open tab pane: ", pane.id)
     return null
   }
 

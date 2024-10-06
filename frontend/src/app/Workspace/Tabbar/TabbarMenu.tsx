@@ -23,6 +23,7 @@ const TabbarMenu: FC<TabbarMenuProps> = ({ pane }) => {
   const tabs = useSnapshot(appState.editor.tabs)
   const books = useSnapshot(appState.books)
   const connections = useSnapshot(appState.connections)
+  const current = useSnapshot(appState.editor.current)
 
   function handleCloseTabs(e: React.MouseEvent) {
     e.stopPropagation()
@@ -48,7 +49,7 @@ const TabbarMenu: FC<TabbarMenuProps> = ({ pane }) => {
     return null
   }
 
-  return (
+  return current.paneId === pane.id ? (
     <div className="flex items-center">
       <SplitButton pane={pane as ContentPane} />
 
@@ -80,11 +81,8 @@ const TabbarMenu: FC<TabbarMenuProps> = ({ pane }) => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  )
+  ) : null
 
-  if (!pane) {
-    return null
-  }
 }
 
 export default TabbarMenu

@@ -14,6 +14,7 @@ import {
 function printPaneTree(pane: Pane, level: number = 0) {
   if (!level || level === 0) {
     console.log("=== pane tree ===")
+    console.log(appState.editor.panes)
   }
 
   if (pane.type === "split") {
@@ -167,7 +168,7 @@ export function SelectSidebarSection(section: SidebarSection | null) {
     appState.editor.sidebar === section && !!section ? null : section
 }
 
-export function SelectPane(paneId?: string) {
+export function SelectPane(paneId?: string): Pane | null {
   const pane = appState.editor.panes[paneId || appState.editor.current.paneId]
 
   if (pane.type === "split") {
@@ -178,11 +179,13 @@ export function SelectPane(paneId?: string) {
     appState.editor.current.paneId = paneId || appState.editor.current.paneId
     appState.editor.current.tabId = pane.tabId || pane.tabsOrder[0]
   }
+
+  SaveEditorState()
+
+  return pane
 }
 
 export function SelectTab(tabId: string, paneId?: string) {
-  console.log("selecting tab", tabId)
-  printPaneTree(appState.editor.panes[appState.editor.current.rootPaneId])
   let pane
   if (paneId) {
     pane = appState.editor.panes[paneId]
@@ -205,8 +208,6 @@ export function SelectTab(tabId: string, paneId?: string) {
   pane.tabId = tabId
 
   SaveEditorState()
-
-  printPaneTree(appState.editor.panes[appState.editor.current.rootPaneId])
 }
 ;``
 
@@ -280,12 +281,8 @@ export function CloseTab(tabId: string) {
   printPaneTree(appState.editor.panes[appState.editor.current.rootPaneId])
 
   if (appState.editor.current.tabId === tabId) {
-    if (pane.tabsOrder.length === 1) {
-      pane.tabId = null
-      appState.editor.current.tabId = null
-    } else {
-      const nextTabIdx = tabIdx === 0 ? 1 : tabIdx - 1
-      nextTabId = pane.tabsOrder[nextTabIdx]
+    if (pane.tabsOrder.length > 1) {
+      nextTabId = pane.tabsOrder[tabIdx === 0 ? 1 : tabIdx - 1]
     }
   }
 
@@ -295,12 +292,17 @@ export function CloseTab(tabId: string) {
   if (nextTabId) {
     console.log("selecting next tab", nextTabId)
     SelectTab(nextTabId)
-  } else {
+  } else if (pane.tabsOrder.length === 0) {
     if (Object.keys(appState.editor.panes).length > 1) {
       // close pane
       const parentPane = findParentPane(pane.id)
 
-      console.log("parent pane", parentPane)
+      console.log(
+        "parent pane ",
+        parentPane?.id,
+        "root pane",
+        appState.editor.current.rootPaneId
+      )
 
       if (!parentPane) {
         return
@@ -314,6 +316,7 @@ export function CloseTab(tabId: string) {
 
       if (parentPane.id == appState.editor.current.rootPaneId) {
         console.log("closing root pane")
+        delete appState.editor.panes[appState.editor.current.rootPaneId]
         appState.editor.current.rootPaneId = sibilingPaneId
 
         SelectPane(sibilingPaneId)
@@ -322,6 +325,7 @@ export function CloseTab(tabId: string) {
         const grandParentPane = findParentPane(parentPane.id)
 
         if (!grandParentPane) {
+          console.log("no grand parent pane")
           return
         }
 

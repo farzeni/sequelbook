@@ -22,14 +22,11 @@ export async function LoadBooks() {
   console.log("Loading books")
   const books = await booksStore.ListBooks()
 
-  console.log("Books", books)
-
   let bookStore: BookMap = {}
 
   for (const book of books || []) {
     bookStore[book.id] = book
   }
-  console.log("set state")
   appState.books = bookStore
 }
 
