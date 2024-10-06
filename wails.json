@@ -7,8 +7,22 @@
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
+  "fileAssociations": [
+    {
+      "ext": "sqdb",
+      "name": "Sequelbook",
+      "description": "Sequelbook file",
+      "role": "Editor"
+    }
+  ],
   "author": {
     "name": "Fabrizio Arzeni",
     "email": "fabrizio.arz@gmail.com"
+  },
+  "info": {
+    "companyName": "Sequelbook",
+    "productName": "Sequelbook",
+    "productVersion": "0.1.0",
+    "copyright": "Copyright © 2024 Fabrizio Arzeni"
   }
 }
