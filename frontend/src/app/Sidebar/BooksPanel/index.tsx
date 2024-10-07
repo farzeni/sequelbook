@@ -13,6 +13,8 @@ const BooksPanel = () => {
 
   const tab = current.tabId ? tabs[current.tabId] : null
 
+
+
   const orderedBooks = useMemo(() => {
     return Object.values(books).sort((a, b) => a.title.localeCompare(b.title))
   }, [books])

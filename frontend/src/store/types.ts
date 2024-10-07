@@ -35,7 +35,20 @@ export interface DatabaseTab {
   bookId?: null
 }
 
-export interface AppState {
+export type EditorSelection = {
+  rootPaneId: string
+  tabId: string | null
+  paneId: string
+}
+
+export type EditorState = {
+  sidebar: SidebarSection | null
+  tabs: TabMap
+  panes: PaneMap
+  current: EditorSelection
+}
+
+export type AppState = {
   books: BookMap
   connections: ConnectionMap
   results: ResultMap
@@ -62,17 +75,4 @@ export interface SplitPane {
   id: string
   direction: "horizontal" | "vertical"
   children: [string, string]
-}
-
-export interface EditorSelection {
-  rootPaneId: string
-  tabId: string | null
-  paneId: string
-}
-
-export interface EditorState {
-  sidebar: SidebarSection | null
-  tabs: TabMap
-  panes: PaneMap
-  current: EditorSelection
 }

@@ -3,7 +3,7 @@ import { PostgreSQL, sql } from '@codemirror/lang-sql';
 import { useDebounce } from '@hooks/debounce';
 import useDisclosure from '@hooks/disclosure';
 import { books } from "@lib/wailsjs/go/models";
-import { Execute, SelectNextCell, SelectPreviousCell } from '@store';
+import { Execute, SelectNextCell, SelectPreviousCell, UpdateCell } from '@store';
 import { githubLight } from '@uiw/codemirror-theme-github';
 import CodeMirror, { keymap, ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { t } from 'i18next';
@@ -40,13 +40,12 @@ interface CodeBlockProps {
   bookId: string
   cell: books.Cell
   selected?: boolean
-  onChange?: (cellId: string, content: string) => void
 }
 
-const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => {
+const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, selected }) => {
   const editorRef = useRef<ReactCodeMirrorRef>({});
   const eventBus = useEventBus();
-  const [content, _] = useState(cell.content)
+  const [content, setContent] = useState(cell.content)
 
   const current = useSnapshot(appState.editor.current)
   const tabs = useSnapshot(appState.editor.tabs)
@@ -55,10 +54,10 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
   const connection = connectionId ? connections[connectionId] : null
   const errorDialogDisclose = useDisclosure()
   const [error, setError] = useState<any>(null)
-  const results = appState.results[cell.id] || null
+  const results = useSnapshot(appState.results)[cell.id]
 
   const debouncedOnChange = useDebounce((content: string) => {
-    onChange && onChange(cell.id, content)
+    UpdateCell(bookId, cell.id, content)
   }, EDITOR_DEBOUNCE)
 
   const handleExecute = useCallback(async () => {
@@ -67,10 +66,15 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
       return
     }
 
+    if (!editorRef.current) {
+      return
+    }
+
     setError(null)
     console.log("Execute code: " + cell.id)
 
     try {
+      await UpdateCell(bookId, cell.id, content)
       await Execute(cell.id)
     } catch (error) {
       console.error("Error executing code", error)
@@ -78,7 +82,7 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
     }
   }, [connection, cell.id])
 
-  const cmKeymap = useMemo(() => sqbCodeMirrorKeymap({
+  const cmKeymap = useCallback(() => sqbCodeMirrorKeymap({
     onExecute: handleExecute,
     onSelectNextCell: SelectNextCell,
     onSelectPreviousCell: SelectPreviousCell,
@@ -103,6 +107,10 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
       editorRef.current.view && editorRef.current.view.contentDOM.blur()
     }
   }, [selected]);
+
+  useEffect(() => {
+    debouncedOnChange(content)
+  }, [content])
 
   return (
     <div className="">
@@ -144,7 +152,7 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
             theme={githubLight}
             ref={editorRef}
             extensions={[
-              Prec.highest(keymap.of(cmKeymap)),
+              Prec.highest(keymap.of(cmKeymap())),
               // keymap.of(standardKeymap),
               sql({
                 dialect: PostgreSQL,
@@ -152,7 +160,7 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
                 upperCaseKeywords: true,
               }),
             ]}
-            onChange={debouncedOnChange}
+            onChange={setContent}
           />
         </div>
 
@@ -167,7 +175,7 @@ const CodeBlock: FC<CodeBlockProps> = ({ bookId, cell, onChange, selected }) => 
       {!error && results && (
         <div className="max-w-screen-md md:max-w-screen-xl mx-auto">
           {results?.type === "SELECT" ? data && data.length > 0 && (
-            <ResultTable data={data} colOrder={results.columns} />
+            <ResultTable data={data} colOrder={results.columns as string[]} />
           ) : (
             <div className="p-4 bg-gray-100 text-gray-500">
               {results?.affected_rows} rows affected

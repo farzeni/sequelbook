@@ -89,8 +89,6 @@ export function DoSplitPane(
   pane: ContentPane,
   direction: "horizontal" | "vertical"
 ) {
-  console.log("pane state pre split")
-
   const newPane: ContentPane = {
     type: "leaf",
     id: generateUniqueId(),
@@ -128,8 +126,6 @@ export function DoSplitPane(
   appState.editor.panes[newPane.id] = newPane
   appState.editor.panes[splitPane.id] = splitPane
 
-  console.log("pane state post split")
-
   if (tab.type === "book") {
     OpenInTab("book", tab.bookId, newPane.id)
   } else {
@@ -139,12 +135,14 @@ export function DoSplitPane(
 
 export async function LoadEditorState() {
   try {
+    console.log("loading editor state")
     const state = await core.LoadEditorState()
     const editorState = JSON.parse(state)
     appState.editor = {
       ...appState.editor,
       ...editorState,
     }
+    console.log("loaded editor state", appState.editor)
   } catch (error) {
     console.log("No editor state found")
   }
@@ -282,61 +280,62 @@ export function CloseTab(tabId: string) {
   delete appState.editor.tabs[tabId]
 
   if (nextTabId) {
-    console.log("selecting next tab", nextTabId)
     SelectTab(nextTabId)
   } else if (pane.tabsOrder.length === 0) {
-    if (Object.keys(appState.editor.panes).length > 1) {
-      // close pane
-      const parentPane = findParentPane(pane.id)
-
-      console.log(
-        "parent pane ",
-        parentPane?.id,
-        "root pane",
-        appState.editor.current.rootPaneId
-      )
-
-      if (!parentPane) {
-        return
-      }
-
-      const sibilingPaneId = parentPane.children.find((id) => id !== pane.id)
-
-      if (!sibilingPaneId) {
-        return
-      }
-
-      if (parentPane.id == appState.editor.current.rootPaneId) {
-        console.log("closing root pane")
-        delete appState.editor.panes[appState.editor.current.rootPaneId]
-        appState.editor.current.rootPaneId = sibilingPaneId
-
-        SelectPane(sibilingPaneId)
-      } else {
-        console.log("closing child pane")
-        const grandParentPane = findParentPane(parentPane.id)
-
-        if (!grandParentPane) {
-          console.log("no grand parent pane")
-          return
-        }
-
-        const idx = grandParentPane.children.findIndex(
-          (id) => id === parentPane.id
-        )
-
-        grandParentPane.children[idx] = sibilingPaneId
-
-        delete appState.editor.panes[parentPane.id]
-
-        SelectPane(grandParentPane.id)
-      }
-
-      delete appState.editor.panes[pane.id]
-    }
+    ClosePane(pane.id)
   }
 
   SaveEditorState()
+}
+
+export function ClosePane(paneId: string) {
+  if (Object.keys(appState.editor.panes).length <= 1) return
+
+  // close pane
+  const parentPane = findParentPane(paneId)
+
+  console.log(
+    "parent pane ",
+    parentPane?.id,
+    "root pane",
+    appState.editor.current.rootPaneId
+  )
+
+  if (!parentPane) {
+    return
+  }
+
+  const sibilingPaneId = parentPane.children.find((id) => id !== paneId)
+
+  if (!sibilingPaneId) {
+    return
+  }
+
+  if (parentPane.id == appState.editor.current.rootPaneId) {
+    console.log("closing root pane")
+    delete appState.editor.panes[appState.editor.current.rootPaneId]
+    appState.editor.current.rootPaneId = sibilingPaneId
+
+    SelectPane(sibilingPaneId)
+  } else {
+    console.log("closing child pane")
+    const grandParentPane = findParentPane(parentPane.id)
+
+    if (!grandParentPane) {
+      console.log("no grand parent pane")
+      return
+    }
+
+    const idx = grandParentPane.children.findIndex((id) => id === parentPane.id)
+
+    grandParentPane.children[idx] = sibilingPaneId
+
+    delete appState.editor.panes[parentPane.id]
+
+    SelectPane(grandParentPane.id)
+  }
+
+  delete appState.editor.panes[paneId]
 }
 
 function generateUniqueId(): string {

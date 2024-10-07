@@ -20,7 +20,7 @@ import {
   UndoRedo
 } from '@mdxeditor/editor';
 import '@mdxeditor/editor/style.css';
-import { SelectNextCell, SelectPreviousCell } from "@store";
+import { SelectNextCell, SelectPreviousCell, UpdateCell } from "@store";
 import { SaveIcon } from "lucide-react";
 import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -32,10 +32,9 @@ interface TextBlockProps {
   bookId: string
   cell: books.Cell
   selected?: boolean
-  onChange?: (cellId: string, content: string) => void
 }
 
-const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected, onChange }) => {
+const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected }) => {
   const { t } = useTranslation()
   const [editMode, setEditMode] = useState(false)
   const [isMouseOver, setIsMouseOver] = useState(false)
@@ -43,11 +42,12 @@ const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected, onChange }) => 
   const editorRef = useRef<MDXEditorMethods>(null)
 
   const debouncedOnChange = useDebounce((content: string) => {
-    onChange && onChange(cell.id, content)
+    UpdateCell(bookId, cell.id, content)
   }, EDITOR_DEBOUNCE)
 
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    console.log("dooow")
     const isCtrlOrCmd = e.ctrlKey || e.metaKey;
 
     if (isCtrlOrCmd && e.key === CELL_BINDINGS.CELL_NEXT) {
@@ -69,13 +69,15 @@ const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected, onChange }) => 
 
   useEffect(() => {
     if (editMode == false && editorRef.current) {
-      onChange && onChange(cell.id, editorRef.current?.getMarkdown())
+      UpdateCell(bookId, cell.id, editorRef.current.getMarkdown())
     }
   }, [editMode])
 
   useEffect(() => {
     if (selected) {
-      document.addEventListener('keydown', handleKeyDown)
+      setTimeout(() => {
+        document.addEventListener('keydown', handleKeyDown)
+      }, 0)
     } else {
       setEditMode(false)
       document.removeEventListener('keydown', handleKeyDown)

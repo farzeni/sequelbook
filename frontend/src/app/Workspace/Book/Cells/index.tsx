@@ -1,5 +1,5 @@
 import { books } from "@lib/wailsjs/go/models";
-import { BookTab, SetSelectedCell, UpdateCell } from "@store";
+import { BookTab, SetSelectedCell } from "@store";
 import { FC, useCallback } from "react";
 import CodeBlock from "./CodeCell";
 import QuickAdd from "./QuickAdd";
@@ -31,10 +31,6 @@ interface CellsListItemProps {
 
 const CellsListItem: FC<CellsListItemProps> = ({ idx, bookId, cell, selected }) => {
 
-  const handleBookChange = useCallback(async (cellId: string, source: string) => {
-    UpdateCell(bookId, cellId, source)
-  }, [bookId])
-
   const handleSelectCell = useCallback(() => {
     SetSelectedCell(cell.id)
   }, [cell.id])
@@ -53,11 +49,11 @@ const CellsListItem: FC<CellsListItemProps> = ({ idx, bookId, cell, selected }) 
       `}>
 
       {cell.type === "code" && (
-        <CodeBlock bookId={bookId} cell={cell} onChange={handleBookChange} selected={selected} />
+        <CodeBlock bookId={bookId} cell={cell} selected={selected} />
       )}
 
       {cell.type === "text" && (
-        <TextBlock bookId={bookId} cell={cell} onChange={handleBookChange} selected={selected} />
+        <TextBlock bookId={bookId} cell={cell} selected={selected} />
       )}
 
       <QuickAdd index={idx + 1} />

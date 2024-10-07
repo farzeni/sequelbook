@@ -1,8 +1,8 @@
 import Tabbar from "@app/Workspace/Tabbar"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@components/ui/resizable"
-import { appState } from "@hooks/store"
-import { ContentPane, Pane, SplitPane } from "@store/editor"
-import { FC } from "react"
+import { appState, useEditorPane, useEditorTab } from "@hooks/store"
+import { ContentPane, Pane, SelectPane, SplitPane } from "@store/editor"
+import { FC, useCallback } from "react"
 import { useSnapshot } from "valtio"
 import BookContent from "./Book"
 import DatabaseContent from "./Database"
@@ -27,8 +27,7 @@ interface EditorSplitPaneProps {
 }
 
 const EditorSplitPane: FC<EditorSplitPaneProps> = ({ pane }) => {
-  const editor = useSnapshot(appState.editor)
-  const panes = editor.panes
+  const panes = useSnapshot(appState.editor.panes)
 
   const firstPane = panes[pane.children[0]]
   const secondPane = panes[pane.children[1]]
@@ -59,10 +58,16 @@ interface EditorLeafPaneProps {
 }
 
 const EditorLeafPane: FC<EditorLeafPaneProps> = ({ pane }) => {
-  const editor = useSnapshot(appState.editor)
-  const tabs = editor.tabs
+  const currentPane = useEditorPane()
 
-  const tab = tabs[pane.tabId || ""]
+  const tab = useEditorTab()
+
+  const handlePaneSelect = useCallback(() => {
+    if (currentPane.id !== pane.id) {
+      SelectPane(pane.id)
+    }
+
+  }, [pane.id, currentPane])
 
   if (!tab) {
     console.log("no open tab pane: ", pane.id)
@@ -70,7 +75,7 @@ const EditorLeafPane: FC<EditorLeafPaneProps> = ({ pane }) => {
   }
 
   return (
-    <div className="flex-1 h-full">
+    <div className="flex-1 h-full" onClick={handlePaneSelect}>
       <div className="flex bg-gray-50 border-b">
         <Tabbar pane={pane} />
       </div>
