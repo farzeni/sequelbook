@@ -1,64 +1,54 @@
+import { appState } from "@hooks/store";
 import { books } from "@lib/wailsjs/go/models";
 import { BookTab, SetSelectedCell } from "@store";
 import { FC, useCallback } from "react";
+import { useSnapshot } from "valtio";
 import CodeBlock from "./CodeCell";
 import QuickAdd from "./QuickAdd";
 import TextBlock from "./TextCell";
 
 interface CellsListProps {
   tab: BookTab
-  book: books.Book
+  bookId: string
 }
 
-const CellsList: FC<CellsListProps> = ({ book, tab }) => {
+const CellsList: FC<CellsListProps> = ({ bookId, tab }) => {
+  const book = useSnapshot(appState.books[bookId])
+
+  const handleSelectCell = useCallback((cellId: string) => {
+    SetSelectedCell(cellId)
+  }, [])
+
+
   return (
     <div>
       <QuickAdd index={0} />
       {book.cells.map((cell: books.Cell, idx: number) => (
-        <CellsListItem key={cell.id} idx={idx} bookId={book.id} cell={cell} selected={tab.cellId === cell.id} />
+        <div key={cell.id}
+          onClick={() => handleSelectCell(cell.id)}
+          className={`
+          max-w-screen-xl
+          mx-auto
+          px-4
+          relative 
+          rounded 
+          ${tab.cellId === cell.id ? "border-slate-600" : ""}
+        `}>
+
+          {cell.type === "code" && (
+            <CodeBlock bookId={bookId} connectionId={tab.connectionId} cell={cell} selected={tab.cellId === cell.id} />
+          )}
+
+          {cell.type === "text" && (
+            <TextBlock bookId={bookId} cell={cell} selected={tab.cellId === cell.id} />
+          )}
+
+          <QuickAdd index={idx + 1} />
+        </div>
       ))}
     </div >
   )
 
-}
-
-interface CellsListItemProps {
-  idx: number
-  bookId: string
-  cell: books.Cell
-  selected?: boolean
-}
-
-const CellsListItem: FC<CellsListItemProps> = ({ idx, bookId, cell, selected }) => {
-
-  const handleSelectCell = useCallback(() => {
-    SetSelectedCell(cell.id)
-  }, [cell.id])
-
-
-  return (
-    <div key={cell.id}
-      onClick={handleSelectCell}
-      className={`
-        max-w-screen-xl
-        mx-auto
-        px-4
-        relative 
-        rounded 
-        ${selected ? "border-slate-600" : ""}
-      `}>
-
-      {cell.type === "code" && (
-        <CodeBlock bookId={bookId} cell={cell} selected={selected} />
-      )}
-
-      {cell.type === "text" && (
-        <TextBlock bookId={bookId} cell={cell} selected={selected} />
-      )}
-
-      <QuickAdd index={idx + 1} />
-    </div>
-  )
 }
 
 export default CellsList;

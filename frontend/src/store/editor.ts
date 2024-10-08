@@ -198,9 +198,15 @@ export function SelectTab(tabId: string, paneId?: string) {
     return
   }
 
-  appState.editor.current.tabId = tabId
-  appState.editor.current.paneId = pane.id
+  appState.editor.current = {
+    ...appState.editor.current,
+    paneId: pane.id,
+    tabId: tab.id,
+  }
+
   pane.tabId = tabId
+
+  console.log("======= select tab", tabId, "pane", pane.id)
 
   SaveEditorState()
 }

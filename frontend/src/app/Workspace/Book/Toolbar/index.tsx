@@ -27,9 +27,9 @@ const BookToolbar: FC<BookToolbarProps> = ({ book }) => {
 
   const connectionDisclose = useDisclosure()
 
-  useEventBusListener("connections.pick", (execTabId) => {
+  useEventBusListener("connections.pick", (execTabId?) => {
     console.log("Pick connection", execTabId, current.tabId)
-    if (execTabId === current.tabId) {
+    if (current.tabId) {
       connectionDisclose.onOpen()
     }
   })

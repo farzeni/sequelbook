@@ -55,7 +55,7 @@ const BookContent: FC<BookContentProps> = ({ tab }) => {
           </div>
         ) : (
           <div className="max-w-full my-4 flex flex-col gap-2 ">
-            <CellsList book={book as books.Book} tab={tab} />
+            <CellsList bookId={book.id} tab={tab} />
           </div>
         )}
       </div>

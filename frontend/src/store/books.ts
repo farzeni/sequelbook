@@ -19,7 +19,7 @@ export function isBookID(tabId: string): boolean {
 }
 
 export async function LoadBooks() {
-  console.log("Loading books")
+  console.debug("Loading books")
   const books = await booksStore.ListBooks()
 
   let bookStore: BookMap = {}
@@ -37,10 +37,10 @@ export function SetSelectedCell(cellId: string) {
     return
   }
 
-  console.log("Setting selected cell", cellId)
+  console.debug("Setting selected cell", cellId)
 
   if (isBookTab(tab) && tab.cellId !== cellId) {
-    console.log("Real Setting selected cell", cellId)
+    console.debug("Real Setting selected cell", cellId)
     tab.cellId = cellId
   }
 
@@ -152,7 +152,7 @@ export async function RemoveBook(bookId: string) {
 
 export function SetBookConnection(bookId: string, connectionId: string) {
   const connection = appState.connections[connectionId]
-  console.log("SetBookConnection: connection", connectionId, connection)
+  console.debug("SetBookConnection: connection", connectionId, connection)
   const pane = appState.editor.panes[appState.editor.current.paneId]
   if (!connection || pane.type !== "leaf") {
     return
@@ -160,14 +160,14 @@ export function SetBookConnection(bookId: string, connectionId: string) {
 
   const tab = findEntityTabInPane(pane, bookId)
 
-  console.log("SetBookConnection: tab", bookId, tab)
+  console.debug("SetBookConnection: tab", bookId, tab)
 
   if (!tab) {
     return
   }
 
   appState.editor.tabs[tab.id].connectionId = connection.id
-  console.log("SetBookConnection: select", tab.id, connectionId)
+  console.debug("SetBookConnection: select", tab.id, connectionId)
 
   SaveEditorState()
 }
@@ -175,14 +175,14 @@ export function SetBookConnection(bookId: string, connectionId: string) {
 export async function AddCell(type: "code" | "text", position?: number) {
   const tab = appState.editor.tabs[appState.editor.current.tabId || ""]
 
-  console.log("Add cell", tab, type, position)
+  console.debug("Add cell", tab, type, position)
 
   if (!tab || tab.type !== "book") {
     return
   }
 
   const newCell: books.Cell = await booksStore.CreateCell(tab.bookId, type)
-  console.log("create cell", newCell)
+  console.debug("create cell", newCell)
 
   if (!appState.books[tab.bookId].cells) {
     appState.books[tab.bookId].cells = []
@@ -220,15 +220,18 @@ export async function UpdateCell(
   const book = appState.books[bookId]
 
   if (!book) {
+    console.debug("UpdateCell: No book found")
     return
   }
 
   const cellIdx = book.cells.findIndex((cell) => cell.id === cellId)
 
   if (cellIdx === -1) {
+    console.debug("UpdateCell: No cell found")
     return
   }
 
+  console.debug("Update cell", cellId, source)
   book.cells[cellIdx].content = source
 
   await booksStore.UpdateBook(bookId, book)
@@ -302,14 +305,14 @@ export async function Execute(cellID: string) {
   const tab = appState.editor.tabs[appState.editor.current.tabId || ""]
 
   if (!tab || tab.type !== "book") {
-    console.log("No tab selected")
+    console.debug("No tab selected")
     return
   }
 
   const book = appState.books[tab.bookId]
 
   if (!book) {
-    console.log("No book found")
+    console.debug("No book found")
     return
   }
 
@@ -318,30 +321,30 @@ export async function Execute(cellID: string) {
   )
 
   if (!cell) {
-    console.log("No cell found")
+    console.debug("No cell found")
     return
   }
 
   const connectionId = tab.connectionId
 
   if (!connectionId) {
-    console.log("No connection selected")
+    console.debug("No connection selected")
     return
   }
 
   const connection = appState.connections[connectionId]
 
   if (!connection) {
-    console.log("No connection found")
+    console.debug("No connection found")
     return
   }
 
-  console.log("Executing cell", cell.id)
+  console.debug("Executing cell", cell.id, cell.content)
   const result = await pooler.Run(connection, book, cell)
 
   appState.results[cell.id] = result
 
-  console.log(result)
+  console.debug(result)
 
   SaveEditorState()
 

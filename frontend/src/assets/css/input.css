@@ -102,5 +102,8 @@
   &.cm-editor.cm-focused {
     outline: "none" !important;
   }
-  
+
+  .ag-theme-quartz {
+    --ag-grid-size: 7px !important; /* very compact */
+  }
 }

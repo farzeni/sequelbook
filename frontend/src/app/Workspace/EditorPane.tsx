@@ -1,7 +1,7 @@
 import Tabbar from "@app/Workspace/Tabbar"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@components/ui/resizable"
-import { appState, useEditorPane, useEditorTab } from "@hooks/store"
-import { ContentPane, Pane, SelectPane, SplitPane } from "@store/editor"
+import { appState, useEditorPane } from "@hooks/store"
+import { ClosePane, ContentPane, Pane, SelectPane, SplitPane } from "@store/editor"
 import { FC, useCallback } from "react"
 import { useSnapshot } from "valtio"
 import BookContent from "./Book"
@@ -60,26 +60,27 @@ interface EditorLeafPaneProps {
 const EditorLeafPane: FC<EditorLeafPaneProps> = ({ pane }) => {
   const currentPane = useEditorPane()
 
-  const tab = useEditorTab()
+  const tab = useSnapshot(appState.editor.tabs)[pane.tabId || ""]
 
   const handlePaneSelect = useCallback(() => {
     if (currentPane.id !== pane.id) {
       SelectPane(pane.id)
     }
-
   }, [pane.id, currentPane])
 
   if (!tab) {
-    console.log("no open tab pane: ", pane.id)
+    ClosePane(pane.id)
     return null
   }
+
+  console.log("pane", pane.id, " tab ", tab.id)
 
   return (
     <div className="flex-1 h-full" onClick={handlePaneSelect}>
       <div className="flex bg-gray-50 border-b">
         <Tabbar pane={pane} />
       </div>
-      <div className="overflow-y-auto h-full">
+      <div className="overflow-y-auto h-full mb-40">
         {tab.type === "book" && <BookContent tab={tab} />}
         {tab.type === "connection" && <DatabaseContent tab={tab} />}
       </div>
