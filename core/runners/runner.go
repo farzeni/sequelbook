@@ -34,6 +34,14 @@ type QueryResult struct {
 	Type         QueryType `json:"type"`
 }
 
+type TableResult struct {
+	Tables []TableDef `json:"tables"`
+}
+
+type ColumnResult struct {
+	Columns []ColumnDef `json:"columns"`
+}
+
 func NewQueryResult(query string) (*QueryResult, error) {
 	var err error
 
@@ -83,12 +91,14 @@ func (qr *QueryResult) getQueryType() (QueryType, error) {
 
 type QueryRunner struct {
 	DBConn *sql.DB `json:"-"`
+	DBType string  `json:"db_type"`
 	mx     *sync.Mutex
 }
 
-func NewQueryRunner(db *sql.DB) *QueryRunner {
+func NewQueryRunner(db *sql.DB, dbType string) *QueryRunner {
 	return &QueryRunner{
 		DBConn: db,
+		DBType: dbType,
 		mx:     &sync.Mutex{},
 	}
 }
@@ -166,6 +176,90 @@ func (r *QueryRunner) Query(query string) (*QueryResult, error) {
 	}
 
 	return res, nil
+}
+
+func (r *QueryRunner) GetTables(queries DatabaseInspectionQuery) (*TableResult, error) {
+	var tables []TableDef
+
+	rows, err := r.DBConn.Query(queries.GetTablesQuery)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tables: %v", err)
+	}
+
+	for rows.Next() {
+		var table TableDef
+		err := rows.Scan(&table.Schema, &table.TableName, &table.TableType)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row: %v", err)
+		}
+
+		tables = append(tables, table)
+	}
+
+	return &TableResult{Tables: tables}, nil
+}
+
+func (r *QueryRunner) GetColumns(queries DatabaseInspectionQuery, table string) (*ColumnResult, error) {
+	var columns []ColumnDef
+
+	q := fmt.Sprintf(queries.GetColumnsQuery, table, table)
+
+	fmt.Println("Query: ", table, q)
+
+	rows, err := r.DBConn.Query(q)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get columns: %v", err)
+	}
+
+	for rows.Next() {
+		var column ColumnDef
+		err := rows.Scan(
+			&column.ColumnName,
+			&column.DataType,
+			&column.IsNullable,
+			&column.ColumnDefault,
+			&column.IsPrimaryKey,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row: %v", err)
+		}
+
+		columns = append(columns, column)
+	}
+
+	return &ColumnResult{Columns: columns}, nil
+}
+
+func (r *QueryRunner) AddRow(table string, row map[string]interface{}) error {
+	var columns []string
+	var placeholders []string
+	var values []interface{}
+
+	for k, v := range row {
+		columns = append(columns, k)
+		if r.DBType == "postgres" {
+			placeholders = append(placeholders, fmt.Sprintf("$%d", len(placeholders)+1))
+		} else {
+			placeholders = append(placeholders, "?")
+		}
+		values = append(values, v)
+	}
+
+	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", table, strings.Join(columns, ", "), strings.Join(placeholders, ", "))
+
+	fmt.Println("Query: ", query)
+
+	_, err := r.DBConn.Exec(query, values...)
+
+	if err != nil {
+		return fmt.Errorf("failed to add row: %v", err)
+	}
+
+	return nil
 }
 
 func rowsToJSON(rows *sql.Rows) ([]byte, error) {

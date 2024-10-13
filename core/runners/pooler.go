@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+const (
+	directQuery = "query"
+)
+
 type PoolerConnection struct {
 	DB         *sql.DB
 	Connection connections.Connection
@@ -53,6 +57,80 @@ func (p *Pooler) Run(connection connections.Connection, book books.Book, cell bo
 
 }
 
+func (p *Pooler) Query(connection connections.Connection, query string) (*QueryResult, error) {
+	conn, err := p.ensureConnection(connection, directQuery)
+
+	if err != nil {
+		return nil, err
+	}
+
+	q := p.cleanQuery(connection, query)
+
+	fmt.Println("Cleaned query: ", q)
+
+	result, err := conn.Runner.Query(q)
+
+	if err != nil {
+		log.Println("Failed to run query: ", err)
+		return nil, err
+	}
+
+	return result, nil
+
+}
+
+func (p *Pooler) GetTables(c connections.Connection) (*TableResult, error) {
+	d := QueryDictionary[c.Type]
+
+	conn, err := p.ensureConnection(c, directQuery)
+
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := conn.Runner.GetTables(d)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (p *Pooler) GetColumns(c connections.Connection, table string) (*ColumnResult, error) {
+	d := QueryDictionary[c.Type]
+
+	conn, err := p.ensureConnection(c, directQuery)
+
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := conn.Runner.GetColumns(d, table)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (p *Pooler) AddRow(c connections.Connection, table string, row map[string]interface{}) error {
+	conn, err := p.ensureConnection(c, directQuery)
+
+	if err != nil {
+		return err
+	}
+
+	err = conn.Runner.AddRow(table, row)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (p *Pooler) Close() {
 	for _, conn := range p.Connections {
 		if conn.DB != nil {
@@ -82,7 +160,7 @@ func (p *Pooler) connect(c connections.Connection, bookID string) error {
 	p.Connections[bookID] = PoolerConnection{
 		DB:         db,
 		Connection: c,
-		Runner:     NewQueryRunner(db),
+		Runner:     NewQueryRunner(db, string(c.Type)),
 	}
 
 	return nil
@@ -158,9 +236,7 @@ func (p *Pooler) cleanQuery(c connections.Connection, q string) string {
 		q = d.GetTablesQuery
 	case strings.HasPrefix(q, `\d `):
 		tableName := strings.TrimSpace(strings.TrimPrefix(q, `\d `))
-		q = fmt.Sprintf(d.GetTableColumnsQuery, tableName)
-	case q == `\l`:
-		q = d.GetDatabasesQuery
+		q = fmt.Sprintf(d.GetColumnsQuery, tableName)
 	}
 
 	q = strings.TrimSpace(q)

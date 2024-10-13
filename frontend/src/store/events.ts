@@ -2,9 +2,9 @@ import { connections } from "@lib/wailsjs/go/models"
 
 export type AppEvents = {
   "sidebar.item.rename": (id: string) => void
-
   "connections.create": (data?: connections.ConnectionData) => void
   "connections.pick": (tabId: string) => void
+  "connection.table.refresh": (connectionId: string, table: string) => void
 }
 
 export type EventCallback<T = any> = (...args: T[]) => void

@@ -31,8 +31,7 @@ export interface DatabaseTab {
   id: string
   type: "connection"
   connectionId: string
-  cellId?: null
-  bookId?: null
+  table: string | null
 }
 
 export type EditorSelection = {

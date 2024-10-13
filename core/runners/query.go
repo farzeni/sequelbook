@@ -2,10 +2,23 @@ package runners
 
 import "sequelbook/core/connections"
 
+type TableDef struct {
+	Schema    string `json:"schema"`
+	TableName string `json:"table_name"`
+	TableType string `json:"table_type"`
+}
+
+type ColumnDef struct {
+	ColumnName    string  `json:"column_name"`
+	DataType      string  `json:"data_type"`
+	IsNullable    bool    `json:"is_nullable"`
+	ColumnDefault *string `json:"column_default"`
+	IsPrimaryKey  bool    `json:"is_primary_key"`
+}
+
 type DatabaseInspectionQuery struct {
-	GetTablesQuery       string
-	GetTableColumnsQuery string
-	GetDatabasesQuery    string
+	GetTablesQuery  string
+	GetColumnsQuery string
 }
 
 var PostgresQueries = DatabaseInspectionQuery{
@@ -18,19 +31,18 @@ var PostgresQueries = DatabaseInspectionQuery{
 		WHERE table_schema NOT IN ('information_schema', 'pg_catalog');
 	`,
 
-	GetTableColumnsQuery: `
+	GetColumnsQuery: `
 		SELECT 
 			column_name, 
 			data_type, 
-			is_nullable, 
-			column_default 
+			CASE WHEN is_nullable = 'YES' THEN true ELSE false END AS is_nullable,
+			column_default,
+			CASE WHEN column_name = ANY (ARRAY(SELECT a.attname
+				FROM pg_index i
+				JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
+				WHERE i.indrelid = '%s'::regclass AND i.indisprimary)) THEN true ELSE false END AS is_primary_key	
 		FROM information_schema.columns 
 		WHERE table_name = '%s';
-	`,
-
-	GetDatabasesQuery: `
-		SELECT datname AS database_name 
-		FROM pg_database;
 	`,
 }
 
@@ -44,17 +56,14 @@ var SQliteQueries = DatabaseInspectionQuery{
 		WHERE type='table';
 	`,
 
-	GetTableColumnsQuery: `
+	GetColumnsQuery: `
 		SELECT 
 			name AS column_name, 
 			type AS data_type, 
-			CASE WHEN notnull = 0 THEN 'YES' ELSE 'NO' END AS is_nullable, 
-			dflt_value AS column_default 
+			CASE WHEN notnull = 1 THEN false ELSE true END AS is_nullable,
+			dflt_value AS column_default,
+			CASE WHEN pk = 1 THEN true ELSE false END AS is_primary_key
 		FROM pragma_table_info('%s');
-	`,
-
-	GetDatabasesQuery: `
-		SELECT 'main' AS database_name;
 	`,
 }
 
@@ -68,19 +77,15 @@ var MysqlQueries = DatabaseInspectionQuery{
 		WHERE table_schema NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys');
 	`,
 
-	GetTableColumnsQuery: `
+	GetColumnsQuery: `
 		SELECT 
 			column_name, 
 			data_type, 
-			is_nullable, 
-			column_default 
+			CASE WHEN is_nullable = 'YES' THEN true ELSE false END AS is_nullable,
+			column_default,
+			CASE WHEN column_key = 'PRI' THEN true ELSE false END AS is_primary_key
 		FROM information_schema.columns 
 		WHERE table_name = "%s";
-	`,
-
-	GetDatabasesQuery: `
-		SELECT schema_name AS database_name 
-		FROM information_schema.schemata;
 	`,
 }
 

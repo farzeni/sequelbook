@@ -16,7 +16,10 @@ module.exports = {
       typography: {
         DEFAULT: {
           css: {
-            maxWidth: "auto", // add required value here
+            maxWidth: "auto",
+            p: {
+              fontSize: "18px",
+            },
           },
         },
       },

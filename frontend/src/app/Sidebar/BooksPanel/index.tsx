@@ -1,6 +1,6 @@
 import { appState } from "@hooks/store";
 import { books } from "@lib/wailsjs/go/models";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useSnapshot } from 'valtio';
 import BookItem from "./BookItem";
 import BookToolbar from "./BookToolbar";
@@ -14,10 +14,19 @@ const BooksPanel = () => {
   const tab = current.tabId ? tabs[current.tabId] : null
 
 
-
   const orderedBooks = useMemo(() => {
     return Object.values(books).sort((a, b) => a.title.localeCompare(b.title))
   }, [books])
+
+
+  const isSelected = useCallback((bookId: string) => {
+    if (tab && tab.type !== "book") {
+      return false
+    }
+
+    return !!tab && tab.bookId === bookId
+  }, [tab])
+
 
   return (
     <div className="w-full">
@@ -25,7 +34,7 @@ const BooksPanel = () => {
       {orderedBooks.length > 0 ? (
         <div className="flex flex-col gap-1 w-full p-4">
           {orderedBooks.map((book) => (
-            <BookItem key={book.id} book={book as books.Book} selected={!!tab && tab.bookId === book.id} />
+            <BookItem key={book.id} book={book as books.Book} selected={isSelected(book.id)} />
           ))}
         </div>
       ) : (

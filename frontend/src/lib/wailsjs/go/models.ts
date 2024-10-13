@@ -93,6 +93,30 @@ export namespace books {
 
 export namespace connections {
 	
+	export class SSHTunnelConfig {
+	    host: string;
+	    port: number;
+	    user: string;
+	    private_key: string;
+	    passphrase: string;
+	    remote_host: string;
+	    remote_port: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new SSHTunnelConfig(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.host = source["host"];
+	        this.port = source["port"];
+	        this.user = source["user"];
+	        this.private_key = source["private_key"];
+	        this.passphrase = source["passphrase"];
+	        this.remote_host = source["remote_host"];
+	        this.remote_port = source["remote_port"];
+	    }
+	}
 	export class Connection {
 	    id: string;
 	    name: string;
@@ -102,6 +126,7 @@ export namespace connections {
 	    user: string;
 	    pass: string;
 	    db: string;
+	    ssh?: SSHTunnelConfig;
 	
 	    static createFrom(source: any = {}) {
 	        return new Connection(source);
@@ -117,7 +142,26 @@ export namespace connections {
 	        this.user = source["user"];
 	        this.pass = source["pass"];
 	        this.db = source["db"];
+	        this.ssh = this.convertValues(source["ssh"], SSHTunnelConfig);
 	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class ConnectionData {
 	    name: string;
@@ -127,6 +171,7 @@ export namespace connections {
 	    user: string;
 	    pass: string;
 	    db: string;
+	    ssh?: SSHTunnelConfig;
 	
 	    static createFrom(source: any = {}) {
 	        return new ConnectionData(source);
@@ -141,7 +186,26 @@ export namespace connections {
 	        this.user = source["user"];
 	        this.pass = source["pass"];
 	        this.db = source["db"];
+	        this.ssh = this.convertValues(source["ssh"], SSHTunnelConfig);
 	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }
@@ -165,6 +229,56 @@ export namespace core {
 
 export namespace runners {
 	
+	export class ColumnDef {
+	    column_name: string;
+	    data_type: string;
+	    is_nullable: boolean;
+	    column_default?: string;
+	    is_primary_key: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new ColumnDef(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.column_name = source["column_name"];
+	        this.data_type = source["data_type"];
+	        this.is_nullable = source["is_nullable"];
+	        this.column_default = source["column_default"];
+	        this.is_primary_key = source["is_primary_key"];
+	    }
+	}
+	export class ColumnResult {
+	    columns: ColumnDef[];
+	
+	    static createFrom(source: any = {}) {
+	        return new ColumnResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.columns = this.convertValues(source["columns"], ColumnDef);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class QueryResult {
 	    query: string;
 	    columns: string[];
@@ -184,6 +298,52 @@ export namespace runners {
 	        this.affected_rows = source["affected_rows"];
 	        this.type = source["type"];
 	    }
+	}
+	export class TableDef {
+	    schema: string;
+	    table_name: string;
+	    table_type: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TableDef(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.schema = source["schema"];
+	        this.table_name = source["table_name"];
+	        this.table_type = source["table_type"];
+	    }
+	}
+	export class TableResult {
+	    tables: TableDef[];
+	
+	    static createFrom(source: any = {}) {
+	        return new TableResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.tables = this.convertValues(source["tables"], TableDef);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }

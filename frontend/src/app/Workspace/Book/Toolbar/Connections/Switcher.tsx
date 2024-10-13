@@ -10,6 +10,7 @@ import {
 import { Dialog, DialogContent, DialogTitle } from "@components/ui/dialog"
 import { useEventBus } from "@hooks/events"
 import { appState } from "@hooks/store"
+import { connections as c } from "@lib/wailsjs/go/models"
 import { SetBookConnection } from "@store"
 import { FC, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -38,15 +39,17 @@ const ConnectionSwitcher: FC<ConnectionSwitcherProps> = ({ bookId, isOpen, onOpe
         setInputValue(inputRef.current.value)
       }
 
-      events.emit("connections.create", {
+      const data = c.ConnectionData.createFrom({
         name: inputValue,
         host: "",
         port: 5432,
         user: "",
         pass: "",
         db: "",
-        type: "postgres"
+        type: "postgres",
       })
+
+      events.emit("connections.create", data)
 
       onOpenChange(false)
       e.preventDefault()

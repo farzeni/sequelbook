@@ -245,6 +245,7 @@ export function OpenInTab(
         id: tabId,
         type: "connection",
         connectionId: entityId,
+        table: null,
       }
     }
 

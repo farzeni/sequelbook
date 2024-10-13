@@ -26,7 +26,7 @@ func NewStorage(path string) *Storage {
 		ConnectionsPath: path + "/connections",
 	}
 
-	s.ensureStoragePath()
+	s.ensureStoragePaths()
 
 	return s
 }
@@ -232,7 +232,7 @@ func (s *Storage) LoadSettings() (string, error) {
 	return string(data), nil
 }
 
-func (s *Storage) ensureStoragePath() error {
+func (s *Storage) ensureStoragePaths() error {
 
 	if _, err := os.Stat(s.ConfigPath); os.IsNotExist(err) {
 		err := os.MkdirAll(s.ConfigPath, 0755)
