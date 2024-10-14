@@ -63,8 +63,6 @@ func (b *Backend) Startup(ctx context.Context) {
 }
 
 func (b *Backend) SaveEditorState(jsonState string) error {
-	fmt.Println("Saving editor state")
-
 	err := b.Storage.SaveEditorState(jsonState)
 
 	if err != nil {
@@ -75,8 +73,6 @@ func (b *Backend) SaveEditorState(jsonState string) error {
 }
 
 func (b *Backend) LoadEditorState() (string, error) {
-	fmt.Println("Loading editor state")
-
 	state, err := b.Storage.LoadEditorState()
 
 	if err != nil {
@@ -87,8 +83,6 @@ func (b *Backend) LoadEditorState() (string, error) {
 }
 
 func (b *Backend) SaveSettings(s Settings) error {
-	fmt.Println("Saving settings")
-
 	jsonSettings, err := json.Marshal(s)
 
 	if err != nil {
@@ -105,9 +99,19 @@ func (b *Backend) SaveSettings(s Settings) error {
 }
 
 func (b *Backend) LoadSettings() (*Settings, error) {
-	fmt.Println("Loading settings")
+	settings := NewSettings()
 
-	return &Settings{}, nil
+	jsonSettings, err := b.Storage.LoadSettings()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if jsonSettings == "" {
+		_ = json.Unmarshal([]byte(jsonSettings), settings)
+	}
+
+	return settings, nil
 }
 
 func (b *Backend) OpenFileDialog() (string, error) {

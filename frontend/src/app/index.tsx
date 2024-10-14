@@ -1,10 +1,12 @@
 import Sidebar from "@app/Sidebar"
 import "@assets/css/main.css"
 import { EventBusProvider } from "@hooks/events"
+import { ThemeProvider } from "@hooks/theme"
 import { InitStore } from "@store"
 import i18n from "i18next"
 import { useEffect, useState } from "react"
 import { initReactI18next } from "react-i18next"
+import SettingsDialog from "./Settings"
 import Workspace from "./Workspace"
 
 i18n
@@ -37,10 +39,13 @@ function App() {
 
   return (
     <EventBusProvider>
-      <div className="flex h-full overflow-hidden ">
-        <Sidebar />
-        <Workspace />
-      </div>
+      <ThemeProvider defaultTheme="dark" storageKey="sb-ui-theme">
+        <div className="flex h-full overflow-hidden ">
+          <Sidebar />
+          <Workspace />
+          <SettingsDialog />
+        </div>
+      </ThemeProvider>
     </EventBusProvider>
   )
 }

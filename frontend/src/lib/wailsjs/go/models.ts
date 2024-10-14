@@ -213,7 +213,14 @@ export namespace connections {
 export namespace core {
 	
 	export class Settings {
+	    version: string;
+	    language?: string;
+	    focus_new_tabs: boolean;
+	    confirm_file_deletion: boolean;
+	    deleted_files: string;
 	    theme: string;
+	    accent_color: string;
+	    zoom_level: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new Settings(source);
@@ -221,7 +228,14 @@ export namespace core {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.version = source["version"];
+	        this.language = source["language"];
+	        this.focus_new_tabs = source["focus_new_tabs"];
+	        this.confirm_file_deletion = source["confirm_file_deletion"];
+	        this.deleted_files = source["deleted_files"];
 	        this.theme = source["theme"];
+	        this.accent_color = source["accent_color"];
+	        this.zoom_level = source["zoom_level"];
 	    }
 	}
 

@@ -39,6 +39,7 @@ const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected }) => {
   const [editMode, setEditMode] = useState(false)
   const [isMouseOver, setIsMouseOver] = useState(false)
 
+
   const editorRef = useRef<MDXEditorMethods>(null)
 
   const debouncedOnChange = useDebounce((content: string) => {
@@ -47,7 +48,6 @@ const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected }) => {
 
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    console.log("dooow")
     const isCtrlOrCmd = e.ctrlKey || e.metaKey;
 
     if (isCtrlOrCmd && e.key === CELL_BINDINGS.CELL_NEXT) {
@@ -61,15 +61,18 @@ const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected }) => {
     }
 
     if (isCtrlOrCmd && e.key === "Enter") {
-      e.preventDefault()
-      e.stopPropagation()
-      setEditMode(false)
+      setEditMode(!editMode)
+      document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [])
+  }, [editMode])
 
   useEffect(() => {
     if (editMode == false && editorRef.current) {
       UpdateCell(bookId, cell.id, editorRef.current.getMarkdown())
+    }
+
+    if (editMode && editorRef.current) {
+      editorRef.current.focus()
     }
   }, [editMode])
 
@@ -86,10 +89,10 @@ const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected }) => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [selected])
+  }, [selected, handleKeyDown])
 
   return (
-    <div className="w-full prose mx-auto relative" onDoubleClick={() => !editMode && setEditMode(true)}
+    <div className="w-full pt-5 prose dark:prose-invert mx-auto relative" onDoubleClick={() => !editMode && setEditMode(true)}
       onMouseEnter={() => setIsMouseOver(true)} onMouseLeave={() => setIsMouseOver(false)}>
       {(selected || isMouseOver) && (
         <CellMenu cell={cell} bookId={bookId}>
@@ -101,7 +104,8 @@ const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected }) => {
 
       {editMode ? (
         <MDXEditor
-          className="mt-[-20px]"
+          className="ml-10 border bg-background "
+
           plugins={[
             headingsPlugin(),
             listsPlugin(),
@@ -134,11 +138,11 @@ const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected }) => {
 
       ) :
         cell.content.length > 0 ? (
-          <div className="pt-2">
+          <div className="pl-10">
             <MarkdownView markdown={cell.content} />
           </div>
         ) : (
-          <div className="py-2 text-gray-500">{t("doubleClickToEdit", "Double click this cell to edit")}</div>
+          <div className="pl-10 text-gray-500">{t("doubleClickToEdit", "Double click this cell to edit")}</div>
         )
       }
     </div >

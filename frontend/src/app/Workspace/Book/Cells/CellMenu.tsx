@@ -24,7 +24,7 @@ const CellMenu: FC<CellMenuProps> = ({ cell, bookId, children }) => {
 
 
   return (
-    <div className="absolute z-10 flex gap-1 bg-white border border-gray-200 rounded right-2 top-[-16px] h-[32px]">
+    <div className="absolute z-10 flex gap-1 bg-background-dark border  rounded right-2 top-[-16px] h-[32px]">
       <div className="flex justify-center items-center w-[30px] cursor-pointer" onClick={moveCellUp}>
         <ArrowUp size={18} />
       </div>

@@ -30,13 +30,16 @@ const QueryResults: FC<QueryResultsProps> = ({ cellId }) => {
   }
 
   return (
-    <div className="max-w-screen-md md:max-w-screen-xl mx-auto h-[30rem] relative overflow-hidden pt-4">
+    <div className="max-w-screen-md md:max-w-screen-xl mx-auto h-[30rem] relative overflow-hidden ">
       <div className="flex w-full gap-2 h-full ">
         <div className="flex justify-center items-start w-[30px]  text-gray-500 cursor-pointer">
-          [ ]
+
         </div>
         {results?.type === "SELECT" ? data && data.length > 0 && (
-          <DataTable data={data} colOrder={results.columns as string[]} />
+          <div className="border border-t-none w-full">
+
+            <DataTable data={data} colOrder={results.columns as string[]} editable />
+          </div>
         ) : (
           <div className="p-4 bg-gray-100 text-gray-500">
             {results?.affected_rows} {t("rows affected")}

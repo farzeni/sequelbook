@@ -47,7 +47,7 @@ func (b *BooksStore) CreateBook(data BookData) (*Book, error) {
 			{
 				ID:      tools.GenerateID(tools.EntityTypesCell),
 				Content: "# Untitled\n\nDouble click this cell to edit it.",
-				Type:    book.Cells[0].Type,
+				Type:    BlockTypeText,
 			},
 		}
 	}

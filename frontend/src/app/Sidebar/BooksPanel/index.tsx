@@ -19,13 +19,13 @@ const BooksPanel = () => {
   }, [books])
 
 
-  const isSelected = useCallback((bookId: string) => {
+  const isSelected = (bookId: string) => {
     if (tab && tab.type !== "book") {
       return false
     }
 
     return !!tab && tab.bookId === bookId
-  }, [tab])
+  }
 
 
   return (

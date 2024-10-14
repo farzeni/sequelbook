@@ -50,7 +50,7 @@ const TabbarMenu: FC<TabbarMenuProps> = ({ pane }) => {
   }
 
   return current.paneId === pane.id ? (
-    <div className="flex items-center">
+    <div className="flex items-center ml-auto">
       <SplitButton pane={pane as ContentPane} />
 
       <DropdownMenu>

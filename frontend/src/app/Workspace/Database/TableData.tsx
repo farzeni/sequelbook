@@ -60,6 +60,7 @@ const TableData: FC<TableDataProps> = ({ tab, table }) => {
     }
 
     const sorted = columns.sort((a, b) => {
+      // prepend primary keys
       if (a.is_primary_key) {
         return -1
       }
@@ -68,6 +69,8 @@ const TableData: FC<TableDataProps> = ({ tab, table }) => {
         return 1
       }
 
+
+      // prepend descriptive columns
       const names = ["name", "title"]
 
       if (names.includes(a.column_name)) {
@@ -81,16 +84,15 @@ const TableData: FC<TableDataProps> = ({ tab, table }) => {
 
       return 0
     })
-    console.log("sorted", sorted.map((c) => c.column_name))
+
     return sorted.map((c) => c.column_name)
   }, [columns])
 
-  console.log("order", colOrder)
 
   return (
     <div className="w-full h-full">
       {error && (
-        <div className="flex-1 h-[calc(100vh-180px)] flex items-center justify-center bg flex-col prose mx-auto">
+        <div className="flex-1 h-[calc(100vh-180px)] flex items-center justify-center bg flex-col prose dark:prose-invert mx-auto">
           <h1>{t("not-connected", "Not connected")}</h1>
           <div className="text-gray-500">
             <Trans i18nKey="error-db-connection-msg" t={t}>

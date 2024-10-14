@@ -5,6 +5,7 @@ export type AppEvents = {
   "connections.create": (data?: connections.ConnectionData) => void
   "connections.pick": (tabId: string) => void
   "connection.table.refresh": (connectionId: string, table: string) => void
+  "settings.toggle": () => void
 }
 
 export type EventCallback<T = any> = (...args: T[]) => void

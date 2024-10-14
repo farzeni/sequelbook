@@ -73,11 +73,9 @@ const EditorLeafPane: FC<EditorLeafPaneProps> = ({ pane }) => {
     return null
   }
 
-  console.log("pane", pane.id, " tab ", tab.id)
-
   return (
     <div className="flex-1 h-full" onClick={handlePaneSelect}>
-      <div className="flex bg-gray-50 border-b">
+      <div className="flex bg-gray-50 border-b dark:border-b-gray-800 dark:bg-background">
         <Tabbar pane={pane} />
       </div>
       <div className="overflow-y-auto h-full mb-40">

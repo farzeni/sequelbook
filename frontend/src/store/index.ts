@@ -3,11 +3,11 @@ import { LoadConnections } from "./connections"
 import { LoadEditorState } from "./editor"
 
 export async function InitStore() {
-  console.log("LOAD BOOKS")
+  console.debug("LOAD BOOKS")
   await LoadBooks()
-  console.log("LOAD CONNECTIONS")
+  console.debug("LOAD CONNECTIONS")
   await LoadConnections()
-  console.log("LOAD EDITOR STATE")
+  console.debug("LOAD EDITOR STATE")
   await LoadEditorState()
 }
 

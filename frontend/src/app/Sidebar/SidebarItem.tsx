@@ -1,5 +1,6 @@
 import { useEventBusListener } from "@hooks/events"
 import { appState } from "@hooks/store"
+import { cn } from "@lib/utils"
 import { FC, useEffect, useMemo, useRef, useState } from "react"
 import { useSnapshot } from "valtio"
 
@@ -124,15 +125,17 @@ const SidebarItem: FC<SidebarItemProps> = ({ itemId, selected, title, onSelected
 
   return (
     <div
-      className={`
-            ${selected ? "bg-gray-200" : ""} 
-            hover:bg-gray-200 
-            py-1/2
-            my-1/2
-            max-w-[85%] 
-            rounded 
-            cursor-pointer 
-            `}
+      className={cn(` 
+        hover:bg-gray-200 
+        dark:hover:bg-gray-800
+        py-1/2
+        my-1/2
+        max-w-[85%] 
+        rounded 
+        cursor-pointer 
+        `,
+        selected && "bg-gray-200 dark:bg-gray-800",
+      )}
       onClick={() => onSelected && onSelected(itemId)}>
       <SidebarItemTitle
         title={title}

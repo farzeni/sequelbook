@@ -32,7 +32,7 @@ const CellsList: FC<CellsListProps> = ({ bookId, tab }) => {
           px-4
           relative 
           rounded 
-          ${tab.cellId === cell.id ? "border-slate-600" : ""}
+          ${tab.cellId === cell.id ? "bg-background-dark" : ""}
         `}>
 
           {cell.type === "code" && (
