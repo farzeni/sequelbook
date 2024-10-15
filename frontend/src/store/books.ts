@@ -6,8 +6,8 @@ import * as pooler from "@lib/wailsjs/go/runners/Pooler"
 import {
   CloseTab,
   findEntityTabInPane,
+  OpenInTab,
   SaveEditorState,
-  SelectTab,
 } from "./editor"
 import { BookMap, BookTab, Tab } from "./types"
 
@@ -95,7 +95,7 @@ export async function AddBook(data?: { title?: string; cells?: books.Cell[] }) {
 
   appState.books[newBook.id] = newBook
 
-  SelectTab(newBook.id)
+  OpenInTab("book", newBook.id)
 
   return newBook
 }

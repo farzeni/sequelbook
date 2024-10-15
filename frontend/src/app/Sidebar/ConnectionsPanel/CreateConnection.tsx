@@ -84,13 +84,13 @@ const CreateConnectionDialog = () => {
               name="type"
               render={({ field }) => (
                 <div className="flex gap-3 items-center">
-                  <div onClick={() => form.setValue("type", "postgres")} className={`cursor-pointer p-2 border rounded ${field.value === "postgres" ? "bg-gray-100" : ""}`}>
+                  <div onClick={() => form.setValue("type", "postgres")} className={`cursor-pointer p-2 border rounded ${field.value === "postgres" ? "bg-primary" : ""}`}>
                     Postgres
                   </div>
-                  <div onClick={() => form.setValue("type", "mysql")} className={`cursor-pointer p-2 border rounded ${field.value === "mysql" ? "bg-gray-100" : ""}`}>
+                  <div onClick={() => form.setValue("type", "mysql")} className={`cursor-pointer p-2 border rounded ${field.value === "mysql" ? "bg-primary" : ""}`}>
                     MySQL
                   </div>
-                  <div onClick={() => form.setValue("type", "sqlite")} className={`cursor-pointer p-2 border rounded ${field.value === "sqlite" ? "bg-gray-100" : ""}`}>
+                  <div onClick={() => form.setValue("type", "sqlite")} className={`cursor-pointer p-2 border rounded ${field.value === "sqlite" ? "bg-primary" : ""}`}>
                     SQLite
                   </div>
                 </div>

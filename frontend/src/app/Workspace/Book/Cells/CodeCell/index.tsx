@@ -16,7 +16,7 @@ interface CodeBlockProps {
 
 const CodeBlock: FC<CodeBlockProps> = ({ bookId, connectionId, cell, selected }) => {
   return (
-    <div className="pt-4">
+    <div>
       <div className='relative'>
         {selected && <CodeCellMenu cell={cell} bookId={bookId} />}
         <CodeEditor bookId={bookId} cell={cell} selected={selected} connectionId={connectionId} />

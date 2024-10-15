@@ -53,7 +53,7 @@ const SidebarItemTitle: FC<SidebarItemTitleProps> = ({ title, editMode, dot, cla
     />
   ) : (
     <div className="flex items-center py-1">
-      <div className={`pl-4 truncate max-w-[90%]  text-xs text-gray-500 ${className}`}>{title}</div>
+      <div className={`pl-4 truncate max-w-[90%]  text-xs text-secondary ${className}`}>{title}</div>
       {dot && <div className={`
         w-[5px] 
         h-[5px]

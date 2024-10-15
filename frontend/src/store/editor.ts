@@ -11,7 +11,7 @@ import {
   TabType,
 } from "./types"
 
-function printPaneTree(pane: Pane, level: number = 0) {
+function _printPaneTree(pane: Pane, level: number = 0) {
   if (!level || level === 0) {
     console.log("=== pane tree ===")
     console.log(appState.editor.panes)
@@ -22,7 +22,7 @@ function printPaneTree(pane: Pane, level: number = 0) {
       ...pane.children,
     ])
     pane.children.forEach((id) => {
-      printPaneTree(appState.editor.panes[id], level + 1)
+      _printPaneTree(appState.editor.panes[id], level + 1)
     })
   } else {
     console.log(
@@ -206,7 +206,7 @@ export function SelectTab(tabId: string, paneId?: string) {
 
   pane.tabId = tabId
 
-  console.log("======= select tab", tabId, "pane", pane.id)
+  console.debug("======= select tab", tabId, "pane", pane.id)
 
   SaveEditorState()
 }
@@ -231,11 +231,12 @@ export function OpenInTab(
     let newTab: Tab | null = null
 
     if (entityType === "book") {
+      const book = appState.books[entityId]
       newTab = {
         id: tabId,
         type: "book",
         bookId: entityId,
-        cellId: null,
+        cellId: book?.cells[0]?.id || null,
         connectionId: null,
       }
     }

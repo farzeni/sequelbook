@@ -24,25 +24,27 @@ const CellsList: FC<CellsListProps> = ({ bookId, tab }) => {
     <div>
       <QuickAdd index={0} />
       {book.cells.map((cell: books.Cell, idx: number) => (
-        <div key={cell.id}
-          onClick={() => handleSelectCell(cell.id)}
-          className={`
-          max-w-screen-xl
-          mx-auto
-          px-4
-          relative 
-          rounded 
-          ${tab.cellId === cell.id ? "bg-background-dark" : ""}
-        `}>
+        <div key={cell.id}>
+          <div
+            onClick={() => handleSelectCell(cell.id)}
+            className={`
+              max-w-screen-xl
+              mx-auto
+              px-4
+              py-5
+              relative 
+              rounded 
+              ${tab.cellId === cell.id ? "bg-background-dark" : ""}
+            `}>
 
-          {cell.type === "code" && (
-            <CodeBlock bookId={bookId} connectionId={tab.connectionId} cell={cell} selected={tab.cellId === cell.id} />
-          )}
+            {cell.type === "code" && (
+              <CodeBlock bookId={bookId} connectionId={tab.connectionId} cell={cell} selected={tab.cellId === cell.id} />
+            )}
 
-          {cell.type === "text" && (
-            <TextBlock bookId={bookId} cell={cell} selected={tab.cellId === cell.id} />
-          )}
-
+            {cell.type === "text" && (
+              <TextBlock bookId={bookId} cell={cell} selected={tab.cellId === cell.id} />
+            )}
+          </div>
           <QuickAdd index={idx + 1} />
         </div>
       ))}

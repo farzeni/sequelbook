@@ -138,7 +138,7 @@ const CodeEditor: FC<CodeEditorProps> = ({ bookId, cell, connectionId, selected 
             onChange={handleOnChange}
           />
           {error && (
-            <div className="p-4 bg-red-100 text-red-500">
+            <div className="p-4 bg-background text-red-500">
               {error}
             </div>
           )}

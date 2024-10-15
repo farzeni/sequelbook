@@ -112,12 +112,12 @@ const TablesPanel: FC<TablesPanelProps> = ({ tab }) => {
       {error && (
         <div className="p-4 flex flex-col gap-3">
           <h4 className="font-bold">{t("not-connected", "Not connected")}</h4>
-          <p className="text-sm text-gray-700">
+          <p className="text-sm text-secondary">
             <Trans i18nKey="error-db-connection-msg" t={t}>
               It seems your database is unreachable or the connection settings are incorrect.
             </Trans>
           </p>
-          <p className="text-sm text-gray-700">
+          <p className="text-sm text-secondary">
             <Trans i18nKey="error-db-connection-msg" t={t}>
               Check your connection settings and try again.
             </Trans>

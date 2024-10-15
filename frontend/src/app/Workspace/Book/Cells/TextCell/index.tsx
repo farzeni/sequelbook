@@ -92,7 +92,7 @@ const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected }) => {
   }, [selected, handleKeyDown])
 
   return (
-    <div className="w-full pt-5 prose dark:prose-invert mx-auto relative" onDoubleClick={() => !editMode && setEditMode(true)}
+    <div className="w-full prose dark:prose-invert mx-auto relative" onDoubleClick={() => !editMode && setEditMode(true)}
       onMouseEnter={() => setIsMouseOver(true)} onMouseLeave={() => setIsMouseOver(false)}>
       {(selected || isMouseOver) && (
         <CellMenu cell={cell} bookId={bookId}>
@@ -104,8 +104,8 @@ const TextBlock: FC<TextBlockProps> = ({ bookId, cell, selected }) => {
 
       {editMode ? (
         <MDXEditor
-          className="ml-10 border bg-background "
-
+          className="ml-10 border bg-background"
+          contentEditableClassName="prose dark:prose-invert !text-foreground"
           plugins={[
             headingsPlugin(),
             listsPlugin(),
