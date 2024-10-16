@@ -1,10 +1,11 @@
 import { appState } from "@hooks/store"
+import { useSnapshot } from "valtio"
 import ConnectionItem from "./ConnectionItem"
 import ConnectionsToolbar from "./ConnectionToolbar"
 
 
 const ConnectionsPanel = () => {
-  const connections = appState.connections
+  const connections = useSnapshot(appState.connections)
 
   return (
     <div className="w-full">

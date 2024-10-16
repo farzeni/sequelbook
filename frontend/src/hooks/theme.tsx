@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react"
+import { useSnapshot } from "valtio"
+import { appState } from "./store"
 
-type Theme = "dark" | "light" | "system"
+export type Theme = "dark" | "light" | "system"
 
 type ThemeProviderProps = {
   children: React.ReactNode
@@ -23,11 +25,14 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "vite-ui-theme",
+  storageKey = "ui-theme",
   ...props
 }: ThemeProviderProps) {
+  const settings = useSnapshot(appState)
+
+  console.log("settings theme", settings.settings?.theme)
   const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
+    settings.settings?.theme as Theme || defaultTheme
   )
 
   useEffect(() => {
@@ -41,20 +46,20 @@ export function ThemeProvider({
         ? "dark"
         : "light"
 
+      console.log("systemTheme", systemTheme)
       root.classList.add(systemTheme)
       return
     }
+    console.log("theme", theme)
 
     root.classList.add(theme)
   }, [theme])
 
   const value = {
     theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme)
-      setTheme(theme)
-    },
+    setTheme
   }
+
 
   return (
     <ThemeProviderContext.Provider {...props} value={value}>

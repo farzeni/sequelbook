@@ -1,7 +1,6 @@
 package connections
 
 import (
-	"encoding/json"
 	"fmt"
 	"sequelbook/core/storage"
 	"sequelbook/core/tools"
@@ -88,7 +87,7 @@ func (s *ConnectionStore) LoadConnections() error {
 
 	for _, entity := range entities {
 		conn := &Connection{}
-		err := json.Unmarshal(entity, conn)
+		err := conn.Unmarshal(entity)
 		if err != nil {
 			continue
 		}

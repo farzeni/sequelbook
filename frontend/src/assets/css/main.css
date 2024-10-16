@@ -568,7 +568,7 @@ video {
   --card-foreground: 224 71.4% 4.1%;
   --primary: 220.9 39.3% 11%;
   --primary-foreground: 210 20% 98%;
-  --secondary: 220 14.3% 95.9%;
+  --secondary: 220 14.3% 40.9%;
   --secondary-foreground: 220.9 39.3% 11%;
   --accent: 220 14.3% 95.9%;
   --accent-foreground: 220.9 39.3% 11%;
@@ -584,7 +584,7 @@ video {
 }
 
 .dark {
-  --background: 0 0% 12%;
+  --background: 0 0% 14%;
   --background-dark: 0 0% 11%;
   --foreground: 195 13% 70%;
   --muted: 215 27.9% 16.9%;
@@ -1273,11 +1273,6 @@ body {
   margin-right: -0.25rem;
 }
 
-.mx-1 {
-  margin-left: 0.25rem;
-  margin-right: 0.25rem;
-}
-
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -1335,10 +1330,6 @@ body {
 
 .mt-4 {
   margin-top: 1rem;
-}
-
-.ml-5 {
-  margin-left: 1.25rem;
 }
 
 .block {
@@ -1915,11 +1906,6 @@ body {
   background-color: hsl(var(--muted) / 0.5);
 }
 
-.bg-neutral-700 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(64 64 64 / var(--tw-bg-opacity));
-}
-
 .bg-popover {
   background-color: hsl(var(--popover));
 }
@@ -2076,10 +2062,6 @@ body {
   padding-top: 0px;
 }
 
-.pl-5 {
-  padding-left: 1.25rem;
-}
-
 .text-left {
   text-align: left;
 }
@@ -2094,6 +2076,10 @@ body {
 
 .text-\[0\.8rem\] {
   font-size: 0.8rem;
+}
+
+.text-\[3rem\] {
+  font-size: 3rem;
 }
 
 .text-lg {
@@ -2114,6 +2100,27 @@ body {
 .text-xs {
   font-size: 0.75rem;
   line-height: 1rem;
+}
+
+.text-\[1\.5rem\] {
+  font-size: 1.5rem;
+}
+
+.text-\[1\.1rem\] {
+  font-size: 1.1rem;
+}
+
+.text-\[1rem\] {
+  font-size: 1rem;
+}
+
+.text-\[1\.05rem\] {
+  font-size: 1.05rem;
+}
+
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
 }
 
 .font-bold {
@@ -2146,6 +2153,10 @@ body {
 
 .tracking-widest {
   letter-spacing: 0.1em;
+}
+
+.\!text-foreground {
+  color: hsl(var(--foreground)) !important;
 }
 
 .\!text-primary-foreground {
@@ -2220,16 +2231,17 @@ body {
   color: rgb(239 68 68 / var(--tw-text-opacity));
 }
 
+.text-red-900 {
+  --tw-text-opacity: 1;
+  color: rgb(127 29 29 / var(--tw-text-opacity));
+}
+
 .text-secondary {
   color: hsl(var(--secondary));
 }
 
 .text-secondary-foreground {
   color: hsl(var(--secondary-foreground));
-}
-
-.\!text-foreground {
-  color: hsl(var(--foreground)) !important;
 }
 
 .underline-offset-4 {

@@ -1,3 +1,4 @@
+import { core } from "@lib/wailsjs/go/models"
 import { AppState, EditorState } from "@store/types"
 import { useEffect, useMemo } from "react"
 import { proxy, useSnapshot } from "valtio"
@@ -25,6 +26,7 @@ export const appState = proxy<AppState>({
   connections: {},
   results: {},
   editor: editorState,
+  settings: core.Settings.createFrom({}),
 })
 
 export const useEditorPane = () => {

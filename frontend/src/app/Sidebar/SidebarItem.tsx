@@ -49,7 +49,7 @@ const SidebarItemTitle: FC<SidebarItemTitleProps> = ({ title, editMode, dot, cla
       onBlur={onBlur}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
-      className="w-full bg-transparent border-0 focus:outline-none text-xs text-gray-500 pl-4"
+      className="w-full bg-transparent border-0 focus:outline-none text-xs text-foreground pl-4"
     />
   ) : (
     <div className="flex items-center py-1">

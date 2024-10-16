@@ -6,7 +6,6 @@ import {
   DropdownMenuItem,
   DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -34,19 +33,15 @@ const BookMenu: FC<BookMenuProps> = ({ book }) => {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <span className="text-xs">Rename...</span>
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <span className="text-xs">Move file to...</span>
-            <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <span className="text-xs">Bookmark...</span>
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <span className="text-xs">Merge entire file with...</span>
-            <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -68,16 +63,9 @@ const BookMenu: FC<BookMenuProps> = ({ book }) => {
           </DropdownMenuSub>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
+
         <DropdownMenuItem>
-          <span className="text-xs">Find...</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <span className="text-xs">Replace...</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <span className="text-xs">Delete book</span>
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+          <span className="text-xs text-red-900">Delete book</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

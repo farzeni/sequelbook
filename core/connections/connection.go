@@ -1,6 +1,7 @@
 package connections
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -84,6 +85,22 @@ func (c *Connection) GetDSN() *string {
 	}
 
 	return &dsn
+}
+
+func (c *Connection) GetFilename() string {
+	if c.Name != "" {
+		return c.Name
+	}
+
+	return c.ID
+}
+
+func (c *Connection) Marshal() ([]byte, error) {
+	return json.Marshal(c)
+}
+
+func (c *Connection) Unmarshal(data []byte) error {
+	return json.Unmarshal(data, c)
 }
 
 func StartSSHTunnel(config SSHTunnelConfig) (net.Conn, error) {

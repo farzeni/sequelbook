@@ -17,6 +17,8 @@ const BookContent: FC<BookContentProps> = ({ tab }) => {
   const book = useSnapshot(appState.books[tab.bookId])
   const bookContainerRef = useRef<HTMLDivElement>(null)
 
+  console.log("BookContent", tab.bookId, book)
+
   useEffect(() => {
     setTimeout(() => {
       bookContainerRef.current?.scrollTo(0, 0)

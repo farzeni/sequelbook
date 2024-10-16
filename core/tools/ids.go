@@ -6,6 +6,10 @@ import (
 
 type Entity interface {
 	GetEntityPrefix() string
+
+	GetFilename() string
+	Marshal() ([]byte, error)
+	Unmarshal([]byte) error
 }
 
 type EntityTypes string

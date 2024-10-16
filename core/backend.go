@@ -27,14 +27,7 @@ type Backend struct {
 
 // NewBackend creates a new App application struct
 func NewBackend(c context.Context) *Backend {
-	configDir, err := userConfigDir()
-
-	if err != nil {
-		fmt.Println("Error getting user config directory: ", err)
-		wrt.Quit(c)
-	}
-
-	storage := storage.NewStorage(configDir + "/sequelbook")
+	storage := storage.NewStorage()
 
 	backend := &Backend{
 		Connections: connections.NewConnectionStore(storage),
@@ -103,11 +96,13 @@ func (b *Backend) LoadSettings() (*Settings, error) {
 
 	jsonSettings, err := b.Storage.LoadSettings()
 
+	fmt.Print("Settings loaded: ", jsonSettings)
+
 	if err != nil {
 		return nil, err
 	}
 
-	if jsonSettings == "" {
+	if jsonSettings != "" {
 		_ = json.Unmarshal([]byte(jsonSettings), settings)
 	}
 
@@ -153,4 +148,14 @@ func userConfigDir() (string, error) {
 	}
 
 	return configDir, nil
+}
+
+func booksDir() (string, error) {
+	configDir, err := userConfigDir()
+
+	if err != nil {
+		return "", err
+	}
+
+	return configDir + "/sequelbook/books", nil
 }

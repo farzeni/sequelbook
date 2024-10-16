@@ -28,14 +28,14 @@ const DatabaseContent: FC<DatabaseContentProps> = ({ tab }) => {
       <div className="flex items-center h-[42px] justify-between relative">
         <div className="flex items-center gap-2 ml-2">
           <Button variant="ghost" size="sm" onClick={() => setSection("data")}
-            className={section === "data" ? "bg-neutral-700" : ""}>
+            className={section === "data" ? "bg-background-dark" : ""}>
             <div className="flex items-center gap-1">
               <Table width={18} height={18} />
               <span>{t("data", "Data")}</span>
             </div>
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setSection("structure")}
-            className={section === "structure" ? "bg-neutral-700" : ""}>
+            className={section === "structure" ? "bg-background-dark" : ""}>
             <div className="flex items-center gap-1">
               <Workflow width={18} height={18} />
               <span>{t("structure", "Structure")}</span>

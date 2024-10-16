@@ -4,22 +4,39 @@ import {
   DialogTitle
 } from "@components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEventBusListener } from "@hooks/events";
+import { Theme, useTheme } from "@hooks/theme";
 import { cn } from "@lib/utils";
 import { LoadSettings, SaveSettings } from "@lib/wailsjs/go/core/Backend";
 import { core } from "@lib/wailsjs/go/models";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-
+import { z } from "zod";
 type SettingsSection = "general" | "appearance" | "editor"
+
+const schema = z.object({
+  version: z.string(),
+  focus_new_tabs: z.boolean(),
+  confirm_file_deletion: z.boolean(),
+  deleted_files: z.string(),
+  theme: z.string(),
+  accent_color: z.string().nullable(),
+  zoom_level: z.number().nullable(),
+});
+
+type SettingsData = z.infer<typeof schema>;
 
 const SettingsDialog = () => {
   const [isOpen, setOpen] = useState(false)
   const { t } = useTranslation()
   const [section, setSection] = useState<SettingsSection>("general")
+  const { theme, setTheme } = useTheme()
 
-  const { setValue, watch, control } = useForm<core.Settings>()
+  const { setValue, watch, control } = useForm<SettingsData>({
+    resolver: zodResolver(schema)
+  })
 
   useEffect(() => {
     async function load() {
@@ -30,7 +47,8 @@ const SettingsDialog = () => {
 
         if (settings) {
           for (const key in settings) {
-            setValue(key as keyof core.Settings, settings[key as keyof core.Settings]?.toString() || "")
+            console.log("SettingsDialog:load set", key, " = ", settings[key as keyof core.Settings])
+            setValue(key as keyof SettingsData, settings[key as keyof core.Settings] || "")
           }
         }
       } catch (e: any) {
@@ -44,6 +62,7 @@ const SettingsDialog = () => {
 
   }, [isOpen])
 
+
   useEventBusListener("settings.toggle", () => {
     setOpen(!isOpen)
   })
@@ -52,7 +71,18 @@ const SettingsDialog = () => {
     console.log("SettingsDialog:save", data)
 
     try {
+      console.log(data)
+      if (!data.zoom_level) {
+
+        data.zoom_level = 0
+      }
+
       await SaveSettings(data)
+
+      if (theme !== data.theme) {
+        setTheme(data.theme as Theme)
+      }
+
     } catch (e: any) {
       console.error("Failed to save settings", e)
     }
@@ -60,9 +90,15 @@ const SettingsDialog = () => {
 
   const values = watch()
 
+  console.log("settings =>>>>>", values)
+
+
   useEffect(() => {
     console.log("SettingsDialog:watch", values)
-    save(values)
+    if (values.version && values.version !== "") {
+
+      save(core.Settings.createFrom(values))
+    }
   }, [values])
 
   return (

@@ -23,7 +23,7 @@
     --primary: 220.9 39.3% 11%;
     --primary-foreground: 210 20% 98%;
 
-    --secondary: 220 14.3% 95.9%;
+    --secondary: 220 14.3% 40.9%;
     --secondary-foreground: 220.9 39.3% 11%;
 
     --accent: 220 14.3% 95.9%;
@@ -48,7 +48,7 @@
   }
 
   .dark {
-    --background: 0 0% 12%;
+    --background: 0 0% 14%;
     --background-dark: 0 0% 11%;
     --foreground: 195 13% 70%;
 

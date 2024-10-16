@@ -4,8 +4,8 @@ import { useTheme } from "@hooks/theme"
 import { books } from "@lib/wailsjs/go/models"
 import { Execute, SelectNextCell, SelectPreviousCell, UpdateCell } from "@store"
 import { eventBus } from "@store/events"
-import { githubLight } from "@uiw/codemirror-theme-github"
 import { copilot } from "@uiw/codemirror-theme-copilot"
+import { githubLight } from "@uiw/codemirror-theme-github"
 import CodeMirror, { keymap, Prec, ReactCodeMirrorRef } from '@uiw/react-codemirror'
 import { PlayIcon } from "lucide-react"
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -38,11 +38,9 @@ const CodeEditor: FC<CodeEditorProps> = ({ bookId, cell, connectionId, selected 
   const editorRef = useRef<ReactCodeMirrorRef>({});
   const [content, setContent] = useState(cell.content)
   const [error, setError] = useState<any>(null)
-  const appTheme = useTheme()
-
+  const { theme } = useTheme()
 
   const debounceUpdate = useDebounce((content: string) => {
-    console.log(">>> Saving cell content ", content)
     UpdateCell(bookId, cell.id, content)
   }, EDITOR_DEBOUNCE)
 
@@ -83,18 +81,25 @@ const CodeEditor: FC<CodeEditorProps> = ({ bookId, cell, connectionId, selected 
   }), [handleExecute])
 
   const editorTheme = useMemo(() => {
-    return appTheme.theme === "dark" ? copilot : githubLight
-  }, [appTheme.theme])
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+      .matches
+      ? "dark"
+      : "light"
+
+    const currentTheme = theme === "system" ? systemTheme : theme
+    return currentTheme === "dark" ? copilot : githubLight
+  }, [theme])
 
   useEffect(() => {
-    if (selected) {
-      editorRef.current.view && editorRef.current.view.focus()
-    } else {
-      editorRef.current.view && editorRef.current.view.contentDOM.blur()
-    }
+    setTimeout(() => {
+      if (selected) {
+        console.log("Focus editor")
+        editorRef.current.view && editorRef.current.view.focus()
+      } else {
+        editorRef.current.view && editorRef.current.view.contentDOM.blur()
+      }
+    }, 100)
   }, [selected]);
-
-
 
   return (
     <div className="w-full">
@@ -122,8 +127,8 @@ const CodeEditor: FC<CodeEditorProps> = ({ bookId, cell, connectionId, selected 
         )}
         <div className="flex-1 flex flex-col gap-4">
           <CodeMirror
-            className='border flex-1 z-1'
-            value={content || "\n\n"}
+            className='border flex-1 z-1 text-base'
+            value={content}
             theme={editorTheme}
             ref={editorRef}
             extensions={[

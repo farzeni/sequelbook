@@ -65,10 +65,8 @@ const Tabbar: FC<TabbarProps> = ({ pane }) => {
                 cursor-pointer
                 flex 
                 items-center 
-                gap-2 
                 py-1
                 pl-3 
-                mx-1
                 max-w-[140px] 
                 rounded
                 border-2 border-transparent

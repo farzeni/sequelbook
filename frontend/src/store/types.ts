@@ -1,4 +1,4 @@
-import { books, connections, runners } from "@lib/wailsjs/go/models"
+import { books, connections, core, runners } from "@lib/wailsjs/go/models"
 
 export type BookMap = {
   [id: string]: books.Book
@@ -52,6 +52,7 @@ export type AppState = {
   connections: ConnectionMap
   results: ResultMap
   editor: EditorState
+  settings?: core.Settings
 }
 
 export type SidebarSection = "contents" | "books" | "connections"

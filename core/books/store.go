@@ -1,7 +1,6 @@
 package books
 
 import (
-	"encoding/json"
 	"fmt"
 	"sequelbook/core/storage"
 	"sequelbook/core/tools"
@@ -120,11 +119,21 @@ func (b *BooksStore) GetBook(id string) *Book {
 
 func (b *BooksStore) UpdateBook(id string, data BookData) (*Book, error) {
 	b.bmx.Lock()
+	defer b.bmx.Unlock()
+
 	book, ok := b.books[id]
 
 	if !ok {
 		b.bmx.Unlock()
 		return nil, nil
+	}
+
+	if book.Title != data.Title {
+		err := b.storage.RenameEntity(book, data.Title)
+
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	book.Title = data.Title
@@ -133,11 +142,11 @@ func (b *BooksStore) UpdateBook(id string, data BookData) (*Book, error) {
 
 	err := b.storage.SaveEntity(book, id)
 
-	b.bmx.Unlock()
-
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println(book.Marshal())
 
 	return book, nil
 }
@@ -161,9 +170,11 @@ func (b *BooksStore) DeleteBook(id string) error {
 func (b *BooksStore) ListBooks() []*Book {
 	b.LoadBooks()
 	var books []*Book
+	b.bmx.Lock()
 	for _, book := range b.books {
 		books = append(books, book)
 	}
+	b.bmx.Unlock()
 
 	return books
 }
@@ -177,11 +188,13 @@ func (b *BooksStore) LoadBooks() error {
 
 	for _, entity := range entities {
 		book := &Book{}
-		err := json.Unmarshal(entity, book)
+		err := book.Unmarshal(entity)
 		if err != nil {
 			continue
 		}
+		b.bmx.Lock()
 		b.books[book.ID] = book
+		b.bmx.Unlock()
 	}
 
 	if len(b.books) == 0 {

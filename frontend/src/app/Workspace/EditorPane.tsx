@@ -61,6 +61,9 @@ const EditorLeafPane: FC<EditorLeafPaneProps> = ({ pane }) => {
   const currentPane = useEditorPane()
 
   const tab = useSnapshot(appState.editor.tabs)[pane.tabId || ""]
+  const books = useSnapshot(appState.books)
+
+  console.log("EditorLeafPane", pane, tab, books)
 
   const handlePaneSelect = useCallback(() => {
     if (currentPane.id !== pane.id) {

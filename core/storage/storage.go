@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"sequelbook/core/tools"
+
+	"github.com/adrg/xdg"
 )
 
 const (
@@ -19,11 +21,14 @@ type Storage struct {
 	ConnectionsPath string
 }
 
-func NewStorage(path string) *Storage {
+func NewStorage() *Storage {
+	configDir := xdg.ConfigHome + "/sequelbook"
+	booksDir := xdg.UserDirs.Documents + "/Sequelbooks/"
+
 	s := &Storage{
-		ConfigPath:      path,
-		BookStoragePath: path + "/books",
-		ConnectionsPath: path + "/connections",
+		ConfigPath:      configDir,
+		BookStoragePath: booksDir + "/books",
+		ConnectionsPath: configDir + "/connections",
 	}
 
 	s.ensureStoragePaths()
@@ -46,7 +51,7 @@ func (s *Storage) SaveEntity(entity tools.Entity, id string) error {
 		return fmt.Errorf("unsupported entity type: %s", prefix)
 	}
 
-	filename := id + ".sbdb"
+	filename := entity.GetFilename() + ".sbdb"
 
 	file, err := os.Create(filepath.Join(path, filename))
 
@@ -55,11 +60,16 @@ func (s *Storage) SaveEntity(entity tools.Entity, id string) error {
 	}
 	defer file.Close()
 
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "  ")
+	content, err := entity.Marshal()
 
-	if err := encoder.Encode(entity); err != nil {
-		return fmt.Errorf("failed to encode data: %v", err)
+	if err != nil {
+		return fmt.Errorf("failed to marshal data: %v", err)
+	}
+
+	_, err = file.Write(content)
+
+	if err != nil {
+		return fmt.Errorf("failed to write data: %v", err)
 	}
 
 	return nil
@@ -72,17 +82,34 @@ func (s *Storage) LoadEntity(entityType tools.EntityTypes, id string, v interfac
 		return err
 	}
 
-	file, err := os.Open(dstpath)
+	content, err := os.ReadFile(dstpath)
 
 	if err != nil {
-		return fmt.Errorf("failed to open file: %v", err)
+		return fmt.Errorf("failed to read file: %v", err)
 	}
-	defer file.Close()
 
-	decoder := json.NewDecoder(file)
+	err = json.Unmarshal(content, v)
 
-	if err := decoder.Decode(&v); err != nil {
-		return fmt.Errorf("failed to decode data: %v", err)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal data: %v", err)
+	}
+
+	return nil
+}
+func (s *Storage) RenameEntity(entity tools.Entity, new string) error {
+
+	filename := entity.GetFilename() + ".sbdb"
+
+	path := filepath.Join(s.BookStoragePath, filename)
+
+	newFilename := new + ".sbdb"
+
+	newPath := filepath.Join(s.BookStoragePath, newFilename)
+
+	err := os.Rename(path, newPath)
+
+	if err != nil {
+		return fmt.Errorf("failed to rename file: %v", err)
 	}
 
 	return nil
@@ -135,10 +162,19 @@ func (s *Storage) LoadEntities(entityType tools.EntityTypes) ([][]byte, error) {
 
 		path := filepath.Join(path, dirfile.Name())
 
+		fmt.Println("=======================Loading file: ", path)
+		fmt.Println("=======================Loading file: ")
+		fmt.Println("=======================Loading file: ")
+		fmt.Println("=======================Loading file: ")
+		fmt.Println("=======================Loading file: ")
+		fmt.Println("=======================Loading file: ")
+		fmt.Println("=======================Loading file: ")
 		if err != nil {
 			return nil, fmt.Errorf("failed to open file: %v", err)
 		}
 		data, err := os.ReadFile(path)
+
+		fmt.Println("Data: ", data)
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to read file: %v", err)
@@ -223,13 +259,22 @@ func (s *Storage) SaveSettings(jsonSettings string) error {
 func (s *Storage) LoadSettings() (string, error) {
 	path := filepath.Join(s.ConfigPath, settingsFilename)
 
-	data, err := os.ReadFile(path)
+	fmt.Println("Loading settings from: ", path)
 
-	if err != nil {
-		return "", err
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+
+		data, err := os.ReadFile(path)
+
+		if err != nil {
+			fmt.Println("Failed to read file: %v", err)
+			return "", err
+		}
+
+		fmt.Println("Settings loaded: ", string(data))
+		return string(data), nil
 	}
 
-	return string(data), nil
+	return "", nil
 }
 
 func (s *Storage) ensureStoragePaths() error {

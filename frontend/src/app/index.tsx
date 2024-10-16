@@ -37,9 +37,13 @@ function App() {
     }
   }, [initialized])
 
+  if (!initialized) {
+    return null
+  }
+
   return (
     <EventBusProvider>
-      <ThemeProvider defaultTheme="dark" storageKey="sb-ui-theme">
+      <ThemeProvider storageKey="sb-ui-theme">
         <div className="flex h-full overflow-hidden ">
           <Sidebar />
           <Workspace />
