@@ -81,12 +81,12 @@ SequelBook is open source, and contributions are welcome! To contribute:
 
 ## Roadmap
 Planned features include:
-- Support for LLMs (Large Language Models) to assist with query suggestions, optimization, and contextual documentation generation.
+- Support for LLMs to assist with query suggestions, optimization, and contextual documentation generation.
 - Advanced visualization tools for query results.
 - Improved performance and stability.
 
 ## Support
-For questions or issues, open an issue on [GitHub](https://github.com/your-repository-link/issues).
+For questions or issues, open an issue on [GitHub](https://github.com/farzeni/sequelbook/issues).
 
 ## License
 
