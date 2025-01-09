@@ -24,7 +24,7 @@ SequelBook is an open-source desktop application designed to organize and execut
 ## Technical Overview
 
 SequelBook is built using:
-- **Desktop FW**: Wails (Golang)
+- **Desktop app framework**: Wails (Golang)
 - **Frontend**: React
 
 ### Version
@@ -34,19 +34,43 @@ Current version: **0.2.0** (Work in Progress). This version is under initial dev
 
 ### Installation
 To install SequelBook, follow these steps:
-1. Download the latest release from [GitHub](https://github.com/your-repository-link).
+1. Download the latest release from [GitHub](https://github.com/farzeni/sequelbook/releases).
 2. Extract the package and run the executable for your operating system.
-3. Follow the on-screen setup to connect to your database.
+3. Enjoy using SequelBook!
 
-### Basic Usage
+### Features
 1. Create a new book to organize your queries.
 2. Add chapters and sections for different parts of your workflow.
 3. Write your queries using the integrated editor and execute them to view results.
 4. Add Markdown notes to provide context for your queries.
 5. Export your book for backup or sharing.
-
+6. Navigate your database connections.
 
 ## Development
+In order to contribute to SequelBook, you can set up a development environment by following these steps:
+
+Install Wails on your machine by following the instructions [here](https://wails.io/docs/gettingstarted/installation).
+
+Clone the repository:
+```bash
+git clone https://github.com/farzeni/sequelbook/
+```
+
+Navigate to the project directory:
+```bash
+cd sequelbook
+```
+
+Install the frontend dependencies:
+```bash
+cd frontend 
+npm install
+```
+
+Run Wails in development mode:
+```bash
+wails dev
+```
 
 ## Contributing
 SequelBook is open source, and contributions are welcome! To contribute:
