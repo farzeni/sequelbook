@@ -19,13 +19,13 @@ const TablesPanel: FC<TablesPanelProps> = ({ tab }) => {
 
   const connection = useSnapshot(appState.connections[tab.connectionId])
 
-  const handleItemClick = (item?: TreeDataItem) => {
-    console.log("Item clicked", item?.id)
-    if (!item) {
+  const handleItemClick = (table: string) => {
+    console.log("Item clicked", table)
+    if (!table) {
       return
     }
 
-    SelectTable(tab.id, item.id)
+    SelectTable(tab.id, table)
   }
 
   useEffect(() => {
@@ -66,6 +66,9 @@ const TablesPanel: FC<TablesPanelProps> = ({ tab }) => {
           rootData[0].children.push({
             id: table.table_name,
             name: table.table_name,
+            onClick: () => {
+              handleItemClick(table.table_name)
+            }
           })
           break;
         case "VIEW":
@@ -73,6 +76,9 @@ const TablesPanel: FC<TablesPanelProps> = ({ tab }) => {
           rootData[1].children.push({
             id: table.table_name,
             name: table.table_name,
+            onClick: () => {
+              handleItemClick(table.table_name)
+            }
           })
           break;
         case "SEQUENCE":
@@ -80,6 +86,9 @@ const TablesPanel: FC<TablesPanelProps> = ({ tab }) => {
           rootData[2].children.push({
             id: table.table_name,
             name: table.table_name,
+            onClick: () => {
+              handleItemClick(table.table_name)
+            }
           })
           break;
       }
@@ -97,7 +106,7 @@ const TablesPanel: FC<TablesPanelProps> = ({ tab }) => {
   }, [tables])
 
   return (
-    <div>
+    <div className="h-full">
       <div className="h-[40px] border-b flex w-full ">
         <div className="pl-2 flex justify-between items-center w-full">
           <h1 className="text-xs uppercase">{t("tables", "Tables")}</h1>
@@ -105,8 +114,9 @@ const TablesPanel: FC<TablesPanelProps> = ({ tab }) => {
       </div>
 
       {!error && (
-
-        <TreeView className="text-gray-500" data={treeData} initialSelectedItemId=" tables" onSelectChange={handleItemClick} />
+        <div className="h-full overflow-y-auto pb-10">
+          <TreeView className="text-gray-500" data={treeData} initialSelectedItemId="tables" expandAll />
+        </div>
       )}
 
       {error && (
