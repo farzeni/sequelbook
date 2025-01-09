@@ -1,5 +1,6 @@
 import Sidebar from "@app/Sidebar"
 import "@assets/css/main.css"
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@components/ui/resizable"
 import { EventBusProvider } from "@hooks/events"
 import { ThemeProvider } from "@hooks/theme"
 import { InitStore } from "@store"
@@ -45,8 +46,18 @@ function App() {
     <EventBusProvider>
       <ThemeProvider storageKey="sb-ui-theme">
         <div className="flex h-full overflow-hidden ">
-          <Sidebar />
-          <Workspace />
+          <ResizablePanelGroup
+            direction="horizontal"
+            className="max-w-full rounded-lg border md:min-w-[450px]"
+          >
+            <ResizablePanel defaultSize={18} minSize={2.5} >
+              <Sidebar />
+            </ResizablePanel>
+            <ResizableHandle />
+            <ResizablePanel defaultSize={82} >
+              <Workspace />
+            </ResizablePanel>
+          </ResizablePanelGroup>
           <SettingsDialog />
         </div>
       </ThemeProvider>

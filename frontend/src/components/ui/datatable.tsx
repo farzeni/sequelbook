@@ -13,9 +13,10 @@ interface DataTableProps {
   data: TData[]
   colOrder: string[]
   editable?: boolean
+  className?: string
 }
 
-const DataTable: FC<DataTableProps> = ({ data, colOrder, editable }) => {
+const DataTable: FC<DataTableProps> = ({ data, colOrder, editable, className }) => {
   const { t } = useTranslation()
   const appTheme = useTheme()
   const colDefs: ColDef<TData>[] = colOrder.map((field) => {
@@ -40,7 +41,7 @@ const DataTable: FC<DataTableProps> = ({ data, colOrder, editable }) => {
 
 
   return (
-    <div className="h-full w-full ">
+    <div className={cn("h-full w-full bg-background-dark", className)}>
       <div className={cn(theme, "w-full h-[calc(100vh-124px)] ")}>
         <AgGridReact<TData>
           rowData={data}

@@ -17,7 +17,7 @@ const Sidebar = () => {
   const events = useEventBus()
 
   return (
-    <div className={`${!!sidebar ? "w-[280px] border-r" : ""}  h-full bg-background-dark`}>
+    <div className={`${!!sidebar ? "w-full border-r" : ""} min-h-[46px]  h-full bg-background-dark`}>
       <div className="flex h-full">
         <div className="w-[46px] h-full flex flex-col items-center border-r py-2 gap-2 justify-between">
           <div

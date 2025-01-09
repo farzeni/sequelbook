@@ -1344,6 +1344,10 @@ body {
   display: inline-flex;
 }
 
+.\!table {
+  display: table !important;
+}
+
 .table {
   display: table;
 }
@@ -1474,6 +1478,10 @@ body {
 
 .min-h-\[60px\] {
   min-height: 60px;
+}
+
+.min-h-\[46px\] {
+  min-height: 46px;
 }
 
 .w-2\.5 {
@@ -1725,6 +1733,10 @@ body {
   overflow: auto;
 }
 
+.\!overflow-auto {
+  overflow: auto !important;
+}
+
 .overflow-hidden {
   overflow: hidden;
 }
@@ -1914,6 +1926,11 @@ body {
   background-color: hsl(var(--primary));
 }
 
+.bg-red-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(239 68 68 / var(--tw-bg-opacity));
+}
+
 .bg-secondary {
   background-color: hsl(var(--secondary));
 }
@@ -1925,6 +1942,11 @@ body {
 
 .bg-transparent {
   background-color: transparent;
+}
+
+.bg-white {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
 .fill-current {
@@ -2062,6 +2084,10 @@ body {
   padding-top: 0px;
 }
 
+.pb-10 {
+  padding-bottom: 2.5rem;
+}
+
 .text-left {
   text-align: left;
 }
@@ -2078,8 +2104,9 @@ body {
   font-size: 0.8rem;
 }
 
-.text-\[3rem\] {
-  font-size: 3rem;
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
 }
 
 .text-lg {
@@ -2100,27 +2127,6 @@ body {
 .text-xs {
   font-size: 0.75rem;
   line-height: 1rem;
-}
-
-.text-\[1\.5rem\] {
-  font-size: 1.5rem;
-}
-
-.text-\[1\.1rem\] {
-  font-size: 1.1rem;
-}
-
-.text-\[1rem\] {
-  font-size: 1rem;
-}
-
-.text-\[1\.05rem\] {
-  font-size: 1.05rem;
-}
-
-.text-base {
-  font-size: 1rem;
-  line-height: 1.5rem;
 }
 
 .font-bold {
@@ -2234,6 +2240,11 @@ body {
 .text-red-900 {
   --tw-text-opacity: 1;
   color: rgb(127 29 29 / var(--tw-text-opacity));
+}
+
+.text-rose-600 {
+  --tw-text-opacity: 1;
+  color: rgb(225 29 72 / var(--tw-text-opacity));
 }
 
 .text-secondary {
