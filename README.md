@@ -1,96 +1,59 @@
-# SequelBook
+# Welcome to Your New Wails3 Project!
 
-SequelBook is an open-source desktop application designed to organize and execute SQL queries efficiently. It combines the functionality of a query editor with the organization of a notebook, offering a streamlined way to work with databases.
-
-![Sequelbook](https://github.com/farzeni/sequelbook/blob/master/assets/screenshot.png?raw=true)
-
-## Features
-
-### Core Capabilities
-- **Multi-Database Support**: Connect seamlessly to PostgreSQL, MySQL, and SQLite.
-- **Notebook-Style Organization**: Structure your queries into "books" containing chapters and sections for enhanced clarity and accessibility.
-- **Markdown Integration**: Add Markdown notes alongside SQL code to provide additional context and documentation.
-- **Integrated SQL Editor**: Leverage CodeMirror-powered syntax highlighting and intuitive editing capabilities.
-- **Query Execution**: Run SQL queries directly within the app and view results instantly beneath the editor.
-- **SSH Tunneling**: Secure database connections using SSH tunnels for safe and reliable remote access.
-- **Export & Import**: Save, share, and back up your query books easily.
-
-### Benefits
-- **Efficiency**: Keep all your queries and related notes in one place.
-- **Flexibility**: Switch between databases effortlessly.
-- **Collaboration**: Share query books with teammates for collaborative workflows.
-- **Documentation**: Combine notes and queries for self-contained, well-documented database projects.
-
-## Technical Overview
-
-SequelBook is built using:
-- **Desktop app framework**: Wails (Golang)
-- **Frontend**: React
-
-### Version
-Current version: **0.2.0** (Work in Progress). This version is under initial development and not yet stable.
+Congratulations on generating your Wails3 application! This README will guide you through the next steps to get your project up and running.
 
 ## Getting Started
 
-### Installation
-To install SequelBook, follow these steps:
-1. Download the latest release from [GitHub](https://github.com/farzeni/sequelbook/releases).
-2. Extract the package and run the executable for your operating system.
-3. Enjoy using SequelBook!
+1. Navigate to your project directory in the terminal.
 
-### Features
-1. Create a new book to organize your queries.
-2. Add chapters and sections for different parts of your workflow.
-3. Write your queries using the integrated editor and execute them to view results.
-4. Add Markdown notes to provide context for your queries.
-5. Export your book for backup or sharing.
-6. Navigate your database connections.
+2. To run your application in development mode, use the following command:
 
-## Development
-In order to contribute to SequelBook, you can set up a development environment by following these steps:
+   ```
+   wails3 dev
+   ```
 
-Install Wails on your machine by following the instructions [here](https://wails.io/docs/gettingstarted/installation).
+   This will start your application and enable hot-reloading for both frontend and backend changes.
 
-Clone the repository:
-```bash
-git clone https://github.com/farzeni/sequelbook/
-```
+3. To build your application for production, use:
 
-Navigate to the project directory:
-```bash
-cd sequelbook
-```
+   ```
+   wails3 build
+   ```
 
-Install the frontend dependencies:
-```bash
-cd frontend 
-npm install
-```
+   This will create a production-ready executable in the `build` directory.
 
-Run Wails in development mode:
-```bash
-wails dev
-```
+## Exploring Wails3 Features
 
-## Contributing
-SequelBook is open source, and contributions are welcome! To contribute:
+Now that you have your project set up, it's time to explore the features that Wails3 offers:
 
-1. Fork the repository on GitHub.
-2. Create a feature branch for your changes.
-3. Submit a pull request with a detailed explanation of your additions or fixes.
+1. **Check out the examples**: The best way to learn is by example. Visit the `examples` directory in the `v3/examples` directory to see various sample applications.
 
-## Roadmap
-Planned features include:
-- Support for LLMs (Large Language Models) to assist with query suggestions, optimization, and contextual documentation generation.
-- Advanced visualization tools for query results.
-- Improved performance and stability.
+2. **Run an example**: To run any of the examples, navigate to the example's directory and use:
 
-## Support
-For questions or issues, open an issue on [GitHub](https://github.com/your-repository-link/issues).
+   ```
+   go run .
+   ```
 
-## License
+   Note: Some examples may be under development during the alpha phase.
 
-SequelBook is licensed under the MIT License. You are free to use, modify, and distribute this software in accordance with the license terms.
+3. **Explore the documentation**: Visit the [Wails3 documentation](https://v3.wails.io/) for in-depth guides and API references.
 
+4. **Join the community**: Have questions or want to share your progress? Join the [Wails Discord](https://discord.gg/JDdSxwjhGf) or visit the [Wails discussions on GitHub](https://github.com/wailsapp/wails/discussions).
 
+## Project Structure
 
+Take a moment to familiarize yourself with your project structure:
+
+- `frontend/`: Contains your frontend code (HTML, CSS, JavaScript/TypeScript)
+- `main.go`: The entry point of your Go backend
+- `app.go`: Define your application structure and methods here
+- `wails.json`: Configuration file for your Wails project
+
+## Next Steps
+
+1. Modify the frontend in the `frontend/` directory to create your desired UI.
+2. Add backend functionality in `main.go`.
+3. Use `wails3 dev` to see your changes in real-time.
+4. When ready, build your application with `wails3 build`.
+
+Happy coding with Wails3! If you encounter any issues or have questions, don't hesitate to consult the documentation or reach out to the Wails community.
