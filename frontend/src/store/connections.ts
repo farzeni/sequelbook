@@ -1,106 +1,149 @@
-export * from "./books"
-export * from "./types"
-import { appState } from "@hooks/store"
-import * as connectionsStore from "@lib/wailsjs/go/connections/ConnectionStore"
-import { connections } from "@lib/wailsjs/go/models"
-import * as pooler from "@lib/wailsjs/go/runners/Pooler"
-import { SaveEditorState } from "./editor"
-import { ConnectionMap, DatabaseTab, Tab } from "./types"
+import { atom } from "jotai"
+import { activeConnectionIdAtom, activeEntryIdAtom, connectionsAtom, connectionStatusAtom, dbSchemaAtom } from "./atoms"
+import { openInTabAtom } from "./editor"
+import type { ConnectionEntry, ConnectionState } from "./types"
+import * as ConnectionService from "@/bindings/github.com/sequelbook/sequelbook/bindings/connectionservice"
+import * as SchemaService from "@/bindings/github.com/sequelbook/sequelbook/bindings/schemaservice"
+import type { ConnectionConfig } from "@/bindings/github.com/sequelbook/sequelbook/core/connection/models"
 
-export function isDatabaseTab(tab: Tab): tab is DatabaseTab {
-  return tab.type === "connection"
-}
+// ─── Derived read atoms ───────────────────────────────────────────────────────
 
-export function isDatabaseID(tabId: string): boolean {
-  return tabId.startsWith("con")
-}
+/** List of all saved connections as [id, entry] pairs. */
+export const connectionListAtom = atom((get) =>
+  Object.entries(get(connectionsAtom))
+)
 
-export async function LoadConnections() {
-  const connections = await connectionsStore.ListConnections()
-  let connectionStore: ConnectionMap = {}
+// ─── Write atoms ─────────────────────────────────────────────────────────────
 
-  for (const connection of connections || []) {
-    connectionStore[connection.id] = connection
+/** Load saved connections from backend. */
+export const loadConnectionsAtom = atom(null, async (_get, set) => {
+  const entries = await ConnectionService.ListSavedConnections()
+  set(connectionsAtom, Object.fromEntries(entries.map((e) => [e.id, e])))
+})
+
+/** Add or save a connection entry. Returns the saved entry with server-assigned ID. */
+export const addConnectionAtom = atom(
+  null,
+  async (_get, set, entry: ConnectionEntry) => {
+    const saved = await ConnectionService.SaveConnection(entry)
+    if (!saved) throw new Error("SaveConnection returned null")
+    set(connectionsAtom, (prev) => ({ ...prev, [saved.id]: saved }))
+    return saved.id
   }
+)
 
-  appState.connections = connectionStore
-}
-
-export async function AddConnection(data: connections.ConnectionData) {
-  const newConnection = await connectionsStore.CreateConnection(data)
-
-  appState.connections[newConnection.id] = newConnection
-}
-
-export async function UpdateConnection(
-  connectionId: string,
-  data: connections.ConnectionData
-) {
-  const c = await connectionsStore.UpdateConnection(connectionId, data)
-
-  appState.connections[connectionId] = c
-}
-
-export async function RemoveConnection(connectionId: string) {
-  await connectionsStore.DeleteConnection(connectionId)
-
-  delete appState.connections[connectionId]
-
-  SaveEditorState()
-}
-
-export async function GetConnectionTables(connectionId: string) {
-  // const tables = await connectionsStore.GetConnectionTables(connectionId)
-  // return tables
-}
-
-export async function Query(connectionId: string, query: string) {
-  const tab = appState.editor.tabs[appState.editor.current.tabId || ""]
-
-  if (!tab || tab.type !== "book") {
-    console.debug("No tab selected")
-    return
+/** Update an existing connection entry. */
+export const updateConnectionAtom = atom(
+  null,
+  async (_get, set, entry: ConnectionEntry) => {
+    const saved = await ConnectionService.SaveConnection(entry)
+    if (!saved) return
+    set(connectionsAtom, (prev) => {
+      if (!(saved.id in prev)) return prev
+      return { ...prev, [saved.id]: saved }
+    })
   }
+)
 
-  const connection = appState.connections[connectionId]
-
-  if (!connection) {
-    console.debug("No connection found")
-    return
+/** Remove a saved connection. */
+export const removeConnectionAtom = atom(
+  null,
+  async (get, set, id: string) => {
+    await ConnectionService.DeleteConnection(id)
+    set(connectionsAtom, (prev) => {
+      const next = { ...prev }
+      delete next[id]
+      return next
+    })
+    // Clear active connection if this entry was the active one
+    if (get(activeEntryIdAtom) === id) {
+      set(activeConnectionIdAtom, null)
+      set(activeEntryIdAtom, null)
+      set(connectionStatusAtom, "disconnected")
+    }
   }
+)
 
-  console.debug("Executing query", connectionId, query)
-  const result = await pooler.Query(connection, query)
+/** Initiate a connection to a database and open a Database tab. */
+export const connectAtom = atom(
+  null,
+  async (get, set, entry: ConnectionEntry) => {
+    set(connectionStatusAtom, "connecting")
+    try {
+      // If the backend still has a stale connection (frontend state lost track),
+      // disconnect it first so the new Connect() call can succeed.
+      const status = await ConnectionService.GetConnectionStatus()
+      if (status.connected && status.connId) {
+        try {
+          await ConnectionService.Disconnect(status.connId)
+        } catch {
+          // best-effort teardown — proceed with connect regardless
+        }
+      }
 
-  return result
-}
+      const config: ConnectionConfig = {
+        type: entry.type || "postgres",
+        host: entry.host,
+        port: entry.port,
+        database: entry.database,
+        user: entry.user,
+        password: entry.password,
+        sslMode: entry.sslMode || "disable",
+      }
+      const connId = await ConnectionService.Connect(config)
+      set(activeConnectionIdAtom, connId)      // backend manager ID for Disconnect()
+      set(activeEntryIdAtom, entry.id)          // settings entry ID for UI
+      set(connectionStatusAtom, "connected")
+      set(openInTabAtom, { entityType: "connection", entityId: entry.id })
 
-export async function SelectTable(tabId: string, tableName: string | null) {
-  const tab = appState.editor.tabs[tabId]
-
-  if (!tab || tab.type !== "connection") {
-    return
+      // Load completion schema for CodeMirror autocompletion.
+      try {
+        const schema = await SchemaService.GetCompletionSchema(connId)
+        set(dbSchemaAtom, { schema, dialect: config.type || "postgres" })
+      } catch (err) {
+        console.warn("Failed to load completion schema:", err)
+      }
+    } catch (err) {
+      set(connectionStatusAtom, "error")
+      set(activeConnectionIdAtom, null)
+      set(activeEntryIdAtom, null)
+      console.error("connectAtom: connection failed", err)
+      throw err
+    }
   }
+)
 
-  tab.table = tableName
-
-  console.debug("SelectTable", tabId, tableName)
-
-  SaveEditorState()
-}
-
-export async function GetTableData(connectionId: string, tableName: string) {
-  const connection = appState.connections[connectionId]
-
-  if (!connection) {
-    console.debug("No connection found")
-    return
+/** Disconnect the active connection. */
+export const disconnectAtom = atom(
+  null,
+  async (get, set, connId?: string) => {
+    let activeId = connId ?? get(activeConnectionIdAtom) ?? undefined
+    try {
+      // If frontend lost the connId, ask the backend for the real one.
+      if (!activeId) {
+        const status = await ConnectionService.GetConnectionStatus()
+        if (status.connected && status.connId) {
+          activeId = status.connId
+        }
+      }
+      if (activeId) {
+        await ConnectionService.Disconnect(activeId)
+      }
+      set(activeConnectionIdAtom, null)
+      set(activeEntryIdAtom, null)
+      set(connectionStatusAtom, "disconnected")
+      set(dbSchemaAtom, null)
+    } catch (err) {
+      console.error("disconnectAtom: failed", err)
+      throw err
+    }
   }
+)
 
-  const q = "SELECT * FROM " + tableName
-
-  console.debug("GetTableData: exec", connectionId, q)
-  const data = await pooler.Query(connection, q)
-
-  return data
-}
+/** Receive a connection state change (driven by backend events). */
+export const setConnectionStatusAtom = atom(
+  null,
+  (_get, set, state: ConnectionState) => {
+    set(connectionStatusAtom, state)
+  }
+)
