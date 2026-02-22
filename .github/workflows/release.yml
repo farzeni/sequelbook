@@ -3,10 +3,11 @@ name: Wails v3 Build & Release
 on:
   push:
     tags:
-      - 'v*' # Triggers when you push a tag starting with 'v'
+      - 'v*'
+  workflow_dispatch:
 
 env:
-  GO_VERSION: "1.25" # Updated per v3 alpha docs
+  GO_VERSION: "1.25"
   NODE_VERSION: "20"
 
 jobs:
@@ -17,13 +18,13 @@ jobs:
         include:
           - os: ubuntu-latest
             platform: linux/amd64
-            artifact_name: myapp-linux
+            artifact_name: sequelbook-linux
           - os: windows-latest
             platform: windows/amd64
-            artifact_name: myapp-windows.exe
+            artifact_name: sequelbook-windows.exe
           - os: macos-latest
             platform: darwin/universal
-            artifact_name: myapp-macos
+            artifact_name: sequelbook-macos.app.zip
 
     runs-on: ${{ matrix.os }}
 
@@ -44,32 +45,38 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      # Install Linux Dependencies (Essential for GTK/WebKit)
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev build-essential pkg-config
 
-      # Install Wails v3 CLI
       - name: Install Wails v3 CLI
         run: go install github.com/wailsapp/wails/v3/cmd/wails3@latest
 
-      # Run Wails build
-      # Note: v3 uses 'wails3 build', which executes the Taskfile.yml in your project
       - name: Build Application
+        shell: bash
         run: |
-          wails3 build -platform ${{ matrix.build.platform }} -tags webkit2_41
+          # In v3, variables are passed as KEY=VALUE positional args
+          # We use 'package' for Mac to get the .app, 'build' for others
+          if [ "${{ runner.os }}" == "macOS" ]; then
+            wails3 package PLATFORM=${{ matrix.platform }}
+          elif [ "${{ runner.os }}" == "Linux" ]; then
+            wails3 build PLATFORM=${{ matrix.platform }} FLAGS="-tags webkit2_41"
+          else
+            wails3 build PLATFORM=${{ matrix.platform }}
+          fi
         env:
           CGO_ENABLED: 1
 
-      # Prepare binaries for release
-      # Wails v3 usually outputs to the /bin folder
       - name: Prepare Artifact
         shell: bash
         run: |
           mkdir -p dist
-          if [ "${{ runner.os }}" == "Windows" ]; then
+          if [ "${{ runner.os }}" == "macOS" ]; then
+            # macOS .app is a folder, must be zipped for GitHub Releases
+            cd bin && zip -r ../dist/${{ matrix.artifact_name }} *.app && cd ..
+          elif [ "${{ runner.os }}" == "Windows" ]; then
             cp bin/*.exe dist/${{ matrix.artifact_name }} || cp bin/* dist/${{ matrix.artifact_name }}
           else
             cp bin/* dist/${{ matrix.artifact_name }}
@@ -97,7 +104,6 @@ jobs:
         with:
           files: ./release-assets/**/*
           generate_release_notes: true
-          # This ensures the release is created for the tag that triggered the workflow
-          tag_name: ${{ github.ref_name }} 
+          tag_name: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
