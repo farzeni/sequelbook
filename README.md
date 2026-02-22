@@ -38,9 +38,14 @@ Now that you have your project set up, it's time to explore the features that Wa
 
 3. **Explore the documentation**: Visit the [Wails3 documentation](https://v3.wails.io/) for in-depth guides and API references.
 
-4. **Join the community**: Have questions or want to share your progress? Join the [Wails Discord](https://discord.gg/JDdSxwjhGf) or visit the [Wails discussions on GitHub](https://github.com/wailsapp/wails/discussions).
+## Roadmap
+Planned features include:
+- Support for LLMs to assist with query suggestions, optimization, and contextual documentation generation.
+- Advanced visualization tools for query results.
+- Improved performance and stability.
 
-## Project Structure
+## Support
+For questions or issues, open an issue on [GitHub](https://github.com/farzeni/sequelbook/issues).
 
 Take a moment to familiarize yourself with your project structure:
 
