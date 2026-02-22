@@ -5,6 +5,10 @@ frontend/node_modules
 build/linux/appimage/build
 build/windows/nsis/MicrosoftEdgeWebview2Setup.exe
 
+.vscode/
+
+docs
+
 legacy/frontend/dist
 legacy/frontend/node_modules
 legacy/build

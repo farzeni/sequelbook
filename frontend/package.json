@@ -7,17 +7,32 @@
     "dev": "vite",
     "build:dev": "vite build --minify false --mode development",
     "build": "vite build --mode production",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@chakra-ui/react": "^3.33.0",
+    "@codemirror/lang-sql": "^6.10.0",
+    "@codemirror/state": "^6.5.4",
+    "@codemirror/theme-one-dark": "^6.1.3",
+    "@codemirror/view": "^6.39.15",
+    "@emotion/react": "^11.14.0",
+    "@mdxeditor/editor": "^3.52.4",
     "@wailsio/runtime": "latest",
+    "jotai": "^2.18.0",
+    "nanoid": "^5.1.6",
+    "next-themes": "^0.4.6",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-icons": "^5.5.0",
+    "react-resizable-panels": "^4.6.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
-    "vite": "^5.0.8"
+    "typescript": "^5.0.0",
+    "vite": "^5.0.8",
+    "vite-tsconfig-paths": "^6.1.1"
   }
 }
