@@ -518,13 +518,8 @@ export const executeBlockAtom = atom(
         return
       }
       console.debug("[executeBlock] auto-connecting to:", entry.name)
-      const tabIdBeforeConnect = get(editorAtom).current.tabId
       try {
         await set(connectAtom, entry)
-        // connectAtom opens a connection tab — restore the book tab that was active
-        if (tabIdBeforeConnect) {
-          set(selectTabAtom, { tabId: tabIdBeforeConnect })
-        }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
         set(setCellStateAtom, {

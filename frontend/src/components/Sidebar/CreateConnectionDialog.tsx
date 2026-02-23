@@ -18,7 +18,7 @@ import * as ConnectionService from "@/bindings/github.com/sequelbook/sequelbook/
 import { SSHAuthMethod, SSHTunnelConfig } from "@/bindings/github.com/sequelbook/sequelbook/core/connection/models"
 import type { ConnectionEntry } from "@/bindings/github.com/sequelbook/sequelbook/core/settings/models"
 import { toaster } from "@/components/ui/toaster"
-import { addConnectionAtom, connectAtom } from "@/store"
+import { addConnectionAtom, connectAtom, openInTabAtom } from "@/store"
 
 type DBType = "postgres" | "mysql" | "sqlite"
 
@@ -160,6 +160,7 @@ export default function CreateConnectionDialog({
 }: CreateConnectionDialogProps) {
   const addConnection = useSetAtom(addConnectionAtom)
   const connect = useSetAtom(connectAtom)
+  const openInTab = useSetAtom(openInTabAtom)
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({})
@@ -282,6 +283,7 @@ export default function CreateConnectionDialog({
       const id = await addConnection(formToEntry(form, editEntry?.id))
       const entry = formToEntry(form, id)
       await connect(entry)
+      openInTab({ entityType: "connection", entityId: id })
       onClose()
     } catch (err) {
       toaster.create({

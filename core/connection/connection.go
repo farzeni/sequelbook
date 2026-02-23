@@ -83,7 +83,7 @@ func (c *PostgresConnector) Connect(ctx context.Context, config ConnectionConfig
 	if sslMode == "" {
 		sslMode = "disable"
 	}
-	dsn := fmt.Sprintf(
+dsn := fmt.Sprintf(
 		"host='%s' port=%d dbname='%s' user='%s' password='%s' sslmode=%s",
 		escapeDSNValue(config.Host),
 		config.Port,

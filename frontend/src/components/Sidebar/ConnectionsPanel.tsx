@@ -179,6 +179,7 @@ export default function ConnectionsPanel() {
   async function handleConnect(entry: ConnectionEntry) {
     try {
       await connect(entry)
+      openInTab({ entityType: "connection", entityId: entry.id })
     } catch {
       // error toast handled inside connectAtom
     }

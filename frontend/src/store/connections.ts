@@ -64,7 +64,8 @@ export const removeConnectionAtom = atom(
   }
 )
 
-/** Initiate a connection to a database and open a Database tab. */
+/** Initiate a connection to a database.
+ *  Pure connection concern — callers decide whether to open a tab. */
 export const connectAtom = atom(
   null,
   async (get, set, entry: ConnectionEntry) => {
@@ -73,7 +74,7 @@ export const connectAtom = atom(
       // If the backend still has a stale connection (frontend state lost track),
       // disconnect it first so the new Connect() call can succeed.
       const status = await ConnectionService.GetConnectionStatus()
-      if (status.connected && status.connId) {
+      if (status.connId) {
         try {
           await ConnectionService.Disconnect(status.connId)
         } catch {
@@ -89,12 +90,12 @@ export const connectAtom = atom(
         user: entry.user,
         password: entry.password,
         sslMode: entry.sslMode || "disable",
+        ssh: entry.ssh ?? undefined,
       }
       const connId = await ConnectionService.Connect(config)
       set(activeConnectionIdAtom, connId)      // backend manager ID for Disconnect()
       set(activeEntryIdAtom, entry.id)          // settings entry ID for UI
       set(connectionStatusAtom, "connected")
-      set(openInTabAtom, { entityType: "connection", entityId: entry.id })
 
       // Load completion schema for CodeMirror autocompletion.
       try {
